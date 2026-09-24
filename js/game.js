@@ -222,10 +222,10 @@
     el.panel.innerHTML =
       '<button class="close" type="button" id="panel-close">关闭</button>' +
       '<h2>共处 · 破祠</h2>' +
-      '<p id="home-status">' + homeStatusLines(h) + '</p>' +
+      '<p id="home-status" class="home-status-card">' + homeStatusLines(h) + '</p>' +
       '<p class="home-hint">他坐在一步之外。做一件小事，他会跟着操心。</p>' +
       '<div class="home-actions">' + actions + '</div>' +
-      '<p id="home-line" class="home-line">顾山："火还行。你想做什么，说一声。"</p>' +
+      '<p id="home-line" class="home-line">顾山：「火还行。你想做什么，说一声。」</p>' +
       '<h2 class="home-sub">关系怎么长</h2><ul>' + stages + '</ul>';
     $("#panel-close").addEventListener("click", goHome);
     el.panel.querySelectorAll(".home-act").forEach((btn) => {
@@ -237,7 +237,7 @@
         const status = $("#home-status");
         const lineEl = $("#home-line");
         if (status) status.textContent = homeStatusLines(state.home);
-        if (lineEl) lineEl.textContent = '顾山："' + line + '"';
+        if (lineEl) lineEl.textContent = '顾山：「' + line + '」';
         setSprite("watch");
         showToast(line);
       });

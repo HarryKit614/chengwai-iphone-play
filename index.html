@@ -12,8 +12,10 @@
 </head>
 <body>
   <div id="boot">
-    <div>
-      <h1>城外 · 顾山</h1>
+    <div class="boot-card">
+      <p class="boot-kicker">廿四道 · 城外</p>
+      <h1>顾山</h1>
+      <div class="boot-rule" aria-hidden="true"></div>
       <p>横屏本地自玩 · 第一章「渡气」<br />进度只存在这台 iPhone 的 Safari</p>
       <button type="button" id="btn-enter">进入</button>
     </div>
@@ -40,10 +42,10 @@
       </div>
       <div id="panel"></div>
       <nav id="dock" aria-label="底栏">
-        <button type="button" class="dock-btn on" data-tab="home">在场</button>
-        <button type="button" class="dock-btn" data-tab="story">主线</button>
-        <button type="button" class="dock-btn" data-tab="home-life">共处</button>
-        <button type="button" class="dock-btn" data-tab="gallery">图鉴</button>
+        <button type="button" class="dock-btn on" data-tab="home"><span class="dock-ico" aria-hidden="true">◎</span>在场</button>
+        <button type="button" class="dock-btn" data-tab="story"><span class="dock-ico" aria-hidden="true">☰</span>主线</button>
+        <button type="button" class="dock-btn" data-tab="home-life"><span class="dock-ico" aria-hidden="true">⌂</span>共处</button>
+        <button type="button" class="dock-btn" data-tab="gallery"><span class="dock-ico" aria-hidden="true">◇</span>图鉴</button>
       </nav>
     </div>
   </div>
