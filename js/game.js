@@ -17,14 +17,14 @@
   };
 
   function save() {
-    localStorage.setItem("chengwai-iphone-v1", JSON.stringify({
+    localStorage.setItem("chengwai-iphone-v2-phase1", JSON.stringify({
       nodeId: state.nodeId,
       touchIdx: state.touchIdx
     }));
   }
   function load() {
     try {
-      const data = JSON.parse(localStorage.getItem("chengwai-iphone-v1") || "null");
+      const data = JSON.parse(localStorage.getItem("chengwai-iphone-v2-phase1") || "null");
       if (!data) return;
       state.nodeId = data.nodeId || null;
       state.touchIdx = data.touchIdx || {};
@@ -143,7 +143,10 @@
     el.panel.classList.add("show");
     setDock(kind);
     if (kind === "home-life") {
-      el.panel.innerHTML = '<button class="close" type="button" id="panel-close">关闭</button><h2>共处 · 破祠</h2><p>轻量家园稍后接入。此刻：灶可添柴，门可关雨，他可在场。</p><ul><li>状态：雨湿 · 烟火将尽 · 顾山在</li><li>请先把主线第一章跑完</li></ul>';
+      const stages = (window.REL_STAGES || []).map((s) =>
+        '<li><strong>' + s.title + '</strong> — ' + s.known + '。可：' + s.allow + '。暂不可：' + s.forbid + '</li>'
+      ).join('');
+      el.panel.innerHTML = '<button class="close" type="button" id="panel-close">关闭</button><h2>共处 · 破祠</h2><p>此刻灶火还在，门可关雨，他坐在一步之外。轻量家园稍后接入。</p><h2 style="margin-top:12px;font-size:0.95rem">关系怎么长</h2><ul>' + stages + '</ul>';
     } else if (kind === "gallery") {
       el.panel.innerHTML = '<button class="close" type="button" id="panel-close">关闭</button><h2>图鉴</h2><p>卡面与心迹将在后续解锁。本地自玩，不做抽卡。</p><ul><li>顾山 · 待解锁</li></ul>';
     } else {
