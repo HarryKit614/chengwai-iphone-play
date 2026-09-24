@@ -128,3 +128,19 @@ button { font: inherit; color: inherit; }
 }
 .dock-btn { border: 0; background: transparent; color: rgba(243,235,216,0.62); letter-spacing: 0.08em; }
 .dock-btn.on { color: var(--candle); }
+
+.home-hint { margin: 0 0 12px; opacity: 0.75 !important; }
+.home-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.home-act {
+  appearance: none; border: 1px solid var(--candle); border-radius: 12px;
+  background: rgba(20,16,13,0.88); color: var(--ink); padding: 10px 14px;
+  letter-spacing: 0.06em;
+}
+.home-act:active { background: rgba(92,64,51,0.55); }
+.home-line {
+  margin: 0 0 16px; padding: 10px 12px; border-radius: 12px;
+  background: rgba(92,64,51,0.28); border: 1px solid var(--line);
+  line-height: 1.65 !important; opacity: 1 !important;
+}
+.home-sub { margin-top: 8px !important; font-size: 0.95rem !important; }
+#home-status { letter-spacing: 0.04em; }
