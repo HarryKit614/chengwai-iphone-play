@@ -1,4 +1,4 @@
-const CACHE = "chengwai-iphone-v6";
+const CACHE = "chengwai-iphone-v7";
 const ASSETS = ["./", "./index.html", "./css/game.css", "./js/story.js", "./js/game.js", "./manifest.webmanifest", "./images/sprites/gu_idle.png", "./images/sprites/gu_cold.png", "./images/sprites/gu_watch.png"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));

@@ -4,7 +4,7 @@
     screen: "home",
     nodeId: null,
     touchIdx: {},
-    home: { fire: 1, rain: 2, door: 0, water: 0, guPresent: true }
+    home: { fire: 1, rain: 2, door: 0, water: 0, mat: 0, rear: 0, guPresent: true }
   };
   const HOME_ACTIONS = {
     firewood: {
@@ -28,6 +28,20 @@
         h.rain = Math.max(0, (h.rain || 0) - 1);
         return "关严了。外头风大，你坐里头。";
       }
+    },
+    mat: {
+      label: "整理榻席",
+      run(h) {
+        h.mat = Math.min(2, (h.mat || 0) + 1);
+        return "我来理。你坐凳子上就行，别弯腰，头还晕着。";
+      }
+    },
+    rear: {
+      label: "看看后门",
+      run(h) {
+        h.rear = 1;
+        return "外头脚印淡了。今晚大概安静。你别自己出去。";
+      }
     }
   };
   function homeStatusLines(h) {
@@ -35,8 +49,10 @@
     const rain = ["几乎干了", "还潮", "雨湿重"][Math.max(0, Math.min(2, h.rain|0))];
     const door = h.door ? "门已关" : "门还开着";
     const water = h.water ? "灶上有温水" : "灶上还没盛水";
+    const mat = ["榻席还乱", "榻席理过了", "榻席干爽"][Math.max(0, Math.min(2, h.mat|0))];
+    const rear = h.rear ? "后门看过了" : "后门还没看";
     const gu = h.guPresent !== false ? "顾山在" : "顾山不在";
-    return `烟火${fire} · ${rain} · ${door} · ${water} · ${gu}`;
+    return `烟火${fire} · ${rain} · ${door} · ${water} · ${mat} · ${rear} · ${gu}`;
   }
   const el = {
     boot: $("#boot"),
