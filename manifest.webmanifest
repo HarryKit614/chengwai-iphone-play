@@ -1,0 +1,10 @@
+{
+  "name": "城外·顾山",
+  "short_name": "城外",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0b0908",
+  "theme_color": "#1a1410",
+  "lang": "zh-CN"
+}

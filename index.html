@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0b0908" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <title>城外·顾山</title>
+  <link rel="stylesheet" href="css/game.css" />
+</head>
+<body>
+  <div id="boot">
+    <div>
+      <h1>城外 · 顾山</h1>
+      <p>横屏本地自玩 · 第一章「渡气」<br />进度只存在这台 iPhone 的 Safari</p>
+      <button type="button" id="btn-enter">进入</button>
+    </div>
+  </div>
+
+  <div id="rotate-hint">
+    <div>
+      <p style="letter-spacing:0.2em">请将 iPhone 横过来</p>
+      <p style="opacity:.65;font-size:.9rem;margin-top:8px">本游戏为 16:9 横屏舞台</p>
+    </div>
+  </div>
+
+  <div id="stage-wrap">
+    <div id="stage">
+      <div id="bg" class="layer"></div>
+      <div id="sprite-layer" class="layer"><div id="sprite" class="placeholder" aria-hidden="true"></div></div>
+      <div id="hotspots" class="layer active"></div>
+      <div id="topbar"><span id="top-title">城外</span><span>本地</span></div>
+      <div id="toast"></div>
+      <div id="choices"></div>
+      <div id="dialog">
+        <div id="nameplate"></div>
+        <div id="text"></div>
+      </div>
+      <div id="panel"></div>
+      <nav id="dock" aria-label="底栏">
+        <button type="button" class="dock-btn on" data-tab="home">在场</button>
+        <button type="button" class="dock-btn" data-tab="story">主线</button>
+        <button type="button" class="dock-btn" data-tab="home-life">共处</button>
+        <button type="button" class="dock-btn" data-tab="gallery">图鉴</button>
+      </nav>
+    </div>
+  </div>
+
+  <script src="js/story.js"></script>
+  <script src="js/game.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(function () {});
+    }
+  </script>
+</body>
+</html>
