@@ -22,6 +22,7 @@ window.STORY = {
     n03: {
       speaker: "gu",
       name: "顾山",
+      emotion: "watch",
       text: "还喘。",
       next: "n04",
       showSprite: true
@@ -29,6 +30,7 @@ window.STORY = {
     n04: {
       speaker: "gu",
       name: "顾山",
+      emotion: "idle",
       text: "水在灶上。",
       next: "c01"
     },
@@ -45,18 +47,21 @@ window.STORY = {
     n05a: {
       speaker: "gu",
       name: "顾山",
+      emotion: "cold",
       text: "这算不算医，我也不知道。",
       next: "n06"
     },
     n05b: {
       speaker: "gu",
       name: "顾山",
+      emotion: "watch",
       text: "嗯。壳空了，要先活。",
       next: "n06"
     },
     n05c: {
       speaker: "gu",
       name: "顾山",
+      emotion: "cold",
       text: "……好。",
       next: "n06"
     },
@@ -69,12 +74,14 @@ window.STORY = {
     n07: {
       speaker: "gu",
       name: "顾山",
+      emotion: "cold",
       text: "别出门。山里有脚印。",
       next: "n08"
     },
     n08: {
       speaker: "gu",
       name: "顾山",
+      emotion: "watch",
       text: "我在。",
       next: "end01"
     },

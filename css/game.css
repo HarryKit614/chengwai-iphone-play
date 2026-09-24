@@ -51,17 +51,24 @@ button { font: inherit; color: inherit; }
     radial-gradient(ellipse at 28% 18%, rgba(196,165,116,0.2), transparent 42%),
     linear-gradient(180deg, #2c3637 0%, #1a1410 52%, #100d0b 100%);
 }
-#sprite-layer { display: grid; place-items: end end; padding: 0 6% 12% 0; pointer-events: none; }
-#sprite.placeholder {
-  width: min(32%, 220px); height: 72%;
-  border-radius: 42% 42% 14% 14% / 28% 28% 10% 10%;
-  background: linear-gradient(180deg, #7a6554 0%, #3f322b 45%, #241c18 100%);
-  box-shadow: 0 16px 30px rgba(0,0,0,0.35); position: relative;
+#sprite-layer {
+  display: flex; align-items: flex-end; justify-content: flex-end;
+  padding: 0 4% 11% 0; pointer-events: none;
 }
-#sprite.placeholder::after {
-  content: "顾山"; position: absolute; left: 50%; top: 16%;
-  transform: translateX(-50%); letter-spacing: 0.35em; font-size: 0.72rem; opacity: 0.5;
+#sprite-img {
+  display: block;
+  max-height: 85%;
+  max-width: 46%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  object-position: bottom right;
+  filter: drop-shadow(0 14px 28px rgba(0,0,0,0.45));
+  user-select: none;
+  -webkit-user-drag: none;
 }
+/* legacy placeholder kept inert if ever reintroduced */
+#sprite.placeholder { display: none; }
 #hotspots { pointer-events: none; }
 #hotspots.active { pointer-events: auto; }
 .hotspot { position: absolute; border: 0; background: transparent; border-radius: 50%; }

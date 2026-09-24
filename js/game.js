@@ -10,7 +10,7 @@
     choices: $("#choices"),
     toast: $("#toast"),
     hotspots: $("#hotspots"),
-    sprite: $("#sprite"),
+    spriteImg: $("#sprite-img"),
     panel: $("#panel"),
     topTitle: $("#top-title"),
     dock: [...document.querySelectorAll(".dock-btn")]
@@ -39,6 +39,29 @@
     clearTimeout(showToast._t);
     showToast._t = setTimeout(() => el.toast.classList.remove("show"), 1600);
   }
+
+  const SPRITES = {
+    idle: "images/sprites/gu_idle.png",
+    cold: "images/sprites/gu_cold.png",
+    watch: "images/sprites/gu_watch.png"
+  };
+  function resolveEmotion(node) {
+    if (!node) return "idle";
+    const raw = String(node.emotion || node.mood || "").toLowerCase();
+    if (!raw) return "idle";
+    if (/cold|怒|拒|冷/.test(raw)) return "cold";
+    if (/watch|看|渡|守|望/.test(raw)) return "watch";
+    if (raw === "idle" || /idle|静|默/.test(raw)) return "idle";
+    return "idle";
+  }
+  function setSprite(key) {
+    const k = SPRITES[key] ? key : "idle";
+    if (!el.spriteImg) return;
+    const src = SPRITES[k];
+    if (el.spriteImg.getAttribute("src") !== src) el.spriteImg.src = src;
+    el.spriteImg.dataset.emotion = k;
+  }
+
   function buildHotspots() {
     el.hotspots.innerHTML = "";
     (window.HOME_TOUCH || []).forEach((h) => {
@@ -66,7 +89,7 @@
     el.choices.classList.remove("show");
     el.panel.classList.remove("show");
     el.hotspots.classList.add("active");
-    el.sprite.classList.add("placeholder");
+    setSprite("idle");
     el.topTitle.textContent = "破祠 · 顾山在";
     setDock("home");
   }
@@ -77,7 +100,7 @@
     state.nodeId = id;
     el.hotspots.classList.remove("active");
     el.panel.classList.remove("show");
-    el.sprite.classList.add("placeholder");
+    setSprite(resolveEmotion(node));
     el.dialog.classList.add("show");
     el.name.textContent = node.name || "";
     el.text.textContent = node.text;
