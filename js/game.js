@@ -17,14 +17,14 @@
   };
 
   function save() {
-    localStorage.setItem("chengwai-iphone-v2-phase1", JSON.stringify({
+    localStorage.setItem("chengwai-iphone-v3-warm", JSON.stringify({
       nodeId: state.nodeId,
       touchIdx: state.touchIdx
     }));
   }
   function load() {
     try {
-      const data = JSON.parse(localStorage.getItem("chengwai-iphone-v2-phase1") || "null");
+      const data = JSON.parse(localStorage.getItem("chengwai-iphone-v3-warm") || "null");
       if (!data) return;
       state.nodeId = data.nodeId || null;
       state.touchIdx = data.touchIdx || {};

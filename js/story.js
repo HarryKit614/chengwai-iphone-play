@@ -1,24 +1,24 @@
-/** 顾山 Demo 第1章 — 人话版「渡气」；关系阶段供写作与共处说明 */
+/** 顾山 Demo 第1章 — 关心憨厚调「渡气」 */
 window.REL_STAGES = [
   {
     id: "stranger",
     title: "陌生救命",
-    known: "刚被他从雨里捞回来",
-    allow: "道谢、问路、接他递来的水",
+    known: "刚被他从雨里捞回来，还不太熟",
+    allow: "道谢、接水、让他帮忙看看伤；他笨拙地解释自己不是坏人",
     forbid: "一开口就像旧情人；把破祠当成已经说好的同榻"
   },
   {
     id: "wary",
-    title: "同室戒备",
-    known: "雨停前得共处一室，彼此还防着",
-    allow: "一起生火盛水；问一句你是谁；干活时碰到手背",
-    forbid: "靠太近、说软话；未铺垫的情热"
+    title: "同室照顾",
+    known: "雨停前得共处一室，他防着外面，却顾着你",
+    allow: "一起生火盛水；问他从哪来；接受他让出的干位置",
+    forbid: "把体贴当成可以随便试探的亲昵；未铺垫的情热"
   },
   {
     id: "trust",
-    title: "立住信任",
-    known: "渡气发生过，他肯你留下——或肯自己留下",
-    allow: "多看一眼、多停一句；低强度的关心",
+    title: "肯留下",
+    known: "渡气发生过，他明确说了可以留到天亮",
+    allow: "多看一眼、多停一句；低声说不舒服；让他守门",
     forbid: "急着许永远（那是后面的事）"
   }
 ];
@@ -35,172 +35,179 @@ window.STORY = {
       speaker: "narr",
       name: "",
       emotion: "idle",
-      text: "你在漏雨的破祠里醒过来。胸口发闷，像有人从外面往里灌过一口气。",
+      text: "你在漏雨的破祠里醒过来。胸口发闷，像有人从外面小心翼翼往里渡过一口气。火堆烧得不算旺，却一直有人添着柴。",
       next: "n02"
     },
     n02: {
       speaker: "narr",
       name: "",
       emotion: "idle",
-      text: "火堆旁坐着个男人。土褐衣裳，头发被雨打乱，并不看你。",
+      text: "火边坐着个男人。土褐衣裳，头发被雨打乱，袖口还潮着。见你睁眼，他先把烧开的水往旁边挪了挪，怕烫到你。",
       next: "n03"
     },
     n03: {
       speaker: "gu",
       name: "顾山",
-      emotion: "idle",
-      text: "还喘。水在灶上。",
+      emotion: "watch",
+      text: "还好。呼吸顺了就行。水在这儿，温的。你先喝一口。",
       next: "n04"
     },
     n04: {
       speaker: "thought",
       name: "你",
       emotion: "idle",
-      text: "碗沿烫手。他报上姓氏时，声音像从门外雨里带进来的——短，也不解释。",
+      text: "碗沿烫手，他却把自己那份靠得更远一点。目光落在你脸上，又很快挪开，像怕看得太直。",
       next: "n05"
     },
     n05: {
       speaker: "gu",
       name: "顾山",
-      emotion: "cold",
-      text: "顾山。路过。",
+      emotion: "idle",
+      text: "我叫顾山。路过撞见的。山里这种事……我不会放着不管。你别怕，我不是来害人的。",
       next: "c01"
     },
     c01: {
       speaker: "narr",
       name: "",
       emotion: "idle",
-      text: "火噼啪响了一下。你先开口？",
+      text: "火噼啪响了一下。他等着你开口，手却老实地搁在膝上。",
       choices: [
         { text: "……多谢。你是医家？", next: "n06a" },
         { text: "方才胸口那口气，是你渡的？", next: "n06b" },
-        { text: "你是什么人。", next: "n06c" }
+        { text: "你一个人走山路？", next: "n06c" }
       ]
     },
     n06a: {
       speaker: "gu",
       name: "顾山",
-      emotion: "cold",
-      text: "算不算医，我也不知道。人还活着，就行。",
+      emotion: "idle",
+      text: "算不上医。只会一点救人的法子。人还活着，我就放心了。剩下的，你慢慢缓。",
       next: "n07"
     },
     n06b: {
       speaker: "gu",
       name: "顾山",
       emotion: "watch",
-      text: "嗯。壳空了，要先活。",
+      text: "是我。你壳子空得厉害，不渡一口气怕撑不住。要是唐突了，你骂我也行。",
       next: "n07"
     },
     n06c: {
       speaker: "gu",
       name: "顾山",
-      emotion: "cold",
-      text: "猎人。山里走路的那种。",
+      emotion: "idle",
+      text: "嗯。打猎的。这山我熟。今晚雨大，才把你往破祠里带。别处更潮。",
       next: "n07"
     },
     n07: {
       speaker: "narr",
       name: "",
       emotion: "idle",
-      text: "他仍坐在一步之外。雨从屋脊漏下来，打在灶沿，发出很小的一声。",
+      text: "他起身把漏雨那侧的草席捲起来，又把自己干一点的披风抖开，垫在你身后靠着的位置。动作不算利落，却很认真。",
       next: "n08"
     },
     n08: {
+      speaker: "gu",
+      name: "顾山",
+      emotion: "watch",
+      text: "这边不滴水。你靠着。我去添把柴。",
+      next: "n09"
+    },
+    n09: {
       speaker: "thought",
       name: "你",
       emotion: "idle",
-      text: "胸口那口闷气又浮上来。像有什么还没渡完，停在喉咙和肋骨之间。",
+      text: "胸口那口闷气又浮上来，像渡到一半停住了。他添完柴回头，看见你皱眉，脚步立刻顿住。",
       next: "c02"
     },
     c02: {
       speaker: "narr",
       name: "",
       emotion: "watch",
-      text: "他抬眼看了你一下。这一次近到能听见彼此的呼吸。",
+      text: "他在一步之外蹲下，掌心朝上，声音放得很低。",
       choices: [
-        { text: "伸手——让他把那口气渡完", next: "n09a" },
-        { text: "退开半步", next: "n09b" }
+        { text: "伸手——让他把那口气渡完", next: "n10a" },
+        { text: "先缓一缓，先不要", next: "n10b" }
       ]
     },
-    n09a: {
+    n10a: {
       speaker: "narr",
       name: "",
       emotion: "watch",
-      text: "他掌心发烫，像把山里的热渡进你发冷的胸口。耳鸣里有一瞬很静，只剩下雨。",
-      next: "n10a"
+      text: "他掌心发烫，却不敢握太紧。热气慢慢渡进你发冷的胸口，耳鸣里有一瞬很静，只剩下雨和他压低的呼吸。",
+      next: "n11a"
     },
-    n10a: {
+    n11a: {
       speaker: "gu",
       name: "顾山",
       emotion: "watch",
-      text: "……好了。别憋着。",
-      next: "n11"
-    },
-    n09b: {
-      speaker: "narr",
-      name: "",
-      emotion: "cold",
-      text: "你退开。那点热也被他收回去。他只是盯着你看一眼，没有追上来。",
-      next: "n10b"
+      text: "烫一点就对了。别怕。缓一缓……我在。不舒服你就捏我一下。",
+      next: "n12"
     },
     n10b: {
-      speaker: "gu",
-      name: "顾山",
-      emotion: "cold",
-      text: "行。你自己撑着。",
-      next: "n11"
-    },
-    n11: {
       speaker: "narr",
       name: "",
       emotion: "idle",
-      text: "雨声小了些。门外泥地反着一点天光，像快亮了。",
+      text: "你摇头。他立刻把手收回去，还往旁边挪了半寸，生怕自己逼着你。",
+      next: "n11b"
+    },
+    n11b: {
+      speaker: "gu",
+      name: "顾山",
+      emotion: "idle",
+      text: "也成。你不舒服就说。我不逼你。水还热着，渴了喊我。",
       next: "n12"
     },
     n12: {
+      speaker: "narr",
+      name: "",
+      emotion: "idle",
+      text: "雨声小了些。门外泥地反着一点天光。他听了听外面，又回头看你有没有缓过来。",
+      next: "n13"
+    },
+    n13: {
       speaker: "gu",
       name: "顾山",
-      emotion: "idle",
-      text: "留不留到天亮。",
+      emotion: "watch",
+      text: "雨还没停干净。你要是不嫌这里破，就留到天亮。榻席干的那边给你，我靠门就行。我守着，你睡。",
       next: "c03"
     },
     c03: {
       speaker: "narr",
       name: "",
       emotion: "idle",
-      text: "他问得很平，也不催。",
+      text: "他说完耳朵有点红，却把话说明白了，等你点头。",
       choices: [
-        { text: "留下。雨还没停干净。", next: "n13a" },
-        { text: "天亮就走。", next: "n13b" }
+        { text: "那就麻烦你了。我留下。", next: "n14a" },
+        { text: "谢谢。天亮我想走。", next: "n14b" }
       ]
     },
-    n13a: {
+    n14a: {
       speaker: "gu",
       name: "顾山",
       emotion: "watch",
-      text: "榻席干的那边给你。我靠门。",
-      next: "n14a"
+      text: "不麻烦。应该的。你躺下，我把火压小一点，别熏着你。",
+      next: "n15a"
     },
-    n14a: {
+    n15a: {
       speaker: "thought",
       name: "你",
       emotion: "watch",
-      text: "他踢开湿草，把干的位置让出来。话仍少，可这一回他肯你留下。",
+      text: "他把干的位置让出来，自己靠着门坐下，背影挡着风口。过一会儿又轻声问一句：还冷不冷。",
       stage: "trust",
       next: "end01"
     },
-    n13b: {
+    n14b: {
       speaker: "gu",
       name: "顾山",
-      emotion: "cold",
-      text: "嗯。",
-      next: "n14b"
+      emotion: "idle",
+      text: "好。那你先缓着。天亮路滑，我送你到岔口。不送远，免得你觉得我缠人。",
+      next: "n15b"
     },
-    n14b: {
+    n15b: {
       speaker: "thought",
       name: "你",
-      emotion: "cold",
-      text: "他点一下头，并不留人。破祠里还是两个人，中间那一步距离没变。",
+      emotion: "idle",
+      text: "他点头应了，还是把干披风往你这边推了推。人没强留，照顾却没收回去。",
       stage: "wary",
       next: "end01"
     },
@@ -208,7 +215,7 @@ window.STORY = {
       speaker: "narr",
       name: "",
       emotion: "idle",
-      text: "无论你怎么选，回到主界面时，他还在火边。\n\n（第一章 · 渡气 · 完）\n可轻触他，或从底栏再进主线。",
+      text: "无论你怎么选，回到主界面时，他还在火边，偶尔抬头看你一眼，又很快低下去。\n\n（第一章 · 渡气 · 完）\n可轻触他，或从底栏再进主线。",
       end: true
     }
   }
@@ -222,7 +229,11 @@ window.HOME_TOUCH = [
     y: "18%",
     w: "18%",
     h: "22%",
-    lines: ["……看什么。"]
+    lines: [
+      "……脸还有点白。要不要再喝一口？",
+      "看着我干嘛。我脸上有灰？",
+      "缓过来一点就好。别硬撑。"
+    ]
   },
   {
     id: "shoulder",
@@ -231,7 +242,11 @@ window.HOME_TOUCH = [
     y: "40%",
     w: "20%",
     h: "18%",
-    lines: ["袖子，还湿着。"]
+    lines: [
+      "袖子我晾过了。你别再挨着漏雨那儿坐。",
+      "肩上潮气重。你冷就说，我添柴。",
+      "……手可以搭这儿。我不躲。"
+    ]
   },
   {
     id: "waist",
@@ -240,6 +255,10 @@ window.HOME_TOUCH = [
     y: "58%",
     w: "16%",
     h: "18%",
-    lines: ["手拿开。"]
+    lines: [
+      "不是不让碰。刀柄凉，别划着手。",
+      "腰间是干粮。饿了跟我说。",
+      "你站稳些。地滑。"
+    ]
   }
 ];
