@@ -426,7 +426,7 @@
           return `<button class="paint ${on ? "on" : ""} ${have ? "" : "no"}${fullMing(p) ? " ming6" : ""}" data-paint="${p.id}">${frameHTML(p)}<img src="${p.img}" alt=""><b>${p.n}</b><small>${have ? `${D.GRADE[p.grade]} ${mingOf(p.id)}命 +${bonus}` : "未有"}</small></button>`;
         }).join("") + `</div>
         <button class="cw cw-d cw-secondary" id="yg-ming" ${ml.dis ? "disabled" : ""}><span class="cw-label">${ml.btn}</span></button>
-        <button class="cw cw-d cw-primary" id="yg-battle"><span class="cw-label">进入副本</span></button>
+        <button class="cw cw-d cw-primary" id="yg-battle"><span class="cw-label">进入战斗</span></button>
       </div></div>`;
     mount("gp", html, ["bt-main"]);
     const root = scr.page;
@@ -454,26 +454,118 @@
     });
   }
 
-  function renderBattle() {
+  const FOES = {
+    b14: { sec: "1-4", n: "撞门的山兽", kind: "beast", hp: 96, atk: 9, line: "门扇被顶开。他说：往后。刀已经在手里。" },
+    b18: { sec: "1-8", n: "循光的影", kind: "shade", hp: 140, atk: 13, line: "那道细光贴上门槛。他站在门里，刀尖朝外。" },
+    b112: { sec: "1-12", n: "未散的路煞", kind: "road", hp: 188, atk: 16, line: "晨路上还有一截没散的东西。他走在你前面。" }
+  };
+  function knifeOf(attrs) {
+    const bone = (D.GU_BASE[1] || 0) + (attrs[1] || 0);
+    const eye = (D.GU_BASE[0] || 0) + (attrs[0] || 0);
+    return 6 + bone + Math.round(eye / 2);
+  }
+  function guHpOf(attrs) {
+    const bone = (D.GU_BASE[1] || 0) + (attrs[1] || 0);
+    const eye = (D.GU_BASE[0] || 0) + (attrs[0] || 0);
+    return 70 + bone * 4 + eye;
+  }
+  let fight = null;
+  function foeBody(kind) {
+    if (kind === "shade") return `<svg viewBox="0 0 200 320"><path d="M100 28 C70 40 48 78 52 120 C28 150 24 210 46 268 L78 300 L100 250 L124 304 L156 260 C184 200 170 140 146 116 C150 70 130 36 100 28 Z" fill="#1a1428"/><path d="M78 118 C90 150 110 150 122 116" fill="none" stroke="#d7e4ff" stroke-width="3"/><circle cx="86" cy="108" r="4" fill="#efe7ff"/><circle cx="116" cy="108" r="4" fill="#efe7ff"/></svg>`;
+    if (kind === "road") return `<svg viewBox="0 0 200 320"><path d="M40 300 L70 160 L96 300 L110 150 L140 300 L168 180 L150 90 C120 40 70 50 60 100 L40 300 Z" fill="#3a2a18"/><path d="M88 120 h28 M102 108 v28" stroke="#f0d090" stroke-width="3"/><path d="M60 200 H150" stroke="#c46a3a" stroke-width="4" opacity=".7"/></svg>`;
+    return `<svg viewBox="0 0 220 300"><path d="M30 250 C20 180 40 120 70 100 L90 40 L110 96 L140 36 L150 110 C190 130 210 190 190 250 Z" fill="#2a2418"/><path d="M70 150 C90 170 120 168 140 146" fill="none" stroke="#e8d2a0" stroke-width="4"/><circle cx="92" cy="128" r="5" fill="#f2e2b8"/><circle cx="128" cy="126" r="5" fill="#f2e2b8"/><path d="M78 168 L70 188 M132 166 L146 186" stroke="#c4a060" stroke-width="3"/></svg>`;
+  }
+  function renderBattle(opt) {
+    opt = opt || {};
+    if (!opt.foe) {
+      let html = topLeft("战斗", "这一夜的三场 · 过完那一节才打", "战") + currencyBar(false);
+      html += `<div class="lacq battle" id="bt-main"><div class="bt-side" style="left:28px;right:28px"><div class="bt-t">选一场</div><div class="bt-d">顾山没有道途，进场只有短刀。点一场看看这一夜他挡在哪里。</div><div class="foe-pick">` +
+        Object.keys(FOES).map((id) => {
+          const f = FOES[id];
+          return `<button class="foe-card" data-foe="${id}"><b>${f.sec} ${f.n}</b><small>血量 ${f.hp} · 扑击 ${f.atk}</small><span>${f.line}</span></button>`;
+        }).join("") + `</div></div></div>`;
+      mount("gp", html, ["bt-main"]);
+      $$("[data-foe]", scr.page).forEach((b) => b.addEventListener("click", () => renderBattle({ foe: b.dataset.foe })));
+      return;
+    }
+    const foe = FOES[opt.foe] || FOES.b14;
     const it = D.ITEMS[S.equipped.cloth] || D.ITEMS.cloth_a;
-    const bonus = clothAttrs(it);
-    const base = D.GU_BASE.reduce((a, b) => a + b, 0);
-    const power = base + attrSum(bonus);
-    const foe = it.grade === "ji" || it.grade === "rui" ? 100 : it.grade === "zhen" ? 90 : 88;
-    const ok = power >= foe;
-    let html = topLeft("副本", "出战用选定立绘 · 主线不改", "战") + currencyBar(false);
-    html += `<div class="lacq battle" id="bt-main">
-      <div class="bt-cg${fullMing(it) ? " ming6" : ""}">${frameHTML(it)}<img src="${it.cg}" alt="${it.n}"><span class="cg-tag">出战 · <b>${it.n}</b> · ${D.GRADE[it.grade]}</span></div>
-      <div class="bt-side">
-        <div class="bt-t">山道遇袭</div>
-        <div class="bt-d">顾山以「${it.n}」进入这场副本。主线「渡气」仍是剧情里的原定形象，不会换成这身。</div>
-        <div class="bt-p">战力 <b>${power}</b> · 关卡 ${foe} · ${mingOf(it.id)}命<br>${D.ATTRS.map((a, i) => `${a} ${D.GU_BASE[i] + bonus[i]}`).join(" · ")}</div>
-        <div class="bt-r ${ok ? "ok" : ""}">${ok ? "战力够，这一关过了。" : "这身战力不够，换一张更高的立绘再来。"}</div>
-        <button class="cw cw-d cw-secondary" id="bt-back"><span class="cw-label">换一张立绘</span></button>
-      </div>
-    </div>`;
-    mount("gp", html, ["bt-main"]);
-    $("#bt-back", scr.page).addEventListener("click", () => openPage("yiguan", { slot: "cloth" }));
+    const attrs = clothAttrs(it);
+    fight = { foe, it, attrs, gu: guHpOf(attrs), guMax: guHpOf(attrs), foeHp: foe.hp, foeMax: foe.hp, busy: false, over: "" };
+    paintFight();
+  }
+  function bar(now, max) { return Math.max(0, Math.min(100, Math.round(now / max * 100))); }
+  function paintFight() {
+    const f = fight, it = f.it, foe = f.foe;
+    const html = topLeft("战斗", foe.sec + " · " + foe.n, "战") +
+      `<div class="fight ${foe.kind}" id="fight">
+        <div class="hp gu"><b>顾山 · ${it.n}</b><i><em style="width:${bar(f.gu, f.guMax)}%"></em></i><span>${f.gu}/${f.guMax}</span></div>
+        <div class="hp foe"><b>${foe.n}</b><i><em style="width:${bar(f.foeHp, f.foeMax)}%"></em></i><span>${f.foeHp}/${f.foeMax}</span></div>
+        <div class="actor gu" id="act-gu"><img src="${it.cg}" alt="" style="object-position:${cgPos(it, 420, 560)}"></div>
+        <div class="actor foe" id="act-foe">${foeBody(foe.kind)}</div>
+        <div class="slash" id="slash"></div>
+        <div class="floats" id="floats"></div>
+        <p class="fight-line" id="fight-line">${f.over || foe.line}</p>
+        <div class="skill-bar">
+          <button class="cw cw-d cw-primary" id="sk-knife" ${f.over ? "disabled" : ""}><span class="cw-label">短刀</span></button>
+          <button class="cw cw-d cw-secondary" disabled><span class="cw-label">道途未开</span></button>
+          <button class="cw cw-d cw-secondary" id="bt-back"><span class="cw-label">${f.over ? "离开" : "退出"}</span></button>
+        </div>
+      </div>`;
+    scr.page.innerHTML = `<div class="pg gp">${html}</div>`;
+    bindCommon(scr.page);
+    $("#bt-back", scr.page).addEventListener("click", () => openPage("yiguan"));
+    const btn = $("#sk-knife", scr.page);
+    if (btn) btn.addEventListener("click", knifeTurn);
+  }
+  function floatDmg(text, side) {
+    const box = $("#floats", scr.page);
+    if (!box) return;
+    const el = document.createElement("b");
+    el.className = "dmg " + side;
+    el.textContent = text;
+    box.appendChild(el);
+    setTimeout(() => el.remove(), 800);
+  }
+  function knifeTurn() {
+    const f = fight;
+    if (!f || f.busy || f.over) return;
+    f.busy = true;
+    const btn = $("#sk-knife", scr.page);
+    if (btn) btn.disabled = true;
+    const dmg = knifeOf(f.attrs) + Math.floor(Math.random() * 4);
+    f.foeHp = Math.max(0, f.foeHp - dmg);
+    const gu = $("#act-gu", scr.page), foe = $("#act-foe", scr.page), slash = $("#slash", scr.page);
+    if (gu) gu.classList.add("atk");
+    if (slash) slash.classList.add("on");
+    floatDmg("-" + dmg, "foe");
+    setTimeout(() => {
+      if (foe) foe.classList.add("hurt");
+      const em = $(".hp.foe em", scr.page), num = $(".hp.foe span", scr.page);
+      if (em) em.style.width = bar(f.foeHp, f.foeMax) + "%";
+      if (num) num.textContent = f.foeHp + "/" + f.foeMax;
+    }, 180);
+    setTimeout(() => {
+      if (gu) gu.classList.remove("atk");
+      if (foe) foe.classList.remove("hurt");
+      if (slash) slash.classList.remove("on");
+      if (f.foeHp <= 0) { f.over = "这一场过去了。刀收回去，他先看你有没有被碰到。"; f.busy = false; paintFight(); return; }
+      const hit = f.foe.atk + Math.floor(Math.random() * 3);
+      f.gu = Math.max(0, f.gu - hit);
+      if (foe) foe.classList.add("atk");
+      floatDmg("-" + hit, "gu");
+      const gem = $(".hp.gu em", scr.page), gnum = $(".hp.gu span", scr.page);
+      if (gem) gem.style.width = bar(f.gu, f.guMax) + "%";
+      if (gnum) gnum.textContent = f.gu + "/" + f.guMax;
+      if (gu) gu.classList.add("hurt");
+      setTimeout(() => {
+        if (foe) foe.classList.remove("atk");
+        if (gu) gu.classList.remove("hurt");
+        f.busy = false;
+        if (f.gu <= 0) { f.over = "他挡不住。回出战，换一张更厚的立绘再来。"; paintFight(); return; }
+        if (btn) btn.disabled = false;
+      }, 420);
+    }, 520);
   }
 
   /* ================= 许愿 ================= */
@@ -557,7 +649,7 @@
       <div class="set-row"><div class="sr-t">恢复道薪</div><div class="sr-d">把道薪恢复为 2,350。已有的立绘和命座不变。</div><button class="cw cw-d cw-secondary" data-set="bal"><span class="cw-label">恢复</span></button></div>
       <div class="set-row"><div class="sr-t">重置系统存档</div><div class="sr-d">货币、行囊和出战立绘回到初始。</div><button class="cw cw-d cw-secondary" data-set="sys"><span class="cw-label">重置</span></button></div>
       <div class="set-row"><div class="sr-t">重置剧情进度</div><div class="sr-d">主线「渡气」读档点、共处状态、轻触台词进度回到开头。</div><button class="cw cw-d cw-secondary" data-set="story"><span class="cw-label">重置</span></button></div>
-      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925x · 16:9 横屏舞台 1280×720。立绘从许愿获得，出战按命座算战力。</div></div>
+      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925y · 16:9 横屏舞台 1280×720。立绘从许愿获得，出战按命座算战力。</div></div>
     </div></div>`;
     mount("gp", html, ["gp-main"]);
     $$("[data-set]", scr.page).forEach((b) => b.addEventListener("click", () => {
