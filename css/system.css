@@ -85,6 +85,11 @@
 .hub-pick img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .hub-pick.on { border-color: #ffd870; box-shadow: 0 0 8px rgba(255,216,112,.7); }
 .hub-look { position: absolute; left: 360px; bottom: 174px; z-index: 6; padding: 3px 10px; font-size: 15px; letter-spacing: .08em; color: #fff4d8; background: rgba(16,10,4,.62); border: 1px solid rgba(201,160,69,.45); }
+.hub-aside { position: absolute; right: 36px; top: 46%; width: 280px; z-index: 6; margin: 0; pointer-events: none;
+  color: #f7f3ea; font-family: var(--serif); font-size: 22px; font-weight: 500; line-height: 1.75; letter-spacing: .14em; text-align: right;
+  text-shadow: 0 2px 12px rgba(16,8,4,.55); opacity: 0; }
+.hub-aside.show { animation: hub-aside 3.4s ease forwards; }
+@keyframes hub-aside { 0% { opacity: 0; } 14% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
 #hub.hub-rui .hub-side { background: linear-gradient(90deg, rgba(62,36,10,.42) 0, rgba(62,36,10,.16) 220px, rgba(62,36,10,0) 320px); }
 #hub.hub-rui .hub-shade-top { height: 78px; background: linear-gradient(180deg, rgba(70,40,12,.35), rgba(70,40,12,0)); }
 #hub.hub-rui .hub-band { top: 640px; background: linear-gradient(180deg, rgba(40,22,8,0), rgba(40,22,8,.45)); }
