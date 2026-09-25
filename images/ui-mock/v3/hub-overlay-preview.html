@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1280" />
+<title>《廿四道·城外》Hub 云纹 Overlay Preview</title>
+<style>
+  @font-face {
+    font-family: "NotoSerifSC";
+    src: local("Noto Serif CJK SC"), local("Noto Serif CJK SC Regular"),
+         url("file:///usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc") format("collection");
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: "NotoSerifSC";
+    src: local("Noto Serif CJK SC Bold"),
+         url("file:///usr/share/fonts/opentype/noto/NotoSerifCJK-Bold.ttc") format("collection");
+    font-weight: 700;
+  }
+  @font-face {
+    font-family: "NotoSansSC";
+    src: local("Noto Sans CJK SC"),
+         url("file:///usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc") format("collection");
+    font-weight: 400;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 1280px; height: 720px; overflow: hidden;
+    background: #1a1208;
+  }
+  #stage {
+    position: relative;
+    width: 1280px; height: 720px;
+    overflow: hidden;
+    background: #1a1208 center/cover no-repeat;
+    background-image: url("./hub_bg_clean.png");
+  }
+  .layer { position: absolute; inset: 0; pointer-events: none; }
+  .ui { pointer-events: auto; }
+
+  /* —— Title —— */
+  .title-wrap {
+    position: absolute; left: 36px; top: 22px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .title-frame {
+    position: relative;
+    padding: 8px 22px 10px;
+    background:
+      linear-gradient(180deg, rgba(252,244,220,.92), rgba(232,214,170,.88) 55%, rgba(210,180,130,.90));
+    border: 1.5px solid #c9a45a;
+    box-shadow:
+      0 0 0 1px rgba(90,50,10,.35) inset,
+      0 2px 10px rgba(40,20,0,.35),
+      0 0 18px rgba(212,168,80,.25);
+    color: #2a1a08;
+    font-family: "NotoSerifSC", "Noto Serif CJK SC", serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 0.12em;
+    line-height: 1.1;
+  }
+  .title-frame .seal {
+    position: absolute; right: -18px; top: -6px;
+    width: 28px; height: 28px;
+    display: none;
+  }
+  .seal-box {
+    width: 26px; height: 26px;
+    background: radial-gradient(circle at 35% 30%, #d84a3a, #8c1e14 70%);
+    border: 1px solid #5a1008;
+    box-shadow: 0 1px 3px rgba(0,0,0,.4);
+    color: #f5e6c8;
+    font-size: 11px;
+    font-family: "NotoSerifSC", serif;
+    display: flex; align-items: center; justify-content: center;
+    transform: rotate(6deg);
+  }
+
+  /* —— Currency chips —— */
+  .currency-bar {
+    position: absolute; right: 48px; top: 22px;
+    display: flex; gap: 14px; align-items: center;
+  }
+  .chip {
+    position: relative;
+    display: flex; align-items: center; gap: 8px;
+    min-width: 168px;
+    height: 40px;
+    padding: 0 36px 0 14px;
+    color: #f5e6c0;
+    font-family: "NotoSansSC", "Noto Sans CJK SC", sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+  }
+  .chip .chip-bg { position: absolute; inset: 0; z-index: 0; }
+  .chip .chip-bg svg { width: 100%; height: 100%; display: block; }
+  .chip .icon, .chip .label, .chip .value, .chip .plus { position: relative; z-index: 1; }
+  .chip .label { color: #e8c878; font-family: "NotoSerifSC", serif; font-size: 13px; }
+  .chip .value { font-variant-numeric: tabular-nums; font-weight: 600; color: #fff4d8; text-shadow: 0 1px 2px rgba(0,0,0,.55); }
+  .chip .plus {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    width: 22px; height: 22px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #f0d878, #b8862a 70%);
+    border: 1px solid #6a4810;
+    color: #3a2808; font-weight: 700; font-size: 16px; line-height: 20px;
+    text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,.4);
+  }
+  .chip .icon {
+    width: 22px; height: 22px; flex-shrink: 0;
+  }
+  .settings-orb {
+    width: 34px; height: 34px; margin-left: 4px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 30%, #ffe9a0, #d4a24a 45%, #8a5a18 100%);
+    border: 1.5px solid #5a3a10;
+    box-shadow: 0 0 10px rgba(212,168,80,.45), inset 0 0 6px rgba(255,240,180,.5);
+    position: relative;
+  }
+  .settings-orb::after {
+    content: "";
+    position: absolute; inset: 7px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(90,50,10,.55);
+    box-shadow: inset 0 0 4px rgba(255,230,150,.4);
+  }
+
+  /* —— Left sidebar —— */
+  .sidebar {
+    position: absolute; left: 28px; top: 168px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .side-btn {
+    position: relative;
+    width: 168px; height: 48px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 14px 0 12px;
+    color: #3a2810;
+    font-family: "NotoSerifSC", serif;
+    font-size: 16px;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+  }
+  .side-btn .sb-bg { position: absolute; inset: 0; z-index: 0; }
+  .side-btn .sb-bg svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .side-btn .sb-icon, .side-btn .sb-label { position: relative; z-index: 1; }
+  .side-btn .sb-icon { width: 26px; height: 26px; flex-shrink: 0; }
+  .side-btn .tassel {
+    position: absolute; right: -22px; top: 6px; z-index: 2;
+    width: 18px; height: 56px;
+  }
+
+  /* —— Bottom dock —— */
+  .dock {
+    position: absolute; left: 50%; bottom: 18px;
+    transform: translateX(-50%);
+    width: 720px; height: 92px;
+  }
+  .dock .dock-frame {
+    position: absolute; inset: 0; z-index: 0;
+  }
+  .dock .dock-frame svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .dock-items {
+    position: relative; z-index: 1;
+    height: 100%;
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 0 56px 6px;
+  }
+  .dock-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    width: 96px;
+    color: #d8c090;
+    font-family: "NotoSerifSC", serif;
+    font-size: 14px;
+    letter-spacing: 0.18em;
+  }
+  .dock-item .di-icon {
+    width: 46px; height: 46px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .dock-item.selected {
+    color: #ffe9a8;
+    text-shadow: 0 0 10px rgba(255,200,80,.55);
+  }
+  .dock-item.selected .di-icon::before {
+    content: "";
+    position: absolute; inset: -6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,210,100,.55), rgba(255,180,40,.15) 55%, transparent 70%);
+    box-shadow: 0 0 16px rgba(255,200,80,.55);
+    z-index: 0;
+  }
+  .dock-item .di-icon svg { position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- ========== TITLE ========== -->
+  <div class="title-wrap ui">
+    <div class="title-frame">
+      <!-- dense yunwen title border -->
+      <svg width="100%" height="100%" style="position:absolute;inset:0;overflow:visible;pointer-events:none" viewBox="0 0 220 46" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f3e0a8"/>
+            <stop offset="100%" stop-color="#b8863a"/>
+          </linearGradient>
+        </defs>
+        <!-- outer double frame -->
+        <rect x="1.5" y="1.5" width="217" height="43" fill="none" stroke="url(#tg)" stroke-width="1.6"/>
+        <rect x="4.5" y="4.5" width="211" height="37" fill="none" stroke="#8a6020" stroke-width="0.7" opacity=".7"/>
+        <!-- corner cloud scrolls -->
+        <g fill="none" stroke="#c9a045" stroke-width="1.2" stroke-linecap="round">
+          <path d="M8,14 C4,14 4,8 10,8 C14,8 14,12 11,13"/>
+          <path d="M14,8 C18,5 22,8 20,12"/>
+          <path d="M8,32 C4,32 4,38 10,38 C14,38 14,34 11,33"/>
+          <path d="M212,14 C216,14 216,8 210,8 C206,8 206,12 209,13"/>
+          <path d="M206,8 C202,5 198,8 200,12"/>
+          <path d="M212,32 C216,32 216,38 210,38 C206,38 206,34 209,33"/>
+        </g>
+      </svg>
+      廿四道·城外
+    </div>
+    <div class="seal-box">外</div>
+  </div>
+
+  <!-- ========== CURRENCY ========== -->
+  <div class="currency-bar ui">
+    <!-- 薪币 -->
+    <div class="chip" id="chip-xinbi">
+      <div class="chip-bg">
+        <svg viewBox="0 0 200 40" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="chipFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3a2a14" stop-opacity=".82"/>
+              <stop offset="50%" stop-color="#1e140a" stop-opacity=".88"/>
+              <stop offset="100%" stop-color="#2a1c0c" stop-opacity=".85"/>
+            </linearGradient>
+            <linearGradient id="chipGold" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#8a6020"/>
+              <stop offset="35%" stop-color="#e8c878"/>
+              <stop offset="65%" stop-color="#f5e0a0"/>
+              <stop offset="100%" stop-color="#8a6020"/>
+            </linearGradient>
+            <filter id="chipGlow" x="-20%" y="-40%" width="140%" height="180%">
+              <feGaussianBlur stdDeviation="1.2" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <!-- lacquer body with scalloped ends -->
+          <path d="M18,2
+                   C12,2 6,6 4,12 C2,18 2,22 4,28 C6,34 12,38 18,38
+                   L182,38
+                   C188,38 194,34 196,28 C198,22 198,18 196,12 C194,6 188,2 182,2
+                   Z" fill="url(#chipFill)" stroke="url(#chipGold)" stroke-width="1.6"/>
+          <path d="M20,5 L180,5" fill="none" stroke="#e8c878" stroke-width="0.5" opacity=".45"/>
+          <path d="M20,35 L180,35" fill="none" stroke="#8a6020" stroke-width="0.5" opacity=".5"/>
+          <!-- dense left 云纹 terminal -->
+          <g fill="none" stroke="#e8c878" stroke-width="1.15" stroke-linecap="round" filter="url(#chipGlow)">
+            <path d="M10,20 C6,14 12,8 18,10 C22,11 22,16 18,18 C14,20 12,16 16,14"/>
+            <path d="M10,20 C6,26 12,32 18,30 C22,29 22,24 18,22"/>
+            <path d="M16,12 C20,8 26,10 24,15"/>
+            <path d="M16,28 C20,32 26,30 24,25"/>
+            <circle cx="14" cy="20" r="1.4" fill="#f5e0a0" stroke="none"/>
+          </g>
+          <!-- dense right 云纹 terminal -->
+          <g fill="none" stroke="#e8c878" stroke-width="1.15" stroke-linecap="round" filter="url(#chipGlow)">
+            <path d="M190,20 C194,14 188,8 182,10 C178,11 178,16 182,18 C186,20 188,16 184,14"/>
+            <path d="M190,20 C194,26 188,32 182,30 C178,29 178,24 182,22"/>
+            <path d="M184,12 C180,8 174,10 176,15"/>
+            <path d="M184,28 C180,32 174,30 176,25"/>
+            <circle cx="186" cy="20" r="1.4" fill="#f5e0a0" stroke="none"/>
+          </g>
+          <!-- top/bottom micro cloud ticks -->
+          <g fill="none" stroke="#c9a045" stroke-width="0.8" opacity=".85">
+            <path d="M60,3 C64,1 70,1 74,3"/>
+            <path d="M126,3 C130,1 136,1 140,3"/>
+            <path d="M60,37 C64,39 70,39 74,37"/>
+            <path d="M126,37 C130,39 136,39 140,37"/>
+          </g>
+        </svg>
+      </div>
+      <svg class="icon" viewBox="0 0 24 24">
+        <defs>
+          <radialGradient id="sackG" cx="40%" cy="35%" r="60%">
+            <stop offset="0%" stop-color="#ffe9a0"/><stop offset="100%" stop-color="#b8862a"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="12" cy="15" rx="7" ry="6" fill="url(#sackG)" stroke="#6a4810" stroke-width="1"/>
+        <path d="M8,10 C8,7 10,5 12,5 C14,5 16,7 16,10" fill="none" stroke="#e8c878" stroke-width="1.3"/>
+        <path d="M9,10 H15" stroke="#8a6020" stroke-width="1.2"/>
+        <circle cx="12" cy="15" r="2" fill="#6a4810" opacity=".35"/>
+      </svg>
+      <span class="label">薪币</span>
+      <span class="value">124,860</span>
+      <span class="plus">+</span>
+    </div>
+
+    <!-- 道薪 -->
+    <div class="chip" id="chip-daoxin">
+      <div class="chip-bg">
+        <svg viewBox="0 0 200 40" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="chipFill2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3a2a14" stop-opacity=".82"/>
+              <stop offset="50%" stop-color="#1e140a" stop-opacity=".88"/>
+              <stop offset="100%" stop-color="#2a1c0c" stop-opacity=".85"/>
+            </linearGradient>
+            <linearGradient id="chipGold2" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#8a6020"/>
+              <stop offset="35%" stop-color="#e8c878"/>
+              <stop offset="65%" stop-color="#f5e0a0"/>
+              <stop offset="100%" stop-color="#8a6020"/>
+            </linearGradient>
+          </defs>
+          <path d="M18,2
+                   C12,2 6,6 4,12 C2,18 2,22 4,28 C6,34 12,38 18,38
+                   L182,38
+                   C188,38 194,34 196,28 C198,22 198,18 196,12 C194,6 188,2 182,2
+                   Z" fill="url(#chipFill2)" stroke="url(#chipGold2)" stroke-width="1.6"/>
+          <path d="M20,5 L180,5" fill="none" stroke="#e8c878" stroke-width="0.5" opacity=".45"/>
+          <path d="M20,35 L180,35" fill="none" stroke="#8a6020" stroke-width="0.5" opacity=".5"/>
+          <g fill="none" stroke="#e8c878" stroke-width="1.15" stroke-linecap="round">
+            <path d="M10,20 C6,14 12,8 18,10 C22,11 22,16 18,18 C14,20 12,16 16,14"/>
+            <path d="M10,20 C6,26 12,32 18,30 C22,29 22,24 18,22"/>
+            <path d="M16,12 C20,8 26,10 24,15"/>
+            <path d="M16,28 C20,32 26,30 24,25"/>
+            <circle cx="14" cy="20" r="1.4" fill="#f5e0a0" stroke="none"/>
+          </g>
+          <g fill="none" stroke="#e8c878" stroke-width="1.15" stroke-linecap="round">
+            <path d="M190,20 C194,14 188,8 182,10 C178,11 178,16 182,18 C186,20 188,16 184,14"/>
+            <path d="M190,20 C194,26 188,32 182,30 C178,29 178,24 182,22"/>
+            <path d="M184,12 C180,8 174,10 176,15"/>
+            <path d="M184,28 C180,32 174,30 176,25"/>
+            <circle cx="186" cy="20" r="1.4" fill="#f5e0a0" stroke="none"/>
+          </g>
+          <g fill="none" stroke="#c9a045" stroke-width="0.8" opacity=".85">
+            <path d="M60,3 C64,1 70,1 74,3"/>
+            <path d="M126,3 C130,1 136,1 140,3"/>
+            <path d="M60,37 C64,39 70,39 74,37"/>
+            <path d="M126,37 C130,39 136,39 140,37"/>
+          </g>
+        </svg>
+      </div>
+      <svg class="icon" viewBox="0 0 24 24">
+        <defs>
+          <radialGradient id="starG" cx="40%" cy="35%" r="60%">
+            <stop offset="0%" stop-color="#fff2c0"/><stop offset="100%" stop-color="#c9a045"/>
+          </radialGradient>
+        </defs>
+        <polygon points="12,2 14.2,8.5 21,9 15.8,13.2 17.5,20 12,16.5 6.5,20 8.2,13.2 3,9 9.8,8.5"
+                 fill="url(#starG)" stroke="#6a4810" stroke-width="0.9"/>
+        <circle cx="12" cy="11.5" r="2.2" fill="#6a4810" opacity=".25"/>
+      </svg>
+      <span class="label">道薪</span>
+      <span class="value">2,350</span>
+      <span class="plus">+</span>
+    </div>
+
+    <div class="settings-orb" title="设置"></div>
+  </div>
+
+  <!-- ========== LEFT SIDEBAR ========== -->
+  <div class="sidebar ui">
+    <!-- shared defs injected once via first button, others reuse via inline copies for self-containment -->
+
+    <!-- 行职录 -->
+    <div class="side-btn">
+      <div class="sb-bg">
+        <svg viewBox="0 0 168 48" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sbPaper" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f7edd4"/>
+              <stop offset="45%" stop-color="#ead4a8"/>
+              <stop offset="100%" stop-color="#d4b882"/>
+            </linearGradient>
+            <linearGradient id="sbGold" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#f0d878"/>
+              <stop offset="50%" stop-color="#b8862a"/>
+              <stop offset="100%" stop-color="#f0d878"/>
+            </linearGradient>
+            <filter id="sbShadow" x="-10%" y="-20%" width="130%" height="150%">
+              <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#2a1808" flood-opacity=".45"/>
+            </filter>
+          </defs>
+          <!-- ivory paper plaque with ruyi ends -->
+          <path d="M14,4
+                   C8,4 4,8 4,14 L4,34
+                   C4,40 8,44 14,44
+                   L154,44
+                   C160,44 164,40 164,34 L164,14
+                   C164,8 160,4 154,4
+                   Z" fill="url(#sbPaper)" stroke="url(#sbGold)" stroke-width="1.8" filter="url(#sbShadow)"/>
+          <path d="M10,8 L158,8" fill="none" stroke="#f5e8c0" stroke-width="0.7" opacity=".7"/>
+          <path d="M10,40 L158,40" fill="none" stroke="#a07830" stroke-width="0.6" opacity=".5"/>
+          <!-- inner thin frame -->
+          <rect x="8" y="8" width="152" height="32" rx="4" fill="none" stroke="#8a6020" stroke-width="0.6" opacity=".45"/>
+          <!-- DENSE corner 云纹 -->
+          <g fill="none" stroke="#b8862a" stroke-width="1.2" stroke-linecap="round">
+            <!-- TL -->
+            <path d="M12,18 C8,18 8,10 16,10 C22,10 22,16 17,17 C13,18 12,14 16,13"/>
+            <path d="M16,10 C20,6 28,8 26,14"/>
+            <path d="M12,14 C10,12 12,9 15,10"/>
+            <!-- TR -->
+            <path d="M156,18 C160,18 160,10 152,10 C146,10 146,16 151,17 C155,18 156,14 152,13"/>
+            <path d="M152,10 C148,6 140,8 142,14"/>
+            <!-- BL -->
+            <path d="M12,30 C8,30 8,38 16,38 C22,38 22,32 17,31 C13,30 12,34 16,35"/>
+            <path d="M16,38 C20,42 28,40 26,34"/>
+            <!-- BR -->
+            <path d="M156,30 C160,30 160,38 152,38 C146,38 146,32 151,31 C155,30 156,34 152,35"/>
+            <path d="M152,38 C148,42 140,40 142,34"/>
+          </g>
+          <!-- side ruyi bosses -->
+          <g fill="#c9a045" stroke="#6a4810" stroke-width="0.6">
+            <circle cx="4" cy="24" r="3.2"/>
+            <circle cx="164" cy="24" r="3.2"/>
+          </g>
+          <g fill="none" stroke="#f0d878" stroke-width="0.9">
+            <path d="M4,24 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0"/>
+            <path d="M164,24 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0"/>
+          </g>
+        </svg>
+      </div>
+      <svg class="sb-icon" viewBox="0 0 28 28">
+        <rect x="6" y="4" width="16" height="20" rx="1.5" fill="#f5e8c0" stroke="#6a4810" stroke-width="1.2"/>
+        <path d="M9,9 H19 M9,13 H17 M9,17 H18" stroke="#8a6020" stroke-width="1.1" stroke-linecap="round"/>
+        <path d="M6,7 Q3,14 6,21" fill="none" stroke="#b8862a" stroke-width="1.3"/>
+      </svg>
+      <span class="sb-label">行职录</span>
+      <svg class="tassel" viewBox="0 0 18 56">
+        <defs>
+          <linearGradient id="tasRed" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e06050"/><stop offset="100%" stop-color="#8c1e14"/>
+          </linearGradient>
+        </defs>
+        <circle cx="9" cy="6" r="3.5" fill="#e8c878" stroke="#6a4810" stroke-width="0.8"/>
+        <path d="M9,9.5 C9,9.5 5,14 7,18 C9,22 9,22 9,22 C9,22 9,22 11,18 C13,14 9,9.5 9,9.5"
+              fill="#c9a045" stroke="#6a4810" stroke-width="0.6"/>
+        <path d="M7,20 Q9,24 7,30 Q9,36 6,44" fill="none" stroke="url(#tasRed)" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M9,20 Q11,26 9,34 Q10,40 9,48" fill="none" stroke="url(#tasRed)" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M11,20 Q13,25 12,32 Q14,38 12,46" fill="none" stroke="url(#tasRed)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <!-- 衣冠 -->
+    <div class="side-btn">
+      <div class="sb-bg">
+        <svg viewBox="0 0 168 48" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sbPaper2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f7edd4"/><stop offset="45%" stop-color="#ead4a8"/><stop offset="100%" stop-color="#d4b882"/>
+            </linearGradient>
+            <linearGradient id="sbGold2" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#f0d878"/><stop offset="50%" stop-color="#b8862a"/><stop offset="100%" stop-color="#f0d878"/>
+            </linearGradient>
+          </defs>
+          <path d="M14,4 C8,4 4,8 4,14 L4,34 C4,40 8,44 14,44 L154,44 C160,44 164,40 164,34 L164,14 C164,8 160,4 154,4 Z"
+                fill="url(#sbPaper2)" stroke="url(#sbGold2)" stroke-width="1.8"/>
+          <path d="M10,8 L158,8" fill="none" stroke="#f5e8c0" stroke-width="0.7" opacity=".7"/>
+          <rect x="8" y="8" width="152" height="32" rx="4" fill="none" stroke="#8a6020" stroke-width="0.6" opacity=".45"/>
+          <g fill="none" stroke="#b8862a" stroke-width="1.2" stroke-linecap="round">
+            <path d="M12,18 C8,18 8,10 16,10 C22,10 22,16 17,17 C13,18 12,14 16,13"/>
+            <path d="M16,10 C20,6 28,8 26,14"/>
+            <path d="M156,18 C160,18 160,10 152,10 C146,10 146,16 151,17 C155,18 156,14 152,13"/>
+            <path d="M152,10 C148,6 140,8 142,14"/>
+            <path d="M12,30 C8,30 8,38 16,38 C22,38 22,32 17,31 C13,30 12,34 16,35"/>
+            <path d="M16,38 C20,42 28,40 26,34"/>
+            <path d="M156,30 C160,30 160,38 152,38 C146,38 146,32 151,31 C155,30 156,34 152,35"/>
+            <path d="M152,38 C148,42 140,40 142,34"/>
+          </g>
+          <g fill="#c9a045" stroke="#6a4810" stroke-width="0.6">
+            <circle cx="4" cy="24" r="3.2"/><circle cx="164" cy="24" r="3.2"/>
+          </g>
+        </svg>
+      </div>
+      <svg class="sb-icon" viewBox="0 0 28 28">
+        <path d="M8,8 L14,5 L20,8 L22,12 L20,24 H8 L6,12 Z" fill="#e8d4a8" stroke="#6a4810" stroke-width="1.1"/>
+        <path d="M14,5 V12" stroke="#8a6020" stroke-width="1"/>
+        <path d="M10,12 H18" stroke="#b8862a" stroke-width="1.2"/>
+      </svg>
+      <span class="sb-label">衣冠</span>
+      <svg class="tassel" viewBox="0 0 18 56">
+        <circle cx="9" cy="6" r="3.5" fill="#e8c878" stroke="#6a4810" stroke-width="0.8"/>
+        <path d="M9,9.5 C9,9.5 5,14 7,18 C9,22 9,22 9,22 C9,22 9,22 11,18 C13,14 9,9.5 9,9.5" fill="#c9a045" stroke="#6a4810" stroke-width="0.6"/>
+        <path d="M7,20 Q9,24 7,30 Q9,36 6,44" fill="none" stroke="#c04030" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M9,20 Q11,26 9,34 Q10,40 9,48" fill="none" stroke="#a02818" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M11,20 Q13,25 12,32 Q14,38 12,46" fill="none" stroke="#c04030" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <!-- 行囊 -->
+    <div class="side-btn">
+      <div class="sb-bg">
+        <svg viewBox="0 0 168 48" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sbPaper3" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f7edd4"/><stop offset="45%" stop-color="#ead4a8"/><stop offset="100%" stop-color="#d4b882"/>
+            </linearGradient>
+            <linearGradient id="sbGold3" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#f0d878"/><stop offset="50%" stop-color="#b8862a"/><stop offset="100%" stop-color="#f0d878"/>
+            </linearGradient>
+          </defs>
+          <path d="M14,4 C8,4 4,8 4,14 L4,34 C4,40 8,44 14,44 L154,44 C160,44 164,40 164,34 L164,14 C164,8 160,4 154,4 Z"
+                fill="url(#sbPaper3)" stroke="url(#sbGold3)" stroke-width="1.8"/>
+          <path d="M10,8 L158,8" fill="none" stroke="#f5e8c0" stroke-width="0.7" opacity=".7"/>
+          <rect x="8" y="8" width="152" height="32" rx="4" fill="none" stroke="#8a6020" stroke-width="0.6" opacity=".45"/>
+          <g fill="none" stroke="#b8862a" stroke-width="1.2" stroke-linecap="round">
+            <path d="M12,18 C8,18 8,10 16,10 C22,10 22,16 17,17 C13,18 12,14 16,13"/>
+            <path d="M16,10 C20,6 28,8 26,14"/>
+            <path d="M156,18 C160,18 160,10 152,10 C146,10 146,16 151,17 C155,18 156,14 152,13"/>
+            <path d="M152,10 C148,6 140,8 142,14"/>
+            <path d="M12,30 C8,30 8,38 16,38 C22,38 22,32 17,31 C13,30 12,34 16,35"/>
+            <path d="M16,38 C20,42 28,40 26,34"/>
+            <path d="M156,30 C160,30 160,38 152,38 C146,38 146,32 151,31 C155,30 156,34 152,35"/>
+            <path d="M152,38 C148,42 140,40 142,34"/>
+          </g>
+          <g fill="#c9a045" stroke="#6a4810" stroke-width="0.6">
+            <circle cx="4" cy="24" r="3.2"/><circle cx="164" cy="24" r="3.2"/>
+          </g>
+        </svg>
+      </div>
+      <svg class="sb-icon" viewBox="0 0 28 28">
+        <ellipse cx="14" cy="16" rx="8" ry="7" fill="#d4b882" stroke="#6a4810" stroke-width="1.2"/>
+        <path d="M10,10 C10,7 12,5 14,5 C16,5 18,7 18,10" fill="none" stroke="#b8862a" stroke-width="1.3"/>
+        <path d="M10,10 H18" stroke="#8a6020" stroke-width="1.2"/>
+        <circle cx="14" cy="16" r="2" fill="#8a6020" opacity=".35"/>
+      </svg>
+      <span class="sb-label">行囊</span>
+      <svg class="tassel" viewBox="0 0 18 56">
+        <circle cx="9" cy="6" r="3.5" fill="#e8c878" stroke="#6a4810" stroke-width="0.8"/>
+        <path d="M9,9.5 C9,9.5 5,14 7,18 C9,22 9,22 9,22 C9,22 9,22 11,18 C13,14 9,9.5 9,9.5" fill="#c9a045" stroke="#6a4810" stroke-width="0.6"/>
+        <path d="M7,20 Q9,24 7,30 Q9,36 6,44" fill="none" stroke="#c04030" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M9,20 Q11,26 9,34 Q10,40 9,48" fill="none" stroke="#a02818" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M11,20 Q13,25 12,32 Q14,38 12,46" fill="none" stroke="#c04030" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <!-- 天市 -->
+    <div class="side-btn">
+      <div class="sb-bg">
+        <svg viewBox="0 0 168 48" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sbPaper4" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f7edd4"/><stop offset="45%" stop-color="#ead4a8"/><stop offset="100%" stop-color="#d4b882"/>
+            </linearGradient>
+            <linearGradient id="sbGold4" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#f0d878"/><stop offset="50%" stop-color="#b8862a"/><stop offset="100%" stop-color="#f0d878"/>
+            </linearGradient>
+          </defs>
+          <path d="M14,4 C8,4 4,8 4,14 L4,34 C4,40 8,44 14,44 L154,44 C160,44 164,40 164,34 L164,14 C164,8 160,4 154,4 Z"
+                fill="url(#sbPaper4)" stroke="url(#sbGold4)" stroke-width="1.8"/>
+          <path d="M10,8 L158,8" fill="none" stroke="#f5e8c0" stroke-width="0.7" opacity=".7"/>
+          <rect x="8" y="8" width="152" height="32" rx="4" fill="none" stroke="#8a6020" stroke-width="0.6" opacity=".45"/>
+          <g fill="none" stroke="#b8862a" stroke-width="1.2" stroke-linecap="round">
+            <path d="M12,18 C8,18 8,10 16,10 C22,10 22,16 17,17 C13,18 12,14 16,13"/>
+            <path d="M16,10 C20,6 28,8 26,14"/>
+            <path d="M156,18 C160,18 160,10 152,10 C146,10 146,16 151,17 C155,18 156,14 152,13"/>
+            <path d="M152,10 C148,6 140,8 142,14"/>
+            <path d="M12,30 C8,30 8,38 16,38 C22,38 22,32 17,31 C13,30 12,34 16,35"/>
+            <path d="M16,38 C20,42 28,40 26,34"/>
+            <path d="M156,30 C160,30 160,38 152,38 C146,38 146,32 151,31 C155,30 156,34 152,35"/>
+            <path d="M152,38 C148,42 140,40 142,34"/>
+          </g>
+          <g fill="#c9a045" stroke="#6a4810" stroke-width="0.6">
+            <circle cx="4" cy="24" r="3.2"/><circle cx="164" cy="24" r="3.2"/>
+          </g>
+        </svg>
+      </div>
+      <svg class="sb-icon" viewBox="0 0 28 28">
+        <path d="M6,22 H22" stroke="#6a4810" stroke-width="1.3"/>
+        <path d="M8,22 V14 L14,9 L20,14 V22" fill="#e8d4a8" stroke="#6a4810" stroke-width="1.1"/>
+        <path d="M10,14 H18" stroke="#b8862a" stroke-width="1"/>
+        <path d="M11,9 L14,6 L17,9" fill="#c9a045" stroke="#6a4810" stroke-width="0.9"/>
+      </svg>
+      <span class="sb-label">天市</span>
+      <svg class="tassel" viewBox="0 0 18 56">
+        <circle cx="9" cy="6" r="3.5" fill="#e8c878" stroke="#6a4810" stroke-width="0.8"/>
+        <path d="M9,9.5 C9,9.5 5,14 7,18 C9,22 9,22 9,22 C9,22 9,22 11,18 C13,14 9,9.5 9,9.5" fill="#c9a045" stroke="#6a4810" stroke-width="0.6"/>
+        <path d="M7,20 Q9,24 7,30 Q9,36 6,44" fill="none" stroke="#c04030" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M9,20 Q11,26 9,34 Q10,40 9,48" fill="none" stroke="#a02818" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M11,20 Q13,25 12,32 Q14,38 12,46" fill="none" stroke="#c04030" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <!-- 署务 -->
+    <div class="side-btn">
+      <div class="sb-bg">
+        <svg viewBox="0 0 168 48" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sbPaper5" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f7edd4"/><stop offset="45%" stop-color="#ead4a8"/><stop offset="100%" stop-color="#d4b882"/>
+            </linearGradient>
+            <linearGradient id="sbGold5" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#f0d878"/><stop offset="50%" stop-color="#b8862a"/><stop offset="100%" stop-color="#f0d878"/>
+            </linearGradient>
+          </defs>
+          <path d="M14,4 C8,4 4,8 4,14 L4,34 C4,40 8,44 14,44 L154,44 C160,44 164,40 164,34 L164,14 C164,8 160,4 154,4 Z"
+                fill="url(#sbPaper5)" stroke="url(#sbGold5)" stroke-width="1.8"/>
+          <path d="M10,8 L158,8" fill="none" stroke="#f5e8c0" stroke-width="0.7" opacity=".7"/>
+          <rect x="8" y="8" width="152" height="32" rx="4" fill="none" stroke="#8a6020" stroke-width="0.6" opacity=".45"/>
+          <g fill="none" stroke="#b8862a" stroke-width="1.2" stroke-linecap="round">
+            <path d="M12,18 C8,18 8,10 16,10 C22,10 22,16 17,17 C13,18 12,14 16,13"/>
+            <path d="M16,10 C20,6 28,8 26,14"/>
+            <path d="M156,18 C160,18 160,10 152,10 C146,10 146,16 151,17 C155,18 156,14 152,13"/>
+            <path d="M152,10 C148,6 140,8 142,14"/>
+            <path d="M12,30 C8,30 8,38 16,38 C22,38 22,32 17,31 C13,30 12,34 16,35"/>
+            <path d="M16,38 C20,42 28,40 26,34"/>
+            <path d="M156,30 C160,30 160,38 152,38 C146,38 146,32 151,31 C155,30 156,34 152,35"/>
+            <path d="M152,38 C148,42 140,40 142,34"/>
+          </g>
+          <g fill="#c9a045" stroke="#6a4810" stroke-width="0.6">
+            <circle cx="4" cy="24" r="3.2"/><circle cx="164" cy="24" r="3.2"/>
+          </g>
+        </svg>
+      </div>
+      <svg class="sb-icon" viewBox="0 0 28 28">
+        <circle cx="14" cy="14" r="9" fill="#e8d4a8" stroke="#6a4810" stroke-width="1.2"/>
+        <circle cx="14" cy="14" r="5.5" fill="none" stroke="#b8862a" stroke-width="1"/>
+        <path d="M11,12 Q14,9 17,12 Q14,16 11,12" fill="#8a6020" opacity=".55"/>
+        <circle cx="14" cy="17" r="1.5" fill="#6a4810"/>
+      </svg>
+      <span class="sb-label">署务</span>
+      <svg class="tassel" viewBox="0 0 18 56">
+        <circle cx="9" cy="6" r="3.5" fill="#e8c878" stroke="#6a4810" stroke-width="0.8"/>
+        <path d="M9,9.5 C9,9.5 5,14 7,18 C9,22 9,22 9,22 C9,22 9,22 11,18 C13,14 9,9.5 9,9.5" fill="#c9a045" stroke="#6a4810" stroke-width="0.6"/>
+        <path d="M7,20 Q9,24 7,30 Q9,36 6,44" fill="none" stroke="#c04030" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M9,20 Q11,26 9,34 Q10,40 9,48" fill="none" stroke="#a02818" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M11,20 Q13,25 12,32 Q14,38 12,46" fill="none" stroke="#c04030" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ========== BOTTOM DOCK ========== -->
+  <div class="dock ui">
+    <div class="dock-frame">
+      <svg viewBox="0 0 720 92" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="dockFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3a2a16" stop-opacity=".78"/>
+            <stop offset="40%" stop-color="#1a1208" stop-opacity=".88"/>
+            <stop offset="100%" stop-color="#2a1c0c" stop-opacity=".92"/>
+          </linearGradient>
+          <linearGradient id="dockGold" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#6a4810"/>
+            <stop offset="20%" stop-color="#e8c878"/>
+            <stop offset="50%" stop-color="#fff0b8"/>
+            <stop offset="80%" stop-color="#e8c878"/>
+            <stop offset="100%" stop-color="#6a4810"/>
+          </linearGradient>
+          <filter id="dockGlow" x="-5%" y="-30%" width="110%" height="160%">
+            <feGaussianBlur stdDeviation="1.4" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- main lacquer bar with cloud-scalloped ends -->
+        <path d="M48,14
+                 C32,14 18,22 14,34
+                 C10,46 14,62 28,70
+                 C36,74 48,76 60,76
+                 L660,76
+                 C672,76 684,74 692,70
+                 C706,62 710,46 706,34
+                 C702,22 688,14 672,14
+                 Z"
+              fill="url(#dockFill)" stroke="url(#dockGold)" stroke-width="2"/>
+
+        <!-- inner double line -->
+        <path d="M56,20 L664,20" fill="none" stroke="#e8c878" stroke-width="0.7" opacity=".4"/>
+        <path d="M56,70 L664,70" fill="none" stroke="#8a6020" stroke-width="0.7" opacity=".55"/>
+
+        <!-- ===== DENSE LEFT 云纹 corner cluster ===== -->
+        <g fill="none" stroke="#e8c878" stroke-width="1.35" stroke-linecap="round" filter="url(#dockGlow)">
+          <!-- primary ruyi cloud -->
+          <path d="M30,46 C18,40 20,24 36,22 C48,20 52,30 44,36 C36,42 28,34 38,30"/>
+          <path d="M30,46 C20,54 26,68 42,68 C54,68 56,56 48,52 C40,48 34,56 42,58"/>
+          <!-- secondary scrolls -->
+          <path d="M44,28 C52,20 68,22 66,34 C64,42 54,40 56,32"/>
+          <path d="M48,60 C56,70 72,68 70,56 C68,48 58,50 60,58"/>
+          <!-- tertiary micro curls -->
+          <path d="M22,36 C16,32 18,26 26,28"/>
+          <path d="M22,56 C16,60 18,66 26,64"/>
+          <path d="M58,24 C64,18 76,20 74,30"/>
+          <path d="M62,68 C68,74 80,72 78,62"/>
+          <!-- connecting S -->
+          <path d="M40,40 C50,36 54,48 46,52 C38,56 42,44 50,46"/>
+          <circle cx="34" cy="46" r="2" fill="#f5e0a0" stroke="none"/>
+          <circle cx="54" cy="34" r="1.4" fill="#f5e0a0" stroke="none"/>
+          <circle cx="56" cy="58" r="1.4" fill="#f5e0a0" stroke="none"/>
+        </g>
+        <!-- gold fill accents under strokes -->
+        <g fill="none" stroke="#b8862a" stroke-width="0.7" opacity=".7">
+          <path d="M32,46 C22,42 24,28 38,26"/>
+          <path d="M32,46 C24,52 28,66 42,66"/>
+        </g>
+
+        <!-- ===== DENSE RIGHT 云纹 corner cluster (mirrored) ===== -->
+        <g fill="none" stroke="#e8c878" stroke-width="1.35" stroke-linecap="round" filter="url(#dockGlow)">
+          <path d="M690,46 C702,40 700,24 684,22 C672,20 668,30 676,36 C684,42 692,34 682,30"/>
+          <path d="M690,46 C700,54 694,68 678,68 C666,68 664,56 672,52 C680,48 686,56 678,58"/>
+          <path d="M676,28 C668,20 652,22 654,34 C656,42 666,40 664,32"/>
+          <path d="M672,60 C664,70 648,68 650,56 C652,48 662,50 660,58"/>
+          <path d="M698,36 C704,32 702,26 694,28"/>
+          <path d="M698,56 C704,60 702,66 694,64"/>
+          <path d="M662,24 C656,18 644,20 646,30"/>
+          <path d="M658,68 C652,74 640,72 642,62"/>
+          <path d="M680,40 C670,36 666,48 674,52 C682,56 678,44 670,46"/>
+          <circle cx="686" cy="46" r="2" fill="#f5e0a0" stroke="none"/>
+          <circle cx="666" cy="34" r="1.4" fill="#f5e0a0" stroke="none"/>
+          <circle cx="664" cy="58" r="1.4" fill="#f5e0a0" stroke="none"/>
+        </g>
+        <g fill="none" stroke="#b8862a" stroke-width="0.7" opacity=".7">
+          <path d="M688,46 C698,42 696,28 682,26"/>
+          <path d="M688,46 C696,52 692,66 678,66"/>
+        </g>
+
+        <!-- top rail cloud ticks along bar -->
+        <g fill="none" stroke="#c9a045" stroke-width="0.9" opacity=".8">
+          <path d="M120,16 C128,12 140,12 148,16"/>
+          <path d="M200,16 C208,12 220,12 228,16"/>
+          <path d="M492,16 C500,12 512,12 520,16"/>
+          <path d="M572,16 C580,12 592,12 600,16"/>
+          <path d="M120,74 C128,78 140,78 148,74"/>
+          <path d="M572,74 C580,78 592,78 600,74"/>
+        </g>
+
+        <!-- center ruyi emblem -->
+        <g transform="translate(360,12)" fill="none" stroke="#e8c878" stroke-width="1" opacity=".75">
+          <path d="M0,0 C-8,4 -8,12 0,14 C8,12 8,4 0,0"/>
+          <circle cx="0" cy="7" r="1.6" fill="#f5e0a0" stroke="none"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="dock-items">
+      <!-- 在场 selected -->
+      <div class="dock-item selected">
+        <div class="di-icon">
+          <svg width="40" height="40" viewBox="0 0 40 40">
+            <defs>
+              <radialGradient id="selRing" cx="50%" cy="50%" r="50%">
+                <stop offset="60%" stop-color="#ffe9a0" stop-opacity="0"/>
+                <stop offset="85%" stop-color="#e8c878" stop-opacity=".85"/>
+                <stop offset="100%" stop-color="#b8862a" stop-opacity=".9"/>
+              </radialGradient>
+            </defs>
+            <circle cx="20" cy="20" r="18" fill="url(#selRing)" stroke="#f0d878" stroke-width="1.6"/>
+            <circle cx="20" cy="20" r="13" fill="none" stroke="#c9a045" stroke-width="0.8" opacity=".6"/>
+            <!-- swirl / presence glyph -->
+            <g fill="none" stroke="#ffe9a0" stroke-width="1.5" stroke-linecap="round">
+              <path d="M20,10 C28,12 30,22 24,26 C18,30 12,24 16,18 C20,12 26,16 22,20"/>
+              <circle cx="20" cy="20" r="2.2" fill="#f5e0a0" stroke="#8a6020" stroke-width="0.7"/>
+            </g>
+          </svg>
+        </div>
+        <span>在场</span>
+      </div>
+
+      <!-- 主线 -->
+      <div class="dock-item">
+        <div class="di-icon">
+          <svg width="40" height="40" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="16" fill="rgba(30,20,8,.35)" stroke="#8a6020" stroke-width="1.2"/>
+            <path d="M20,10 C22,14 26,16 24,22 C23,26 20,30 20,30 C20,30 17,26 16,22 C14,16 18,14 20,10 Z"
+                  fill="#e07040" stroke="#c9a045" stroke-width="0.9"/>
+            <path d="M20,14 C21,17 23,18 22,22" fill="none" stroke="#ffe9a0" stroke-width="1.2"/>
+          </svg>
+        </div>
+        <span>主线</span>
+      </div>
+
+      <!-- 共处 -->
+      <div class="dock-item">
+        <div class="di-icon">
+          <svg width="40" height="40" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="16" fill="rgba(30,20,8,.35)" stroke="#8a6020" stroke-width="1.2"/>
+            <path d="M20,28
+                     C14,24 10,20 10,16
+                     C10,12 13,10 16,10
+                     C18,10 19.5,11 20,13
+                     C20.5,11 22,10 24,10
+                     C27,10 30,12 30,16
+                     C30,20 26,24 20,28 Z"
+                  fill="none" stroke="#e8c878" stroke-width="1.5"/>
+            <path d="M16,16 C18,14 20,16 20,18 C20,16 22,14 24,16" fill="none" stroke="#c9a045" stroke-width="1"/>
+          </svg>
+        </div>
+        <span>共处</span>
+      </div>
+
+      <!-- 图鉴 -->
+      <div class="dock-item">
+        <div class="di-icon">
+          <svg width="40" height="40" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="16" fill="rgba(30,20,8,.35)" stroke="#8a6020" stroke-width="1.2"/>
+            <path d="M12,12 H19 V28 H12 Q10,28 10,26 V14 Q10,12 12,12 Z" fill="#e8d4a8" stroke="#6a4810" stroke-width="0.9"/>
+            <path d="M21,12 H28 Q30,12 30,14 V26 Q30,28 28,28 H21 Z" fill="#d4b882" stroke="#6a4810" stroke-width="0.9"/>
+            <path d="M20,12 V28" stroke="#b8862a" stroke-width="1.2"/>
+            <path d="M14,16 H17 M14,20 H17 M23,16 H27 M23,20 H26" stroke="#8a6020" stroke-width="0.9"/>
+          </svg>
+        </div>
+        <span>图鉴</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
