@@ -88,7 +88,11 @@
     } catch (_) {}
   }
   function setDock(id) {
-    el.dock.forEach((b) => b.classList.toggle("on", b.dataset.tab === id));
+    if (window.CW) window.CW.setDockSel(id);
+    else el.dock.forEach((b) => b.classList.toggle("on", b.dataset.tab === id));
+  }
+  function toScene() {
+    if (window.CW) window.CW.show("scene");
   }
   function showToast(msg) {
     el.toast.textContent = msg;
@@ -97,6 +101,11 @@
     showToast._t = setTimeout(() => el.toast.classList.remove("show"), 1600);
   }
 
+  const CLOSE_BTN = '<button class="close cw cw-d cw-chip" type="button" id="panel-close"><span class="cw-label">关闭</span></button>';
+  function closePanel() {
+    el.panel.classList.remove("show");
+    if (window.CW) window.CW.goHub(); else goHome();
+  }
   const SPRITES = {
     idle: "images/sprites/gu_idle.png",
     cold: "images/sprites/gu_cold.png",
@@ -141,18 +150,20 @@
     });
   }
   function goHome() {
+    toScene();
     state.screen = "home";
     el.dialog.classList.remove("show");
     el.choices.classList.remove("show");
     el.panel.classList.remove("show");
     el.hotspots.classList.add("active");
-    setSprite("idle");
+    setSprite(window.CW ? window.CW.guEmo() : "idle");
     el.topTitle.textContent = "破祠 · 顾山在";
     setDock("home");
   }
   function renderNode(id) {
     const node = window.STORY.nodes[id];
     if (!node) return;
+    toScene();
     state.screen = "story";
     state.nodeId = id;
     el.hotspots.classList.remove("active");
@@ -187,12 +198,13 @@
     if (!node || node.choices) return;
     if (node.end) {
       goHome();
-      showToast("已回到主界面");
+      showToast("第一章完 · 已回到破祠");
       return;
     }
     if (node.next) renderNode(node.next);
   }
   function openPanel(kind) {
+    toScene();
     state.screen = "panel";
     el.dialog.classList.remove("show");
     el.choices.classList.remove("show");
@@ -203,11 +215,11 @@
       renderHomeLife();
       return;
     } else if (kind === "gallery") {
-      el.panel.innerHTML = '<button class="close" type="button" id="panel-close">关闭</button><h2>图鉴</h2><p>卡面与心迹将在后续解锁。本地自玩，不做抽卡。</p><ul><li>顾山 · 待解锁</li></ul>';
+      el.panel.innerHTML = CLOSE_BTN + '<h2>图鉴</h2><p>卡面与心迹将在后续解锁。本地自玩，不做抽卡。</p><ul><li>顾山 · 待解锁</li></ul>';
     } else {
-      el.panel.innerHTML = '<button class="close" type="button" id="panel-close">关闭</button><h2>说明</h2><p>横屏 16:9。进度存在本机 Safari。仅供你自己玩。</p>';
+      el.panel.innerHTML = CLOSE_BTN + '<h2>说明</h2><p>横屏 16:9。进度存在本机 Safari。仅供你自己玩。</p>';
     }
-    $("#panel-close").addEventListener("click", goHome);
+    $("#panel-close").addEventListener("click", closePanel);
   }
 
   function renderHomeLife() {
@@ -217,17 +229,17 @@
     ).join('');
     const actions = Object.keys(HOME_ACTIONS).map((id) => {
       const a = HOME_ACTIONS[id];
-      return '<button type="button" class="home-act" data-act="' + id + '">' + a.label + '</button>';
+      return '<button type="button" class="home-act cw cw-d cw-secondary" data-act="' + id + '"><span class="cw-label">' + a.label + '</span></button>';
     }).join('');
     el.panel.innerHTML =
-      '<button class="close" type="button" id="panel-close">关闭</button>' +
+      CLOSE_BTN +
       '<h2>共处 · 破祠</h2>' +
       '<p id="home-status" class="home-status-card">' + homeStatusLines(h) + '</p>' +
       '<p class="home-hint">他坐在一步之外。做一件小事，他会跟着操心。</p>' +
       '<div class="home-actions">' + actions + '</div>' +
       '<p id="home-line" class="home-line">顾山：「火还行。你想做什么，说一声。」</p>' +
       '<h2 class="home-sub">关系怎么长</h2><ul>' + stages + '</ul>';
-    $("#panel-close").addEventListener("click", goHome);
+    $("#panel-close").addEventListener("click", closePanel);
     el.panel.querySelectorAll(".home-act").forEach((btn) => {
       btn.addEventListener("click", () => {
         const act = HOME_ACTIONS[btn.dataset.act];
@@ -246,26 +258,41 @@
 
   el.enter.addEventListener("click", () => {
     el.boot.style.display = "none";
-    const resume = state.nodeId && window.STORY.nodes[state.nodeId] && !window.STORY.nodes[state.nodeId].end;
-    if (resume) renderNode(state.nodeId);
-    else goHome();
+    if (window.CW) window.CW.goHub(); else goHome();
+  });
+  function openStory() {
+    const id = state.nodeId && window.STORY.nodes[state.nodeId] && !window.STORY.nodes[state.nodeId].end
+      ? state.nodeId
+      : window.STORY.start;
+    renderNode(id);
+  }
+  function resetProgress() {
+    state.nodeId = null;
+    state.touchIdx = {};
+    state.home = { fire: 1, rain: 2, door: 0, water: 0, mat: 0, rear: 0, guPresent: true };
+    save();
+  }
+  const sceneBack = $("#scene-back");
+  if (sceneBack) sceneBack.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    el.dialog.classList.remove("show");
+    el.choices.classList.remove("show");
+    el.panel.classList.remove("show");
+    if (window.CW) window.CW.goHub();
   });
   el.dialog.addEventListener("click", advance);
   el.dock.forEach((b) => {
     b.addEventListener("click", () => {
       const tab = b.dataset.tab;
       if (tab === "home") goHome();
-      else if (tab === "story") {
-        const id = state.nodeId && window.STORY.nodes[state.nodeId] && !window.STORY.nodes[state.nodeId].end
-          ? state.nodeId
-          : window.STORY.start;
-        renderNode(id);
-      } else if (tab === "home-life") openPanel("home-life");
-      else if (tab === "gallery") openPanel("gallery");
+      else if (tab === "story") openStory();
+      else if (tab === "home-life") openPanel("home-life");
+      else if (tab === "gallery") { if (window.CW) window.CW.openPage("tujian"); else openPanel("gallery"); }
     });
   });
 
   load();
   buildHotspots();
   el.topTitle.textContent = "城外 · 本地自玩";
+  window.CW_SCENE = { goPresence: goHome, openStory, openPanel, setSprite, resetProgress };
 })();

@@ -2,13 +2,19 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="城外" />
   <meta name="theme-color" content="#0b0908" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <title>城外·顾山</title>
-  <link rel="stylesheet" href="css/game.css" />
+  <meta name="cw-build" content="20260925c" />
+  <link rel="manifest" href="manifest.webmanifest?v=20260925c" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%238c1e14%22/%3E%3Ctext x=%2216%22 y=%2222%22 font-size=%2216%22 text-anchor=%22middle%22 fill=%22%23f5e6c8%22%3E%E5%A4%96%3C/text%3E%3C/svg%3E" />
+  <title>廿四道·城外</title>
+  <link rel="stylesheet" href="css/buttons.css?v=20260925c" />
+  <link rel="stylesheet" href="css/game.css?v=20260925c" />
+  <link rel="stylesheet" href="css/system.css?v=20260925c" />
 </head>
 <body>
   <div id="boot">
@@ -17,7 +23,7 @@
       <h1>顾山</h1>
       <div class="boot-rule" aria-hidden="true"></div>
       <p>横屏本地自玩 · 第一章「渡气」<br />进度只存在这台 iPhone 的 Safari</p>
-      <button type="button" id="btn-enter">进入</button>
+      <button type="button" id="btn-enter" class="cw cw-d cw-primary"><span class="cw-label">进入</span></button>
     </div>
   </div>
 
@@ -30,31 +36,49 @@
 
   <div id="stage-wrap">
     <div id="stage">
-      <div id="bg" class="layer"></div>
-      <div id="sprite-layer" class="layer"><img id="sprite-img" src="images/sprites/gu_idle.png" alt="顾山" draggable="false" /></div>
-      <div id="hotspots" class="layer active"></div>
-      <div id="topbar"><span id="top-title">城外</span><span>本地</span></div>
-      <div id="toast"></div>
-      <div id="choices"></div>
-      <div id="dialog">
-        <div id="nameplate"></div>
-        <div id="text"></div>
-      </div>
-      <div id="panel"></div>
+      <!-- 场景：在场 / 主线 / 共处（原有玩法） -->
+      <section id="scene" class="screen">
+        <div id="bg" class="layer"></div>
+        <div id="sprite-layer" class="layer"><img id="sprite-img" src="images/sprites/gu_idle.png" alt="顾山" draggable="false" /></div>
+        <div id="hotspots" class="layer active"></div>
+        <div id="topbar"><span id="top-title">城外</span><span>本地</span></div>
+        <button type="button" id="scene-back" class="cw cw-d cw-secondary cw-back"><span class="cw-label"><span class="arr"><svg width="14" height="14" viewBox="0 0 18 18"><path d="M11,3 L5,9 L11,15" fill="none" stroke="#3a2808" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>回主殿</span></button>
+        <div id="choices"></div>
+        <div id="dialog">
+          <div id="nameplate"></div>
+          <div id="text"></div>
+          <div id="dialog-next" aria-hidden="true">▼</div>
+        </div>
+        <div id="panel"></div>
+      </section>
+
+      <!-- 主殿 -->
+      <section id="hub" class="screen"></section>
+
+      <!-- 系统页：天市 / 衣冠 / 行职录 / 行囊 / 署务 / 图鉴 -->
+      <section id="page" class="screen"></section>
+
       <nav id="dock" aria-label="底栏">
-        <button type="button" class="dock-btn on" data-tab="home"><span class="dock-ico" aria-hidden="true">◎</span>在场</button>
-        <button type="button" class="dock-btn" data-tab="story"><span class="dock-ico" aria-hidden="true">☰</span>主线</button>
-        <button type="button" class="dock-btn" data-tab="home-life"><span class="dock-ico" aria-hidden="true">⌂</span>共处</button>
-        <button type="button" class="dock-btn" data-tab="gallery"><span class="dock-ico" aria-hidden="true">◇</span>图鉴</button>
+        <div class="dock-frame" aria-hidden="true"></div>
+        <button type="button" class="dock-btn cw cw-d cw-tab" data-tab="home"><span class="cw-label"><span class="dock-ico" data-ico="presence"></span><span>在场</span></span></button>
+        <button type="button" class="dock-btn cw cw-d cw-tab" data-tab="story"><span class="cw-label"><span class="dock-ico" data-ico="story"></span><span>主线</span></span></button>
+        <button type="button" class="dock-btn cw cw-d cw-tab" data-tab="home-life"><span class="cw-label"><span class="dock-ico" data-ico="homelife"></span><span>共处</span></span></button>
+        <button type="button" class="dock-btn cw cw-d cw-tab" data-tab="gallery"><span class="cw-label"><span class="dock-ico" data-ico="gallery"></span><span>图鉴</span></span></button>
       </nav>
+
+      <div id="toast"></div>
+      <div id="modal" aria-hidden="true"></div>
     </div>
   </div>
 
-  <script src="js/story.js"></script>
-  <script src="js/game.js"></script>
+  <script src="js/story.js?v=20260925c"></script>
+  <script src="js/ui-kit.js?v=20260925c"></script>
+  <script src="js/data.js?v=20260925c"></script>
+  <script src="js/system.js?v=20260925c"></script>
+  <script src="js/game.js?v=20260925c"></script>
   <script>
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js").catch(function () {});
+      navigator.serviceWorker.register("./sw.js?v=20260925c").catch(function () {});
     }
   </script>
 </body>
