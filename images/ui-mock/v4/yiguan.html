@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1280" />
+<title>《廿四道·城外》衣冠 · UI 线框 v4</title>
+<link rel="stylesheet" href="./v4-common.css" />
+<style>
+  /* —— 男主切换条 —— */
+  .roster { left: 18px; top: 76px; width: 92px; height: 628px; }
+  .roster .rh { position: absolute; left: 0; right: 0; top: 10px; text-align: center; font-size: 14px; color: var(--gold); letter-spacing: .2em; }
+  .who { position: absolute; left: 0; width: 92px; height: 96px; display: flex; flex-direction: column; align-items: center; }
+  .who .face { position: relative; width: 62px; height: 62px; border-radius: 50%; overflow: hidden; border: 2px solid #8a6020;
+    background: radial-gradient(circle at 50% 35%, #4a3a26, #1a1208); }
+  .who .face img { width: 100%; height: 100%; object-fit: cover; }
+  .who .face .sil { position: absolute; inset: 0; }
+  .who .face .lk { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(10,6,2,.35); }
+  .who .nm { margin-top: 5px; font-size: 15px; letter-spacing: .06em; color: #9a8a6a; white-space: nowrap; }
+  .who.on .face { border: 2.5px solid #ffd870; box-shadow: 0 0 14px rgba(255,200,90,.75); }
+  .who.on .nm { color: #ffe9b0; font-weight: 700; }
+  .who.on::before { content: ""; position: absolute; left: 6px; right: 6px; top: -4px; bottom: 2px; border-radius: 8px;
+    background: radial-gradient(ellipse at 50% 40%, rgba(255,210,110,.25), transparent 70%); }
+
+  /* —— 立绘台 —— */
+  .dais { position: absolute; left: 118px; top: 70px; width: 480px; height: 650px; overflow: hidden; }
+  .dais .ring { position: absolute; left: 20px; top: 10px; width: 440px; height: 440px; }
+  .dais .glow { position: absolute; left: 40px; top: 40px; width: 400px; height: 400px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,215,130,.40), rgba(255,180,80,.10) 55%, transparent 70%); }
+  .dais img.sprite { position: absolute; left: 50%; top: 22px; height: 628px; width: auto; transform: translateX(-50%);
+    filter: drop-shadow(0 0 18px rgba(255,200,110,.25)); }
+  .dais .ph-tag { left: 12px; top: 14px; }
+  .outfit-tag { position: absolute; left: 136px; bottom: 16px; z-index: 6; height: 40px; min-width: 250px; display: flex; align-items: center; gap: 8px;
+    padding: 0 44px; color: #f5e6c0; font-size: 15px; white-space: nowrap; letter-spacing: .08em; }
+  .outfit-tag .chip-bg { position: absolute; inset: 0; z-index: 0; } .outfit-tag .chip-bg svg { width: 100%; height: 100%; display: block; }
+  .outfit-tag > span { position: relative; z-index: 1; }
+  .outfit-tag b { color: #ffd870; }
+
+  /* —— 槽位栏 —— */
+  .rail { left: 606px; top: 76px; width: 164px; height: 628px; }
+  .slot { position: absolute; left: 10px; width: 144px; height: 52px; display: flex; align-items: center; gap: 8px; padding: 0 8px; border-radius: 4px;
+    border: 1px solid rgba(201,160,69,.25); background: rgba(20,12,4,.35); }
+  .slot .si { width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%; border: 1px solid rgba(201,160,69,.6); padding: 3px; background: rgba(30,20,8,.6); }
+  .slot .tx { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+  .slot .sn { font-size: 15px; font-weight: 700; color: var(--gold); letter-spacing: .1em; white-space: nowrap; }
+  .slot .se { font-size: 14px; color: var(--ivory-dim); white-space: nowrap; }
+  .slot .se.empty { color: #8a7a5a; }
+  .slot .se.try { color: #ffd870; }
+  .slot.on { border: none; background: none; }
+  .slot.on .pq-bg { position: absolute; inset: -2px -4px; z-index: 0; }
+  .slot.on .pq-bg svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .slot.on > *:not(.pq-bg) { position: relative; z-index: 1; }
+  .slot.on .sn { color: var(--ink); } .slot.on .se { color: #6a4810; } .slot.on .si { background: rgba(255,250,230,.6); border-color: #8a6020; }
+  .rail .grp { position: absolute; left: 10px; width: 144px; height: 20px; display: flex; align-items: center; gap: 6px; font-size: 14px; color: #c9a045; letter-spacing: .12em; }
+  .rail .grp::before, .rail .grp::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #c9a045, transparent); }
+
+  /* —— 右侧已有格 —— */
+  .owned { left: 784px; top: 76px; width: 478px; height: 628px; }
+  .ow-head { position: absolute; left: 20px; right: 20px; top: 14px; height: 30px; display: flex; align-items: center; gap: 10px; }
+  .ow-head .t { font-size: 20px; font-weight: 700; letter-spacing: .16em; color: var(--ivory); }
+  .ow-head .c { font-size: 14px; color: var(--ivory-dim); }
+  .ow-head .go { margin-left: auto; font-size: 14px; color: #ffd870; border: 1px solid rgba(255,216,112,.5); border-radius: 14px; padding: 2px 12px; background: rgba(60,36,10,.6); }
+  .ogrid { position: absolute; left: 18px; right: 18px; top: 54px; height: 288px; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr); gap: 12px 10px; }
+  .oc { position: relative; border-radius: 4px; background: linear-gradient(180deg, rgba(44,30,14,.92), rgba(22,14,6,.94)); border: 1px solid rgba(201,160,69,.6); }
+  .oc.sel { border: 2px solid #ffd870; box-shadow: 0 0 14px rgba(255,200,90,.55); }
+  .oc .art { position: absolute; left: 6px; right: 6px; top: 6px; height: 74px; border-radius: 3px; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at 50% 60%, rgba(120,84,36,.55), rgba(30,20,8,.9)); border: 1px solid rgba(201,160,69,.3); overflow: hidden; }
+  .oc .art .ic { width: 58px; height: 58px; }
+  .oc .art img { width: 100%; height: 100%; object-fit: cover; }
+  .oc .art .ph-tag { left: 3px; bottom: 3px; font-size: 14px; padding: 0 4px; }
+  .oc .nm { position: absolute; left: 0; right: 0; top: 86px; text-align: center; font-size: 15px; font-weight: 700; color: var(--ivory); white-space: nowrap; letter-spacing: .04em; }
+  .oc .st { position: absolute; left: 0; right: 0; top: 108px; text-align: center; font-size: 14px; color: var(--ivory-dim); white-space: nowrap; }
+  .oc .st.wear { color: #ff9a7a; font-weight: 700; } .oc .st.try { color: #ffd870; font-weight: 700; } .oc .st.shop { color: #c9a045; }
+  .oc.no .art, .oc.no .nm { opacity: .45; filter: grayscale(.6); }
+  .oc .seal { position: absolute; right: 4px; top: 4px; z-index: 5; }
+  .oc .draw { position: absolute; right: 4px; top: 4px; z-index: 5; font-size: 14px; color: #fff0c8; background: #8c1e14; border: 1px solid #f0c060; padding: 0 5px; border-radius: 2px; }
+
+  .detail { position: absolute; left: 18px; right: 18px; top: 352px; height: 82px; border-radius: 4px; padding: 8px 12px;
+    background: rgba(12,8,2,.55); border: 1px solid rgba(201,160,69,.35); }
+  .detail .d1 { font-size: 17px; font-weight: 700; color: var(--ivory); letter-spacing: .1em; display: flex; align-items: center; gap: 8px; }
+  .detail .d2 { margin-top: 5px; font-size: 14px; color: var(--ivory-dim); line-height: 1.5; white-space: nowrap; overflow: hidden; }
+  .flow { position: absolute; left: 18px; right: 18px; top: 442px; height: 28px; display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 14px; color: var(--ivory-dim); letter-spacing: .1em; }
+  .flow b { color: #ffd870; font-weight: 700; } .flow i { font-style: normal; color: #c9a045; }
+  .plans { position: absolute; left: 18px; right: 18px; top: 480px; height: 50px; display: flex; align-items: center; gap: 10px; }
+  .plans .lb { font-size: 16px; color: var(--gold); letter-spacing: .14em; margin-right: 2px; white-space: nowrap; }
+  .plan { position: relative; flex: 1; height: 46px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; letter-spacing: .1em; }
+  .plan .t-bg { position: absolute; inset: 0; } .plan .t-bg svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .plan > span { position: relative; z-index: 1; }
+  .plan.off { color: var(--gold); } .plan.on { color: var(--ink); filter: drop-shadow(0 0 8px rgba(255,210,110,.5)); }
+  .plan .dot { position: absolute; right: 12px; top: 8px; width: 7px; height: 7px; border-radius: 50%; background: #d84a3a; z-index: 2; }
+  .acts { position: absolute; left: 18px; right: 18px; top: 550px; height: 56px; display: flex; gap: 14px; }
+  .acts .plaque { position: relative; flex: 1; height: 54px; font-size: 18px; letter-spacing: .24em; }
+  .acts .btn-verm { position: relative; flex: 1.3; height: 54px; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script src="./v4-common.js"></script>
+<script src="./v4-icons.js"></script>
+<script>
+const slotKey = new URLSearchParams(location.search).get("slot") || "cloth";
+const ROSTER = [["顾山", 1], ["沈砚"], ["陆星阑"], ["萧铁衣"], ["裴无咎"], ["白鹤眠"]];
+const SLOTS = [
+  { k: "hair", n: "头发", ic: "hair", e: "短碎发" },
+  { k: "cloth", n: "衣服", ic: "cloth", e: slotKey === "cloth" ? "夜氅 · 试穿" : "猎服", try: slotKey === "cloth" },
+  { grp: "配饰 · 六格" },
+  { k: "acc_head", n: "头饰", ic: "head", e: "未戴" },
+  { k: "acc_ear", n: "耳饰", ic: "ear", e: "未戴" },
+  { k: "acc_neck", n: "颈胸佩", ic: "neck", e: "骨木佩" },
+  { k: "acc_hand", n: "腕手", ic: "hand", e: "皮护腕" },
+  { k: "acc_waist", n: "腰佩", ic: "waist", e: "未戴" },
+  { k: "acc_back", n: "背负", ic: "back", e: "未戴" },
+  { k: "emo", n: "动作表情", ic: "emo", e: "平常" },
+  { k: "fu", n: "符箓", ic: "fu_paper", e: slotKey === "fu" ? "灶余暖符" : "未佩", try: slotKey === "fu" },
+];
+const PANELS = {
+  cloth: {
+    title: "衣服", count: "行囊中已有 4 件", go: "未有 3 件 · 去天市",
+    items: [
+      { nm: "猎服", st: ["wear", "原穿戴"], ic: "cloth" },
+      { nm: "夜氅", st: ["try", "试穿中"], ic: "cloak", tint: "#b8a8d8", sel: 1 },
+      { nm: "雨蓑外袍", st: ["", "行职解锁"], ic: "cloak", tint: "#9fd0c8" },
+      { nm: "渡气见证袍", st: ["", "天市购得"], ic: "cloak", tint: "#ffd870" },
+      { nm: "日间旅服", st: ["shop", "未有 · 去天市"], ic: "cloth", tint: "#d8c8a0", no: 1 },
+      { nm: "素暗礼服", st: ["shop", "未有 · 去天市"], ic: "cloak", tint: "#a0b8c0", no: 1 },
+      { nm: "山火冬袄", st: ["shop", "未有 · 去天市"], ic: "cloth", tint: "#f0a070", no: 1 },
+    ],
+    d1: "夜氅", rar: "su", d2: "深色夜行披 · 同槽互斥，替换当前衣服<br>点「保存搭配」后写入当前方案",
+  },
+  fu: {
+    title: "符箓", count: "行囊中已有 3 件 · 只作外观", go: "天市符 · 去天市",
+    items: [
+      { nm: "不佩符", st: ["", "关闭符光"], ic: "none" },
+      { nm: "灶余暖符", st: ["try", "试佩中"], ic: "fu_flame", sel: 1 },
+      { nm: "渡气余辉", st: ["", "天市符"], ic: "fu_light" },
+      { nm: "猎户山印", st: ["", "行职符"], ic: "fu_paper", tint: "#d0a070" },
+      { nm: "避雨符影", st: ["shop", "绘制 · 缺雨青墨 2"], ic: "fu_paper", tint: "#9fd0c8", no: 1, draw: 1 },
+      { nm: "廿四道天章", st: ["shop", "章节奖励"], img: "./thumb_fu_24dao.png", no: 1 },
+      { nm: "山骨符", st: ["shop", "道途解锁"], ic: "fu_bone", no: 1 },
+    ],
+    d1: "灶余暖符", rar: "su", d2: "行职符 · 肩侧几点暖金碎光 · 可关<br>绘制避雨符影：黄符纸 3/3　雨青墨 1/3",
+  },
+};
+const P = PANELS[slotKey];
+const stage = document.getElementById("stage");
+let html = V4.topLeft("衣冠", "行囊所有 · 在此穿戴", "冠") + V4.currencyBar();
+
+// 男主切换条
+const sil = `<svg class="sil" viewBox="0 0 62 62"><circle cx="31" cy="24" r="11" fill="#5a4a34"/><path d="M8,62 C10,44 20,38 31,38 C42,38 52,44 54,62 Z" fill="#5a4a34"/></svg>`;
+html += `<div class="lacq roster" id="roster"><div class="rh">男主</div>` + ROSTER.map((r, i) =>
+  `<div class="who ${r[1] ? "on" : ""}" style="top:${36 + i * 94}px"><div class="face">${r[1] ? `<img src="./gu_face_thumb.png">` : sil + `<div class="lk">${V4.lockIco(24)}</div>`}</div>
+   <div class="nm">${r[0]}${r[1] ? "" : ""}</div></div>`).join("") + `</div>`;
+
+// 立绘台
+html += `<div class="dais"><div class="glow"></div>
+  <svg class="ring" viewBox="0 0 440 440"><g fill="none" stroke="#e8c878" stroke-linecap="round">
+    <circle cx="220" cy="220" r="200" stroke-width="1.2" opacity=".55"/><circle cx="220" cy="220" r="186" stroke-width=".7" opacity=".4" stroke-dasharray="2 6"/>
+    <circle cx="220" cy="220" r="150" stroke-width=".8" opacity=".3"/>
+    ${[0, 45, 90, 135, 180, 225, 270, 315].map(a => `<g transform="rotate(${a} 220 220)" opacity=".75" stroke-width="1.3">
+      <path d="M220,14 C212,8 204,16 210,22 C214,26 220,22 217,18"/><path d="M220,14 C228,8 236,16 230,22 C226,26 220,22 223,18"/></g>`).join("")}
+  </g></svg>
+  <img class="sprite" src="../../sprites/gu_idle.png">
+  <span class="ph-tag">部件分层立绘未出图 · 暂用默认立绘</span>
+</div>`;
+html += `<div class="outfit-tag"><div class="chip-bg">${V4.lacquerPill()}</div><span>顾山 · <b>方案 1</b> · 未保存改动 1 处</span></div>`;
+
+// 槽位栏
+let y = 12;
+html += `<div class="lacq rail" id="rail">` + SLOTS.map(s => {
+  if (s.grp) { const h = `<div class="grp" style="top:${y}px">${s.grp}</div>`; y += 22; return h; }
+  const on = s.k === slotKey;
+  const empty = ["未戴", "未佩"].includes(s.e);
+  const h = `<div class="slot ${on ? "on" : ""}" style="top:${y}px">${on ? V4.plaqueBg(true) : ""}
+    <span class="si">${ICONS(s.ic, on ? "#6a4810" : "#e8c878")}</span>
+    <span class="tx"><span class="sn">${s.n}</span><span class="se ${empty ? "empty" : ""} ${s.try ? "try" : ""}">${s.e}</span></span></div>`;
+  y += 58; return h;
+}).join("") + `</div>`;
+
+// 已有格
+html += `<div class="lacq owned" id="owned">
+  <div class="ow-head"><span class="t">${P.title}</span><span class="c">${P.count}</span><span class="go">${P.go}</span></div>
+  <div class="ogrid">` + P.items.map(it => `<div class="oc ${it.sel ? "sel" : ""} ${it.no ? "no" : ""}">
+      <div class="art">${it.img ? `<img src="${it.img}">` : `<span class="ic">${ICONS(it.ic, it.tint || "#e8c878")}</span>${it.ic === "none" ? "" : `<span class="ph-tag">占位</span>`}`}</div>
+      ${it.st[0] === "wear" ? `<span class="seal">${V4.checkSeal(24)}</span>` : ""}${it.draw ? `<span class="draw">可绘制</span>` : ""}
+      <div class="nm">${it.nm}</div><div class="st ${it.st[0]}">${it.st[1]}</div></div>`).join("") + `</div>
+  <div class="detail"><div class="d1">${P.d1}<span class="rar ${P.rar}">${{ su: "素", zhen: "珍", rui: "瑞" }[P.rar]}</span></div><div class="d2">${P.d2}</div></div>
+  <div class="flow"><b>天市</b>购得<i>→</i><b>行囊</b>收纳<i>→</i><b>衣冠</b>穿戴</div>
+  <div class="plans"><span class="lb">搭配方案</span>` + [1, 2, 3].map(n =>
+    `<div class="plan ${n === 1 ? "on" : "off"}"><div class="t-bg">${n === 1 ? V4.plaqueBg(true).replace('class="pq-bg"', 'style="position:absolute;inset:0"') : V4.lacquerPill()}</div><span>方案 ${n}</span>${n === 1 ? `<i class="dot"></i>` : ""}</div>`).join("") + `</div>
+  <div class="acts"><div class="plaque">${V4.plaqueBg()}<span>一键卸下</span></div><div class="btn-verm">${V4.vermBg()}<span>保存搭配</span></div></div>
+</div>`;
+
+stage.innerHTML = html;
+["roster", "rail", "owned"].forEach(i => V4.decorate(document.getElementById(i)));
+</script>
+</body>
+</html>
