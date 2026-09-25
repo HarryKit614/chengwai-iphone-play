@@ -1,5 +1,5 @@
 /* 版本号随每次发布更新；页面导航走网络优先，静态资源带 ?v= 版本参数走缓存优先 */
-const V = "20260925h";
+const V = "20260925j";
 const CACHE = "chengwai-iphone-" + V;
 const q = "?v=" + V;
 const ASSETS = [

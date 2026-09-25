@@ -8,7 +8,7 @@
 
   const SLOTS = [
     { k: "hair", n: "头发", ic: "hair" },
-    { k: "cloth", n: "衣服", ic: "cloth" },
+    { k: "cloth", n: "立绘", ic: "cloth" },
     { grp: "配饰 · 六格" },
     { k: "acc_head", n: "头饰", ic: "head", acc: 1 },
     { k: "acc_ear", n: "耳饰", ic: "ear", acc: 1 },
@@ -105,6 +105,11 @@
   I.forEach((it) => {
     const c = CG[it.id]; if (!c) return;
     it.cg = CG_DIR + c[0] + ".jpg?v=" + BV; it.img = CG_DIR + c[0] + "_thumb.jpg?v=" + BV; it.cgX = c[1]; it.cgY = c[2];
+  });
+  const PAINT_ATTR = { fan: [3, 2, 2, 1, 1, 1], zhen: [6, 4, 3, 3, 3, 3], rui: [10, 6, 4, 5, 5, 6] };
+  I.forEach((it) => {
+    if (it.slot === "cloth") it.attrs = (PAINT_ATTR[it.grade] || PAINT_ATTR.fan).slice();
+    if (it.slot === "fu") it.attrs = [0, 0, 0, 0, 0, 0];
   });
   const ITEMS = {};
   I.forEach((it) => { ITEMS[it.id] = it; });

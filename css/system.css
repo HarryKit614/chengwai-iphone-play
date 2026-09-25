@@ -67,7 +67,7 @@
   padding: 1px 6px; border-radius: 2px; letter-spacing: .05em; z-index: 4; white-space: nowrap; }
 
 /* ========================= 主殿 ========================= */
-#hub { background: #1a1208 url("../images/ui/hub_bg.jpg?v=20260925h") center/cover no-repeat; }
+#hub { background: #1a1208 url("../images/ui/hub_bg.jpg?v=20260925j") center/cover no-repeat; }
 .hub-shade-top { position: absolute; left: 0; right: 0; top: 0; height: 128px; pointer-events: none;
   background: linear-gradient(180deg, rgba(22,14,6,.97) 0, rgba(22,14,6,.92) 72px, rgba(22,14,6,0) 128px);
   -webkit-mask: linear-gradient(90deg, #000 0 29%, rgba(0,0,0,.18) 36%, rgba(0,0,0,.18) 50%, #000 55%);
@@ -360,10 +360,23 @@
 .currency-bar .plus { position: relative; }
 .currency-bar .plus::after { content: ""; position: absolute; inset: -14px -12px; }
 
-/* —— 顾山衣装展示 CG（20260925h）：16:9 定稿图，cover 按人物焦点裁切，不拉伸；部件分层立绘保留但有 CG 时隐藏 —— */
+.battle { left: 20px; top: 76px; right: 20px; bottom: 18px; }
+.bt-cg { position: absolute; left: 16px; top: 16px; bottom: 16px; width: 760px; overflow: hidden; background: #100c08; border: 1px solid #c9a045; }
+.bt-cg img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.bt-side { position: absolute; left: 796px; right: 20px; top: 28px; bottom: 24px; }
+.bt-t { font-size: 28px; font-weight: 700; letter-spacing: .18em; color: #ffe9b0; }
+.bt-d, .bt-p { margin-top: 16px; font-size: 16px; line-height: 1.65; color: #f0e2c4; }
+.bt-p b { color: #ffd870; font-size: 22px; }
+.bt-r { margin-top: 18px; font-size: 18px; color: #e7b0a0; }
+.bt-r.ok { color: #ffd870; }
+.bt-side .cw { position: absolute; left: 0; bottom: 8px; width: 220px; height: 52px; }
+
+/* —— 出战立绘：整张 CG 放进框里，不裁切、不叠抠图 —— */
 .yg .dais .cg-frame { position: absolute; left: 6px; top: 6px; right: 6px; bottom: 6px; overflow: hidden; border: 1px solid #c9a045; border-radius: 4px;
   background: #1a1208; box-shadow: 0 0 18px rgba(255,200,110,.28), inset 0 0 0 1px rgba(20,12,4,.6); cursor: zoom-in; z-index: 1; }
-.yg .dais .cg-frame img.cg { width: 100%; height: 100%; object-fit: cover; display: block; }
+.yg .dais .cg-frame img.cg { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; background: #100c08; }
+.yg .dais .paint-frame .pixi-view { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; }
+.yg .dais .fu-on-body { position: absolute; left: 58%; top: 34%; width: 16%; height: auto; z-index: 4; pointer-events: none; transform: rotate(-8deg); filter: drop-shadow(0 8px 8px rgba(0,0,0,.7)); }
 .yg .dais .cg-frame::after { content: ""; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(0deg, rgba(14,9,3,.72), rgba(14,9,3,0) 22%), linear-gradient(180deg, rgba(14,9,3,.5), rgba(14,9,3,0) 14%); }
 .yg .dais.has-cg .ring, .yg .dais.has-cg .glow, .yg .dais.has-cg img.sprite, .yg .dais.has-cg > .spr-tag { display: none; }
