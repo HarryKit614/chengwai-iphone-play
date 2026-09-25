@@ -183,14 +183,16 @@
     ["shuwu", "署务", 32, 486, 276, 70]
   ];
   const DOCK_HITS = [["home", "在场"], ["story", "主线"], ["home-life", "共处"], ["gallery", "图鉴"]];
-  /* 成片底部五个头像圆：左起猎服、夜氅、日间旅服、素暗礼服、渡气见证袍。只有瑞品渡气见证袍用这段界面。 */
+  /* 成片底部六个头像圆，盖住原画上的圆。fx,fy 是缩略图里脸的中心。只有渡气见证袍用这段界面。 */
   const FILM_CLOTH = "cloth_g";
+  const FILM_AV = 60;
   const FILM_PICKS = [
-    ["cloth_a", 334, 541],
-    ["cloth_b", 438, 541],
-    ["cloth_c", 522, 541],
-    ["cloth_d", 810, 541],
-    ["cloth_g", 910, 541]
+    ["cloth_a", 627, 599, 236, 58],
+    ["cloth_b", 699, 599, 176, 58],
+    ["cloth_c", 770, 599, 250, 56],
+    ["cloth_d", 841, 599, 196, 62],
+    ["cloth_e", 913, 599, 176, 68],
+    ["cloth_g", 984, 599, 190, 62]
   ];
   function bindHubPaint() {
     $$("[data-hubpaint]", scr.hub).forEach((b) => b.addEventListener("click", (e) => {
@@ -263,11 +265,13 @@
       <button type="button" class="hub-hit" data-act="plus" aria-label="薪币" style="left:948px;top:34px;width:156px;height:58px"></button>
       <button type="button" class="hub-hit" data-act="plus" aria-label="道薪" style="left:1112px;top:34px;width:150px;height:58px"></button>
       ${docks}
-      ${FILM_PICKS.map(([id, x, y]) => {
+      ${FILM_PICKS.map(([id, x, y, fx, fy]) => {
         const item = D.ITEMS[id];
         const on = id === FILM_CLOTH ? " on" : "";
         const lock = owns(id) ? "" : " lock";
-        return `<button type="button" class="hub-hit hub-avatar${on}${lock}" data-hubpaint="${id}" aria-label="${item.n}" style="left:${x}px;top:${y}px"><img src="${item.img}" alt="${item.n}"></button>`;
+        const sc = FILM_AV / 76;
+        const img = `width:${(340 * sc).toFixed(1)}px;height:${(208 * sc).toFixed(1)}px;margin-left:${(-((fx - 38) * sc)).toFixed(1)}px;margin-top:${(-((fy - 38) * sc)).toFixed(1)}px`;
+        return `<button type="button" class="hub-hit hub-avatar${on}${lock}" data-hubpaint="${id}" aria-label="${item.n}" style="left:${x}px;top:${y}px"><img src="${item.img}" alt="${item.n}" style="${img}"></button>`;
       }).join("")}
       <p class="hub-aside" id="hub-aside"></p>`;
     const vid = $(".hub-film-vid", scr.hub);
@@ -607,7 +611,7 @@
       <div class="set-row"><div class="sr-t">恢复演示余额</div><div class="sr-d">把薪币、道薪恢复为 124,860 ／ 2,350。已拥有的物件不变。</div><button class="cw cw-d cw-secondary" data-set="bal"><span class="cw-label">恢复</span></button></div>
       <div class="set-row"><div class="sr-t">重置系统存档</div><div class="sr-d">货币、行囊和出战立绘回到初始。</div><button class="cw cw-d cw-secondary" data-set="sys"><span class="cw-label">重置</span></button></div>
       <div class="set-row"><div class="sr-t">重置剧情进度</div><div class="sr-d">主线「渡气」读档点、共处状态、轻触台词进度回到开头。</div><button class="cw cw-d cw-secondary" data-set="story"><span class="cw-label">重置</span></button></div>
-      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925t · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
+      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925u · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
     </div></div>`;
     mount("gp", html, ["gp-main"]);
     $$("[data-set]", scr.page).forEach((b) => b.addEventListener("click", () => {
