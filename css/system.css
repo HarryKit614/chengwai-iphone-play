@@ -67,22 +67,29 @@
   padding: 1px 6px; border-radius: 2px; letter-spacing: .05em; z-index: 4; white-space: nowrap; }
 
 /* ========================= 主殿 ========================= */
-#hub { background: #1a1208 url("../images/ui/hub_bg.jpg?v=20260925l") center/cover no-repeat; }
-.hub-shade-top { position: absolute; left: 0; right: 0; top: 0; height: 128px; pointer-events: none;
-  background: linear-gradient(180deg, rgba(22,14,6,.97) 0, rgba(22,14,6,.92) 72px, rgba(22,14,6,0) 128px);
-  -webkit-mask: linear-gradient(90deg, #000 0 29%, rgba(0,0,0,.18) 36%, rgba(0,0,0,.18) 50%, #000 55%);
-  mask: linear-gradient(90deg, #000 0 29%, rgba(0,0,0,.18) 36%, rgba(0,0,0,.18) 50%, #000 55%); }
-.hub-side { position: absolute; left: 0; top: 0; width: 330px; height: 600px; pointer-events: none;
-  background:
-    radial-gradient(ellipse at 40% 45%, rgba(120,78,30,.35), transparent 70%),
-    linear-gradient(90deg, rgba(24,15,7,.96) 0, rgba(24,15,7,.94) 270px, rgba(24,15,7,.55) 300px, rgba(24,15,7,0) 330px); }
-.hub-side::after { content: ""; position: absolute; left: 290px; top: 118px; bottom: 30px; width: 1px;
+#hub { background: #1a1208 center / cover no-repeat; }
+.hub-shade-top { position: absolute; left: 0; right: 0; top: 0; height: 96px; pointer-events: none; z-index: 3;
+  background: linear-gradient(180deg, rgba(12,8,4,.72), rgba(12,8,4,0)); }
+.hub-side { position: absolute; left: 0; top: 0; width: 330px; bottom: 0; pointer-events: none; z-index: 3;
+  background: linear-gradient(90deg, rgba(16,10,4,.82) 0, rgba(16,10,4,.55) 240px, rgba(16,10,4,0) 330px); }
+.hub-side::after { content: ""; position: absolute; left: 290px; top: 118px; bottom: 120px; width: 1px;
   background: linear-gradient(180deg, transparent, rgba(232,200,120,.7) 20%, rgba(232,200,120,.7) 80%, transparent); }
-.hub-band { position: absolute; left: 0; right: 0; top: 574px; bottom: 0; pointer-events: none;
-  background: radial-gradient(ellipse at 50% 0%, rgba(120,80,30,.35), transparent 60%), linear-gradient(180deg, rgba(34,22,10,.97), rgba(16,10,4,.99));
-  border-top: 1.5px solid #c9a045; box-shadow: 0 -1px 0 rgba(20,12,4,.9), 0 -4px 14px rgba(0,0,0,.45), inset 0 3px 0 rgba(20,12,4,.8), inset 0 4px 0 rgba(232,200,120,.25); }
+.hub-band { position: absolute; left: 0; right: 0; top: 600px; bottom: 0; pointer-events: none; z-index: 3;
+  background: linear-gradient(180deg, rgba(16,10,4,0), rgba(16,10,4,.88));
+  border-top: 0; box-shadow: none; }
 .hub-band .cloud { position: absolute; bottom: 14px; width: 120px; height: 90px; opacity: .95; }
 .hub-band .cloud.l { left: 16px; } .hub-band .cloud.r { right: 16px; transform: scaleX(-1); }
+.hub-touch { position: absolute; left: 340px; top: 70px; right: 0; bottom: 120px; border: 0; background: transparent; z-index: 2; }
+.hub-picks { position: absolute; left: 360px; bottom: 118px; z-index: 6; display: flex; gap: 8px; }
+.hub-pick { width: 84px; height: 48px; padding: 0; border: 1px solid rgba(201,160,69,.75); background: #140e08; overflow: hidden; cursor: pointer; }
+.hub-pick img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hub-pick.on { border-color: #ffd870; box-shadow: 0 0 8px rgba(255,216,112,.7); }
+.hub-look { position: absolute; left: 360px; bottom: 174px; z-index: 6; padding: 3px 10px; font-size: 15px; letter-spacing: .08em; color: #fff4d8; background: rgba(16,10,4,.62); border: 1px solid rgba(201,160,69,.45); }
+#hub.hub-rui .hub-side { background: linear-gradient(90deg, rgba(62,36,10,.42) 0, rgba(62,36,10,.16) 220px, rgba(62,36,10,0) 320px); }
+#hub.hub-rui .hub-shade-top { height: 78px; background: linear-gradient(180deg, rgba(70,40,12,.35), rgba(70,40,12,0)); }
+#hub.hub-rui .hub-band { top: 640px; background: linear-gradient(180deg, rgba(40,22,8,0), rgba(40,22,8,.45)); }
+#hub.hub-rui .hub-title .tf { background: linear-gradient(180deg, rgba(255,246,220,.82), rgba(236,204,130,.72)); border-color: rgba(255,226,160,.9); }
+#hub.hub-rui .hub-look { background: rgba(90,48,12,.55); border-color: rgba(255,220,150,.7); color: #fff8e4; }
 .hub-title { position: absolute; left: 30px; top: 22px; display: flex; align-items: center; gap: 10px; z-index: 4; }
 .hub-title .tf { position: relative; padding: 9px 22px 11px; font-size: 27px; font-weight: 700; letter-spacing: .14em; line-height: 1.1; color: #2a1a08;
   background: linear-gradient(180deg, rgba(252,244,220,.95), rgba(232,214,170,.92) 55%, rgba(210,180,130,.93));
@@ -100,14 +107,6 @@
 .side-btn .sb-hint { margin-left: auto; font-size: 14px; letter-spacing: .04em; color: #cdb483; font-weight: 400; }
 .side-wrap { position: relative; }
 .side-wrap .tassel { position: absolute; right: -24px; top: 10px; width: 18px; height: 56px; pointer-events: none; z-index: 5; }
-.hub-figure { position: absolute; left: 760px; top: 72px; width: 470px; height: 490px; z-index: 3; }
-.hub-gu { position: absolute; inset: 0; border: 1px solid #c9a045; padding: 0; background: #100c08; border-radius: 6px; overflow: hidden; box-shadow: 0 10px 28px rgba(0,0,0,.5); }
-.hub-gu img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.hub-picks { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 4; display: flex; gap: 8px; }
-.hub-pick { width: 72px; height: 48px; padding: 0; border: 1px solid rgba(201,160,69,.7); background: #140e08; overflow: hidden; cursor: pointer; }
-.hub-pick img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.hub-pick.on { border-color: #ffd870; box-shadow: 0 0 8px rgba(255,216,112,.7); }
-.hub-look { position: absolute; left: 12px; top: 12px; z-index: 4; padding: 3px 10px; font-size: 15px; letter-spacing: .08em; color: #fff4d8; background: rgba(16,10,4,.72); border: 1px solid rgba(201,160,69,.55); }
 
 /* —— 底栏（主殿与场景共用） —— */
 #dock { position: absolute; left: 50%; bottom: 14px; width: 780px; height: 96px; transform: translateX(-50%); z-index: 20;

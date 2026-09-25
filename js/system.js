@@ -163,36 +163,37 @@
     { k: "shuwu", n: "署务", ico: "shuwu" }
   ];
   function renderHub() {
+    const it = D.ITEMS[(S.equipped && S.equipped.cloth) || "cloth_a"] || D.ITEMS.cloth_a;
+    scr.hub.classList.toggle("hub-rui", it.grade === "rui");
+    scr.hub.style.backgroundImage = `url("${it.cg}")`;
+    const focusX = it.grade === "rui" ? 78 : 70;
+    scr.hub.style.backgroundPosition = focusX + "% 42%";
+    const paints = D.ITEM_LIST.filter((p) => p.slot === "cloth" && p.cg && owns(p.id));
+    const picks = paints.map((p) => `<button type="button" class="hub-pick ${p.id === it.id ? "on" : ""}" data-hubpaint="${p.id}"><img src="${p.img}" alt="${p.n}"></button>`).join("");
     scr.hub.innerHTML = `
       <div class="hub-shade-top"></div><div class="hub-side"></div>
       <div class="hub-band"><span class="cloud l">${cloudSvg}</span><span class="cloud r">${cloudSvg}</span></div>
-      <div class="hub-figure">${hubFigure()}</div>
+      <button type="button" class="hub-touch" aria-label="顾山"></button>
       <div class="hub-title"><div class="tf"><svg viewBox="0 0 220 46" preserveAspectRatio="none"><rect x="1.5" y="1.5" width="217" height="43" fill="none" stroke="#c9a045" stroke-width="1.6"/><rect x="4.5" y="4.5" width="211" height="37" fill="none" stroke="#8a6020" stroke-width="0.7" opacity=".7"/></svg>廿四道·城外</div><div class="seal-box">外</div></div>
             <button class="cw cw-d cw-chip hub-chapter" data-go="story"><span class="cw-label">主线 · <b>第一章「渡气」</b></span></button>
       ${currencyBar(true)}
-      <div class="sidebar">${SIDE.map((s) => `<div class="side-wrap"><button class="cw cw-d cw-secondary side-btn" data-page="${s.k}"><span class="cw-label"><span class="sb-icon">${HUB_ICONS[s.ico]}</span><span>${s.n}</span></span></button><span class="tassel">${HUB_ICONS.tassel}</span></div>`).join("")}</div>`;
+      <div class="sidebar">${SIDE.map((s) => `<div class="side-wrap"><button class="cw cw-d cw-secondary side-btn" data-page="${s.k}"><span class="cw-label"><span class="sb-icon">${HUB_ICONS[s.ico]}</span><span>${s.n}</span></span></button><span class="tassel">${HUB_ICONS.tassel}</span></div>`).join("")}</div>
+      <div class="hub-picks">${picks}</div><span class="hub-look">${it.grade === "rui" ? "瑞品主殿 · " : ""}${it.n}</span>`;
     bindCommon(scr.hub);
     $$("[data-page]", scr.hub).forEach((b) => b.addEventListener("click", () => openPage(b.dataset.page)));
     $("[data-go=story]", scr.hub).addEventListener("click", () => window.CW_SCENE && window.CW_SCENE.openStory());
     let gi = 0;
     const lines = ["……你回来了。外头雨小了点。", "看我做什么。我在这儿，不走。", "天市那边别乱花。想要什么，跟我说。", "火我添过了。你坐近些。"];
-    $(".hub-gu", scr.hub).addEventListener("click", () => { toast("顾山：「" + lines[gi++ % lines.length] + "」"); });
+    $(".hub-touch", scr.hub).addEventListener("click", () => { toast("顾山：「" + lines[gi++ % lines.length] + "」"); });
     $$("[data-hubpaint]", scr.hub).forEach((b) => b.addEventListener("click", (e) => {
       e.stopPropagation();
       const pid = b.dataset.hubpaint;
       if (!owns(pid) || S.equipped.cloth === pid) return;
       S.equipped.cloth = pid;
       save();
-      toast(`主殿形象换成「${D.ITEMS[pid].n}」`);
+      toast(`主页换成「${D.ITEMS[pid].n}」`);
       renderHub();
     }));
-  }
-  function hubFigure() {
-    const id = (S.equipped && S.equipped.cloth) || "cloth_a";
-    const it = D.ITEMS[id] || D.ITEMS.cloth_a;
-    const paints = D.ITEM_LIST.filter((p) => p.slot === "cloth" && p.cg && owns(p.id));
-    const picks = paints.map((p) => `<button type="button" class="hub-pick ${p.id === it.id ? "on" : ""}" data-hubpaint="${p.id}"><img src="${p.img}" alt="${p.n}"></button>`).join("");
-    return `<button type="button" class="hub-gu" aria-label="顾山"><img src="${it.cg}" alt="${it.n}" style="object-position:${cgPos(it, 470, 490)}"></button><div class="hub-picks">${picks}</div><span class="hub-look">${it.n}</span>`;
   }
   function goHub() { renderHub(); show("hub"); }
 
@@ -515,7 +516,7 @@
       <div class="set-row"><div class="sr-t">恢复演示余额</div><div class="sr-d">把薪币、道薪恢复为 124,860 ／ 2,350。已拥有的物件不变。</div><button class="cw cw-d cw-secondary" data-set="bal"><span class="cw-label">恢复</span></button></div>
       <div class="set-row"><div class="sr-t">重置系统存档</div><div class="sr-d">货币、行囊和出战立绘回到初始。</div><button class="cw cw-d cw-secondary" data-set="sys"><span class="cw-label">重置</span></button></div>
       <div class="set-row"><div class="sr-t">重置剧情进度</div><div class="sr-d">主线「渡气」读档点、共处状态、轻触台词进度回到开头。</div><button class="cw cw-d cw-secondary" data-set="story"><span class="cw-label">重置</span></button></div>
-      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925l · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
+      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925m · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
     </div></div>`;
     mount("gp", html, ["gp-main"]);
     $$("[data-set]", scr.page).forEach((b) => b.addEventListener("click", () => {
