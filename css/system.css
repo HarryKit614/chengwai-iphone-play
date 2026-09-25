@@ -234,6 +234,76 @@
 #stage.skin-zhen .ts .banner .bn-time .left { color: #e8f2f6; }
 #stage.skin-zhen .ts .subtabs .hold { border-color: rgba(174, 196, 206, .45); background: rgba(14, 22, 28, .75); }
 #stage.skin-zhen .ts .subtabs .hold b { color: #e8f2f6; }
+/* 极品（渡气见证袍）：全页按钮改成成片里的淡金圆角，不再用窗棂 */
+#stage.skin-ji { --gold: #f3e0b0; --gold-hi: #fff8e8; --ivory: #fff8ee; --ivory-dim: #ead8b4; }
+#stage.skin-ji .cw-d {
+  --ring: 0px; --lop: 1; --panel1: transparent; --panel2: transparent;
+  border-radius: 999px; color: #fff6e6;
+  text-shadow: 0 1px 1px rgba(70, 36, 8, .45);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 236, .72), rgba(255, 244, 214, .08) 46%, rgba(90, 52, 16, .18)),
+    linear-gradient(180deg, #e7c78a, #b8843c 48%, #6a4016);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 252, 244, .85),
+    inset 0 -10px 14px rgba(70, 32, 8, .28),
+    0 0 0 1px rgba(255, 236, 196, .8),
+    0 6px 14px rgba(30, 16, 4, .28);
+}
+#stage.skin-ji .cw-d::before,
+#stage.skin-ji .cw-d::after,
+#stage.skin-ji .cw-d .cw-label::before {
+  -webkit-mask: none; mask: none; background: none; border: 0; box-shadow: none; opacity: 0;
+}
+#stage.skin-ji .cw-d.cw-primary,
+#stage.skin-ji .cw-d.is-selected,
+#stage.skin-ji .cw-d[aria-selected="true"] {
+  color: #fffaf0;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 244, .8), rgba(255, 236, 190, .15) 42%),
+    linear-gradient(180deg, #f3d7a0, #c4924a 46%, #7a4c18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 252, 244, .9),
+    0 0 0 1px #fff1cc, 0 0 16px rgba(255, 214, 140, .45),
+    0 6px 14px rgba(30, 16, 4, .28);
+}
+#stage.skin-ji .cw-d:hover:not(:disabled):not(.is-disabled) { transform: translateY(-1px); }
+#stage.skin-ji .cw-d:active:not(:disabled):not(.is-disabled) {
+  transform: translateY(1px);
+  box-shadow: inset 0 3px 8px rgba(50, 24, 6, .35), 0 0 0 1px rgba(255, 236, 196, .8);
+}
+#stage.skin-ji .cw-back .arr { background: rgba(255, 248, 230, .35); }
+#stage.skin-ji #page { background-color: #1a120c; }
+#stage.skin-ji #page::before {
+  background:
+    linear-gradient(180deg, rgba(28, 18, 10, .55), rgba(28, 18, 10, .18) 18%, rgba(16, 10, 6, .42)),
+    radial-gradient(ellipse at 72% 16%, rgba(212, 168, 90, .18), transparent 48%);
+}
+#stage.skin-ji .lacq {
+  background: linear-gradient(180deg, rgba(62, 40, 18, .78), rgba(28, 18, 10, .84));
+  border: 1px solid rgba(236, 206, 140, .55);
+  border-radius: 18px;
+  box-shadow: inset 0 1px 0 rgba(255, 244, 220, .2), 0 8px 20px rgba(0, 0, 0, .28);
+}
+#stage.skin-ji .yc { opacity: .35; }
+#stage.skin-ji #dock .dock-frame {
+  overflow: hidden; border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 246, 226, .35), rgba(120, 74, 28, .55));
+  box-shadow: inset 0 1px 0 rgba(255, 248, 230, .55), 0 0 0 1px rgba(236, 206, 140, .7);
+}
+#stage.skin-ji #dock .dock-frame svg { display: none; }
+#stage.skin-ji .currency-bar .dframe { color: #fff6e6; border-radius: 999px; }
+#stage.skin-ji .currency-bar .dframe .lb,
+#stage.skin-ji .currency-bar .dframe .val { color: #fff8ee; }
+#stage.skin-ji .currency-bar .plus,
+#stage.skin-ji .currency-bar .orb {
+  border-color: rgba(255, 232, 186, .8); color: #4a2c10;
+  background: radial-gradient(circle at 35% 30%, #fff6e4, #e2c07a 70%);
+}
+#stage.skin-ji .card {
+  background: linear-gradient(180deg, rgba(74, 48, 22, .9), rgba(28, 18, 10, .94));
+  border-color: rgba(232, 200, 140, .45); border-radius: 16px;
+}
+#stage.skin-ji .scroll::-webkit-scrollbar-thumb { background: rgba(226, 192, 122, .55); }
 .hub-title { position: absolute; left: 30px; top: 22px; display: flex; align-items: center; gap: 10px; z-index: 4; }
 .hub-title .tf { position: relative; padding: 9px 22px 11px; font-size: 27px; font-weight: 700; letter-spacing: .14em; line-height: 1.1; color: #2a1a08;
   background: linear-gradient(180deg, rgba(252,244,220,.95), rgba(232,214,170,.92) 55%, rgba(210,180,130,.93));
