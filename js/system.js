@@ -417,13 +417,39 @@
       `<button class="who ${r[1] ? "on" : ""}" data-who="${r[0]}" data-lock="${r[1] ? 0 : 1}" style="top:${36 + i * 94}px"><div class="face">${r[1] ? `<img src="images/ui/gu_face_thumb.png" alt="">` : sil + `<div class="lk">${V4.lockIco(24)}</div>`}</div><div class="nm">${r[0]}</div></button>`).join("") + `</div>`;
 
     const fuIt = eq.fu ? D.ITEMS[eq.fu] : null;
-    // 展示 CG：选中的衣服有 CG 就展示选中项，否则展示当前穿着衣服的 CG（部件分层立绘仍在下方保留，有 CG 时隐藏）
+    const LIEFU = [
+      { id: "hair", n: "头发", layers: ["hair_back", "hair_front"], icon: "icon_hair_tile.png" },
+      { id: "lower", n: "下装", layers: ["lower"], icon: "icon_lower_tile.png" },
+      { id: "top", n: "外袍", layers: ["top"], icon: "icon_top_tile.png" },
+      { id: "sash", n: "腰带", layers: ["sash"], icon: "icon_sash_tile.png" },
+      { id: "bow", n: "弓", layers: ["acc_bow_back", "acc_bow_strap"], icon: "icon_acc_bow_tile.png" },
+      { id: "pouch", n: "腰囊", layers: ["acc_pouch"], icon: "icon_acc_pouch_tile.png" }
+    ];
+    if (!S.liefu) S.liefu = { hair: 1, lower: 1, top: 1, sash: 1, bow: 1, pouch: 1 };
+    const wearingLiefu = eq.cloth === "cloth_a";
+    const liefuAll = wearingLiefu && LIEFU.every((p) => S.liefu[p.id]);
     const selIt = yg.sel && yg.sel !== "__none" ? D.ITEMS[yg.sel] : null;
-    const cgIt = selIt && selIt.cg ? selIt : (eq.cloth && D.ITEMS[eq.cloth] && D.ITEMS[eq.cloth].cg ? D.ITEMS[eq.cloth] : null);
-    const cgHTML = cgIt ? `<div class="cg-frame"><img class="cg" src="${cgIt.cg}" alt="${cgIt.n}" style="object-position:${cgPos(cgIt, 468, 638)}"></div>
-      <span class="cg-tag">衣装 CG · <b>${cgIt.n}</b>${owns(cgIt.id) ? (eq.cloth === cgIt.id ? " · 穿戴中" : "") : " · 未拥有 · 试看"}</span>
-      <button class="cg-full" data-cgview="${cgIt.id}">全图</button>` : "";
-    html += `<div class="dais ${fuIt ? "has-fu" : ""} ${cgIt ? "has-cg" : ""}">${cgHTML}<div class="glow"></div><div class="fu-aura"></div>
+    const previewOther = selIt && selIt.slot === "cloth" && selIt.id !== "cloth_a" && selIt.cg ? selIt : null;
+    const cgIt = previewOther || (wearingLiefu ? (liefuAll ? D.ITEMS.cloth_a : null) : (eq.cloth && D.ITEMS[eq.cloth] && D.ITEMS[eq.cloth].cg ? D.ITEMS[eq.cloth] : null));
+    let cgHTML = "";
+    if (cgIt) {
+      cgHTML = `<div class="cg-frame"><img class="cg" src="${cgIt.cg}" alt="${cgIt.n}" style="object-position:${cgPos(cgIt, 468, 638)}"></div>
+      <span class="cg-tag">衣装 CG · <b>${cgIt.n}</b>${wearingLiefu && liefuAll && !previewOther ? " · 过关全装" : (eq.cloth === cgIt.id ? " · 穿戴中" : "")}</span>
+      <button class="cg-full" data-cgview="${cgIt.id}">全图</button>`;
+    } else if (wearingLiefu) {
+      const on = { body: 1, body_shins: 1 };
+      LIEFU.forEach((p) => { if (S.liefu[p.id]) p.layers.forEach((id) => { on[id] = 1; }); });
+      if (S.liefu.lower) delete on.body_shins;
+      const order = ["acc_bow_back", "hair_back", "body", "body_shins", "lower", "top", "sash", "acc_pouch", "acc_bow_strap", "hair_front"];
+      const bv = ((document.querySelector('meta[name="cw-build"]') || {}).content) || "";
+      cgHTML = `<div class="layer-stack">` + order.filter((id) => on[id]).map((id) =>
+        `<img src="images/art/outfits/layers/liefu/${id}.png?v=${bv}" alt="">`).join("") + `</div>
+        <span class="cg-tag">猎服分层 · 卸下的部位已从身上拿掉</span>
+        <button class="cg-full" data-cgview="cloth_a">全图</button>`;
+    }
+    const partHTML = wearingLiefu && !previewOther ? `<div class="liefu-parts">` + LIEFU.map((p) =>
+      `<button class="part ${S.liefu[p.id] ? "on" : ""}" data-part="${p.id}"><img src="images/art/outfits/layers/liefu/${p.icon}" alt=""><span>${p.n}</span></button>`).join("") + `</div>` : "";
+    html += `<div class="dais ${fuIt ? "has-fu" : ""} ${cgIt || wearingLiefu ? "has-cg" : ""}">${cgHTML}${partHTML}<div class="glow"></div><div class="fu-aura"></div>
       <svg class="ring" viewBox="0 0 440 440"><g fill="none" stroke="#e8c878" stroke-linecap="round">
         <circle cx="220" cy="220" r="200" stroke-width="1.2" opacity=".55"/><circle cx="220" cy="220" r="186" stroke-width=".7" opacity=".4" stroke-dasharray="2 6"/><circle cx="220" cy="220" r="150" stroke-width=".8" opacity=".3"/>
         ${[0, 45, 90, 135, 180, 225, 270, 315].map((a) => `<g transform="rotate(${a} 220 220)" opacity=".75" stroke-width="1.3"><path d="M220,14 C212,8 204,16 210,22 C214,26 220,22 217,18"/><path d="M220,14 C228,8 236,16 230,22 C226,26 220,22 223,18"/></g>`).join("")}
@@ -496,6 +522,14 @@
     $$("[data-cgview]", root).forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); cgView(D.ITEMS[b.dataset.cgview]); }));
     if (cgIt) $(".dais .cg-frame", root).addEventListener("click", () => cgView(cgIt));
     $$("[data-who]", root).forEach((b) => b.addEventListener("click", () => { if (b.dataset.lock === "1") toast(b.dataset.who + " · 尚未解锁"); }));
+    $$("[data-part]", root).forEach((b) => b.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const id = b.dataset.part;
+      S.liefu[id] = S.liefu[id] ? 0 : 1;
+      save();
+      toast(S.liefu[id] ? `已穿上「${LIEFU.find((p) => p.id === id).n}」` : `已卸下「${LIEFU.find((p) => p.id === id).n}」`);
+      renderYiguan({});
+    }));
     $$("[data-slot]", root).forEach((b) => b.addEventListener("click", () => renderYiguan({ slot: b.dataset.slot })));
     $$("[data-oc]", root).forEach((b) => b.addEventListener("click", () => {
       const id = b.dataset.oc;
@@ -571,7 +605,7 @@
       <div class="set-row"><div class="sr-t">恢复演示余额</div><div class="sr-d">把薪币、道薪恢复为 124,860 ／ 2,350。已拥有的物件不变。</div><button class="cw cw-d cw-secondary" data-set="bal"><span class="cw-label">恢复</span></button></div>
       <div class="set-row"><div class="sr-t">重置系统存档</div><div class="sr-d">货币、行囊、衣冠穿戴与三套方案全部回到初始（演示物件）。</div><button class="cw cw-d cw-secondary" data-set="sys"><span class="cw-label">重置</span></button></div>
       <div class="set-row"><div class="sr-t">重置剧情进度</div><div class="sr-d">主线「渡气」读档点、共处状态、轻触台词进度回到开头。</div><button class="cw cw-d cw-secondary" data-set="story"><span class="cw-label">重置</span></button></div>
-      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925d · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
+      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925e · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
     </div></div>`;
     mount("gp", html, ["gp-main"]);
     $$("[data-set]", scr.page).forEach((b) => b.addEventListener("click", () => {

@@ -67,7 +67,7 @@
   padding: 1px 6px; border-radius: 2px; letter-spacing: .05em; z-index: 4; white-space: nowrap; }
 
 /* ========================= 主殿 ========================= */
-#hub { background: #1a1208 url("../images/ui/hub_bg.jpg?v=20260925d") center/cover no-repeat; }
+#hub { background: #1a1208 url("../images/ui/hub_bg.jpg?v=20260925e") center/cover no-repeat; }
 .hub-shade-top { position: absolute; left: 0; right: 0; top: 0; height: 128px; pointer-events: none;
   background: linear-gradient(180deg, rgba(22,14,6,.97) 0, rgba(22,14,6,.92) 72px, rgba(22,14,6,0) 128px);
   -webkit-mask: linear-gradient(90deg, #000 0 29%, rgba(0,0,0,.18) 36%, rgba(0,0,0,.18) 50%, #000 55%);
@@ -356,7 +356,7 @@
 .currency-bar .plus { position: relative; }
 .currency-bar .plus::after { content: ""; position: absolute; inset: -14px -12px; }
 
-/* —— 顾山衣装展示 CG（20260925d）：16:9 定稿图，cover 按人物焦点裁切，不拉伸；部件分层立绘保留但有 CG 时隐藏 —— */
+/* —— 顾山衣装展示 CG（20260925e）：16:9 定稿图，cover 按人物焦点裁切，不拉伸；部件分层立绘保留但有 CG 时隐藏 —— */
 .yg .dais .cg-frame { position: absolute; left: 6px; top: 6px; right: 6px; bottom: 6px; overflow: hidden; border: 1px solid #c9a045; border-radius: 4px;
   background: #1a1208; box-shadow: 0 0 18px rgba(255,200,110,.28), inset 0 0 0 1px rgba(20,12,4,.6); cursor: zoom-in; z-index: 1; }
 .yg .dais .cg-frame img.cg { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -365,6 +365,13 @@
 .yg .dais.has-cg .ring, .yg .dais.has-cg .glow, .yg .dais.has-cg img.sprite, .yg .dais.has-cg > .spr-tag { display: none; }
 .yg .dais.has-cg > .ph-tag { z-index: 3; }
 .yg .dais.has-cg .fu-aura { z-index: 2; mix-blend-mode: screen; pointer-events: none; }
+.yg .dais .layer-stack { position: absolute; left: 6px; top: 6px; right: 6px; bottom: 6px; background: #140e08; z-index: 1; }
+.yg .dais .layer-stack img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.yg .dais .liefu-parts { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 4; display: flex; gap: 6px; justify-content: center; }
+.yg .dais .liefu-parts .part { width: 64px; padding: 0; border: 1px solid rgba(201,160,69,.45); background: rgba(20,12,4,.78); color: #e8dcc0; border-radius: 3px; cursor: pointer; }
+.yg .dais .liefu-parts .part.on { border-color: #ffd870; box-shadow: 0 0 8px rgba(255,216,112,.45); }
+.yg .dais .liefu-parts .part img { width: 64px; height: 48px; object-fit: cover; display: block; }
+.yg .dais .liefu-parts .part span { display: block; font-size: 12px; line-height: 16px; letter-spacing: .06em; }
 .cg-tag { position: absolute; left: 18px; top: 16px; z-index: 3; font-size: 15px; letter-spacing: .08em; color: var(--ivory); text-shadow: 0 1px 3px #000;
   padding: 3px 10px; border-radius: 3px; background: rgba(20,12,4,.62); border: 1px solid rgba(201,160,69,.55); white-space: nowrap; }
 .cg-tag b { color: #ffd870; }
