@@ -465,7 +465,7 @@
       </g></svg>
       <img class="sprite" src="images/sprites/gu_${guEmo()}.png" alt="顾山">
       <span class="ph-tag spr-tag">部件分层立绘未出图 · 暂用默认立绘（穿戴已记录）</span>
-      ${fuIt ? `<span class="ph-tag" style="left:12px;top:44px;background:rgba(90,60,14,.9)">符光示意：${fuIt.n}</span>` : ""}</div>`;
+      ${fuIt ? `<img class="fu-paper" src="images/fu/fu_paper.png?v=${bv}" alt="${fuIt.n}"><span class="fu-name">${fuIt.n}</span>` : ""}</div>`;
     const diff = planDiff();
     html += `<div class="cw cw-d dframe outfit-tag"><span class="cw-label">顾山 ·<b>方案 ${S.plan}</b>· ${S.plans[S.plan] ? (diff ? `未保存改动 ${diff} 处` : "已保存") : "未保存"}</span></div>`;
 
