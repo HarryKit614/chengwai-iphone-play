@@ -1,0 +1,334 @@
+/* ============ 公共骨架 ============ */
+:root {
+  --cw-serif: "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+  --cw-ease: cubic-bezier(.3, .7, .35, 1);
+}
+.cw {
+  position: relative; isolation: isolate; display: inline-flex; align-items: stretch; vertical-align: middle;
+  height: 48px; min-width: 110px; margin: 0; padding: 0; border: 0; background: none; outline: none;
+  font: 700 18px/1 var(--cw-serif); letter-spacing: .22em; color: inherit;
+  cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+  --cn-tl: var(--cw-cn-gold-tl); --cn-tr: var(--cw-cn-gold-tr); --cn-bl: var(--cw-cn-gold-bl); --cn-br: var(--cw-cn-gold-br);
+  --cn-size: 24px;
+  transition: transform .18s var(--cw-ease), box-shadow .28s var(--cw-ease), filter .28s, color .28s, text-shadow .28s;
+}
+.cw-label {
+  position: relative; z-index: 3; flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 0 20px 0 calc(20px + .22em); white-space: nowrap; border-radius: inherit;
+}
+.cw::before, .cw::after, .cw-label::before {
+  content: ""; position: absolute; pointer-events: none;
+  transition: opacity .28s var(--cw-ease), filter .28s, transform .28s var(--cw-ease), background-color .28s;
+}
+.cw::before { z-index: 1; }
+.cw::after { z-index: 2; }
+.cw-label::before { z-index: -1; inset: 0; border-radius: inherit; opacity: 0; }
+.cw:focus-visible { outline: 2px solid rgba(255, 233, 160, .9); outline-offset: 6px; }
+.cw:disabled, .cw.is-disabled { cursor: not-allowed; }
+
+.cw-a.cw-primary, .cw-a.cw-secondary { --cn-size: 30px; }
+.cw-primary   { height: 50px; min-width: 112px; font-size: 19px; }
+.cw-secondary { height: 46px; min-width: 120px; font-size: 17px; letter-spacing: .16em; }
+.cw-secondary .cw-label { padding: 0 16px 0 calc(16px + .16em); }
+.cw-tab       { height: 42px; min-width: 96px; font-size: 17px; letter-spacing: .3em; --cn-size: 20px; }
+.cw-tab .cw-label { padding: 0 16px 0 calc(16px + .3em); }
+.cw-chip      { height: 32px; min-width: 0; font-size: 16px; letter-spacing: .1em; --cn-size: 15px; }
+.cw-chip .cw-label { padding: 0 12px 0 calc(12px + .1em); }
+
+/* 四角云纹扣（A/B 共用，用变量换色） */
+.cw-a::after, .cw-b::after {
+  background:
+    var(--cn-tl) left top / var(--cn-size) var(--cn-size) no-repeat,
+    var(--cn-tr) right top / var(--cn-size) var(--cn-size) no-repeat,
+    var(--cn-bl) left bottom / var(--cn-size) var(--cn-size) no-repeat,
+    var(--cn-br) right bottom / var(--cn-size) var(--cn-size) no-repeat;
+}
+.cw.is-selected, .cw[aria-selected="true"] {
+  --cn-tl: var(--cw-cn-lit-tl); --cn-tr: var(--cw-cn-lit-tr); --cn-bl: var(--cw-cn-lit-bl); --cn-br: var(--cw-cn-lit-br);
+}
+.cw:disabled, .cw.is-disabled {
+  --cn-tl: var(--cw-cn-dull-tl); --cn-tr: var(--cw-cn-dull-tr); --cn-bl: var(--cw-cn-dull-bl); --cn-br: var(--cw-cn-dull-br);
+}
+
+/* ============ A 玉牌嵌金 ============ */
+.cw-a {
+  /* 默认：青玉（雨青） */
+  --j1: rgba(228, 246, 238, .95); --j2: rgba(152, 200, 184, .92); --j3: rgba(80, 138, 124, .95);
+  --jside: #24493f; --jink: #10302a; --jglow: rgba(225, 255, 244, .5); --jrim: #e8c878;
+  border-radius: 12px; color: var(--jink);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .65), 0 -1px 0 rgba(0, 40, 30, .22);
+  background:
+    radial-gradient(130% 85% at 50% -12%, rgba(255, 255, 255, .62), rgba(255, 255, 255, 0) 56%),
+    radial-gradient(38% 60% at 20% 74%, rgba(255, 255, 255, .24), transparent 70%),
+    radial-gradient(30% 60% at 80% 36%, rgba(20, 70, 60, .16), transparent 70%),
+    radial-gradient(22% 40% at 62% 82%, rgba(255, 255, 255, .18), transparent 70%),
+    var(--cw-band-jade) 0 calc(100% - 3px) / 30px 10px repeat-x,
+    var(--cw-noise),
+    linear-gradient(180deg, var(--j1), var(--j2) 52%, var(--j3));
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, .9),
+    inset 0 -3px 6px rgba(10, 50, 40, .32),
+    inset 0 0 14px var(--jglow),
+    inset 0 0 0 1px rgba(255, 255, 255, .35), inset 0 0 6px 2px rgba(10, 40, 30, .18),
+    0 0 0 1.2px var(--jrim),
+    0 0 0 2.6px #2e1c08,
+    0 0 0 3.4px rgba(232, 200, 120, .42),
+    0 5px 0 1.8px var(--jside),
+    0 11px 16px rgba(0, 0, 0, .55);
+}
+.cw-a::before { /* 弧面高光 */
+  left: 9px; right: 9px; top: 2px; height: 44%;
+  border-radius: 10px 10px 50% 50% / 10px 10px 100% 100%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .6), rgba(255, 255, 255, .03));
+}
+.cw-a::after { inset: -6px; filter: drop-shadow(0 1px 1px rgba(30, 14, 0, .7)); }
+.cw-a .cw-label::before { /* 玉心内光 */
+  background: radial-gradient(ellipse 60% 70% at 50% 55%, rgba(255, 255, 236, .95), rgba(210, 255, 236, .4) 45%, transparent 75%);
+}
+.cw-a.cw-primary, .cw-a.cw-tab.is-selected, .cw-a.cw-tab[aria-selected="true"], .cw-a.cw-chip.is-selected {
+  /* 黄玉（蜜蜡暖玉） */
+  --j1: rgba(255, 248, 226, .96); --j2: rgba(242, 208, 142, .94); --j3: rgba(196, 138, 58, .96);
+  --jside: #5e3a0e; --jink: #4a2404; --jglow: rgba(255, 244, 206, .6);
+}
+.cw-a.cw-tab { --j1: rgba(204, 228, 218, .82); --j2: rgba(128, 170, 156, .8); --j3: rgba(66, 112, 100, .86); --jglow: rgba(210, 240, 230, .25); }
+.cw-a.cw-chip { border-radius: 16px; }
+.cw-a.cw-chip::before { left: 8px; right: 8px; border-radius: 14px 14px 50% 50% / 14px 14px 100% 100%; }
+.cw-a.cw-chip::after { inset: -4px -5px; }
+
+.cw-a:hover:not(:disabled):not(.is-disabled) { transform: translateY(-1px); --jglow: rgba(255, 255, 240, .85); }
+.cw-a:hover:not(:disabled):not(.is-disabled)::after { filter: drop-shadow(0 1px 1px rgba(30, 14, 0, .7)) brightness(1.18); }
+.cw-a:active:not(:disabled):not(.is-disabled), .cw-a.is-pressed {
+  transform: translateY(5px);
+  box-shadow:
+    inset 0 3px 6px rgba(10, 50, 40, .45),
+    inset 0 -1px 2px rgba(255, 255, 255, .5),
+    inset 0 0 22px rgba(255, 255, 240, .75),
+    0 0 0 1.2px var(--jrim), 0 0 0 2.6px #2e1c08, 0 0 0 3.4px rgba(232, 200, 120, .42),
+    0 0.5px 0 1.8px var(--jside),
+    0 3px 6px rgba(0, 0, 0, .55);
+}
+.cw-a:active:not(:disabled):not(.is-disabled)::before, .cw-a.is-pressed::before { opacity: .35; }
+.cw-a:active:not(:disabled):not(.is-disabled) .cw-label::before, .cw-a.is-pressed .cw-label::before { opacity: .95; }
+.cw-a.is-selected, .cw-a[aria-selected="true"] {
+  --jrim: #fff0b4; --jglow: rgba(255, 255, 238, .9);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, .95),
+    inset 0 -3px 6px rgba(10, 50, 40, .28),
+    inset 0 0 16px var(--jglow),
+    0 0 0 1.4px var(--jrim), 0 0 0 2.8px #3a2208, 0 0 0 4px rgba(255, 228, 150, .8),
+    0 5px 0 2.2px var(--jside),
+    0 0 22px 4px rgba(255, 214, 130, .5),
+    0 11px 16px rgba(0, 0, 0, .5);
+}
+.cw-a.is-selected .cw-label::before, .cw-a[aria-selected="true"] .cw-label::before { opacity: .55; }
+.cw-a.is-selected::after, .cw-a[aria-selected="true"]::after { filter: drop-shadow(0 0 3px rgba(255, 220, 140, .95)) drop-shadow(0 1px 1px rgba(30, 14, 0, .6)); }
+.cw-a:disabled, .cw-a.is-disabled {
+  --j1: rgba(190, 196, 190, .7); --j2: rgba(140, 148, 142, .7); --j3: rgba(100, 108, 102, .75);
+  --jside: #2a2a26; --jglow: transparent; --jrim: #7a6c50; --jink: #2e3632;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .25); transform: translateY(3px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 0 0 1.2px var(--jrim), 0 0 0 2.6px #1e160c,
+    0 2px 0 1.2px var(--jside), 0 4px 8px rgba(0, 0, 0, .45);
+}
+.cw-a:disabled::before, .cw-a.is-disabled::before { opacity: .25; }
+
+/* ============ B 朱漆印章 ============ */
+.cw-b { /* 默认：朱文印（纸底朱边朱字） */
+  --seal: #b3301d; --ripple: rgba(230, 150, 70, .7); --ripple2: rgba(230, 150, 70, .28); --ripple-core: rgba(179, 48, 29, .18);
+  --cn-tl: var(--cw-cn-verm-tl); --cn-tr: var(--cw-cn-verm-tr); --cn-bl: var(--cw-cn-verm-bl); --cn-br: var(--cw-cn-verm-br);
+  border-radius: 5px; color: #9e2216; text-shadow: 0 1px 0 rgba(255, 250, 235, .8);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(255, 255, 255, .55), transparent 60%),
+    var(--cw-noise),
+    linear-gradient(180deg, #fcf3de, #f0dfb8 60%, #e2c996);
+  box-shadow:
+    inset 0 0 0 2px var(--seal), inset 0 0 0 3.6px rgba(252, 243, 222, .95), inset 0 0 0 4.4px rgba(179, 48, 29, .5),
+    inset 0 -4px 8px rgba(130, 70, 10, .22),
+    0 0 0 1.2px #e8c878, 0 0 0 2.4px #2e1408, 0 0 0 3.2px rgba(232, 200, 120, .38),
+    0 4px 0 1.6px #6e4a1e, 0 10px 15px rgba(0, 0, 0, .52);
+}
+.cw-b::before { /* 漆面高光 */
+  left: 4px; right: 4px; top: 2px; height: 46%;
+  border-radius: 4px 4px 45% 45% / 4px 4px 12px 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .6), rgba(255, 255, 255, 0));
+}
+.cw-b::after { inset: 3px; border-radius: 3px; }
+.cw-b .cw-label::before { /* 印泥涟漪 */
+  background:
+    radial-gradient(ellipse 62% 105% at 50% 50%, transparent 0 58%, var(--ripple) 66%, transparent 76%),
+    radial-gradient(ellipse 90% 150% at 50% 50%, transparent 0 62%, var(--ripple2) 68%, transparent 76%),
+    radial-gradient(ellipse 45% 70% at 50% 50%, var(--ripple-core), transparent 80%);
+  transform: scale(.9);
+}
+.cw-b.cw-primary, .cw-b.cw-tab.is-selected, .cw-b.cw-tab[aria-selected="true"], .cw-b.cw-chip.is-selected {
+  /* 白文印：朱漆满地、金线云纹框 */
+  --ripple: rgba(255, 236, 184, .85); --ripple2: rgba(255, 236, 184, .35); --ripple-core: rgba(255, 220, 160, .3);
+  --cn-tl: var(--cw-cn-gold-tl); --cn-tr: var(--cw-cn-gold-tr); --cn-bl: var(--cw-cn-gold-bl); --cn-br: var(--cw-cn-gold-br);
+  color: #fff3d2; text-shadow: 0 1px 0 #5e0c04, 0 0 10px rgba(255, 190, 130, .35);
+  background:
+    radial-gradient(120% 90% at 50% -8%, rgba(255, 196, 160, .55), transparent 56%),
+    radial-gradient(60% 90% at 50% 120%, rgba(60, 0, 0, .35), transparent 70%),
+    var(--cw-noise),
+    linear-gradient(180deg, #db583d, #b3301d 50%, #84180e);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 214, 184, .7), inset 0 -3px 6px rgba(60, 0, 0, .45),
+    0 0 0 1.2px #e8c878, 0 0 0 2.4px #2e0e04, 0 0 0 3.2px rgba(232, 200, 120, .42),
+    0 4px 0 1.6px #52100a, 0 10px 15px rgba(0, 0, 0, .55);
+}
+.cw-b.cw-primary::after, .cw-b.cw-tab.is-selected::after, .cw-b.cw-tab[aria-selected="true"]::after, .cw-b.cw-chip.is-selected::after {
+  border: 1px solid rgba(245, 214, 140, .85); background-origin: border-box;
+}
+.cw-b.cw-chip::after { inset: 2px; }
+.cw-b:hover:not(:disabled):not(.is-disabled) { transform: translateY(-1px); filter: brightness(1.06) saturate(1.05); }
+.cw-b:active:not(:disabled):not(.is-disabled), .cw-b.is-pressed {
+  transform: translateY(4px) scale(.985); filter: brightness(.94);
+}
+.cw-b:active:not(:disabled):not(.is-disabled) { box-shadow:
+    inset 0 0 0 2px var(--seal), inset 0 3px 8px rgba(90, 20, 0, .4),
+    0 0 0 1.2px #e8c878, 0 0 0 2.4px #2e1408, 0 1px 0 1.6px #52100a, 0 3px 6px rgba(0, 0, 0, .5); }
+.cw-b.is-pressed { box-shadow:
+    inset 0 0 0 2px var(--seal), inset 0 3px 8px rgba(90, 20, 0, .4),
+    0 0 0 1.2px #e8c878, 0 0 0 2.4px #2e1408, 0 1px 0 1.6px #52100a, 0 3px 6px rgba(0, 0, 0, .5); }
+.cw-b:active:not(:disabled):not(.is-disabled)::before, .cw-b.is-pressed::before { opacity: .3; }
+.cw-b.is-pressed .cw-label::before { opacity: 1; transform: scale(1); }
+.cw-b:active:not(:disabled):not(.is-disabled) .cw-label::before { animation: cw-stamp .6s ease-out forwards; }
+@keyframes cw-stamp { 0% { opacity: 1; transform: scale(.35); } 100% { opacity: 0; transform: scale(1.35); } }
+.cw-b.is-selected, .cw-b[aria-selected="true"] {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 214, 184, .7), inset 0 -3px 6px rgba(60, 0, 0, .4),
+    inset 0 0 0 2px var(--seal),
+    0 0 0 1.4px #fff0b4, 0 0 0 2.8px #3a1206, 0 0 0 4px rgba(255, 224, 150, .85),
+    0 4px 0 2px #52100a, 0 0 22px 4px rgba(255, 170, 100, .45), 0 10px 15px rgba(0, 0, 0, .5);
+}
+.cw-b.cw-primary.is-selected, .cw-b.cw-tab.is-selected, .cw-b.cw-chip.is-selected { --seal: transparent; }
+.cw-b.is-selected::after, .cw-b[aria-selected="true"]::after { border-color: #fff2c0; filter: drop-shadow(0 0 3px rgba(255, 226, 150, .95)); }
+.cw-b:disabled, .cw-b.is-disabled {
+  filter: saturate(.18) brightness(.72) contrast(.9); transform: translateY(3px);
+  box-shadow: inset 0 0 0 2px var(--seal), 0 0 0 1.2px #7a6c50, 0 0 0 2.4px #1e140c, 0 1px 0 1.2px #2a2018, 0 4px 8px rgba(0, 0, 0, .45);
+}
+.cw-b:disabled::before, .cw-b.is-disabled::before { opacity: .3; }
+
+/* ============ C 卷轴页签 ============ */
+.cw-c {
+  --silk1: #fbf2dc; --silk2: #eddcb4; --silk3: #d8c08a; --band: #a8782c; --weave: rgba(110, 70, 20, .06);
+  --rod: var(--cw-rod); --rod-w: 13px; --rod-y: -6px; --cloud: var(--cw-band-deep); --cloud-op: .5;
+  margin: 0 8px; border-radius: 1px; color: #3a2410; text-shadow: 0 1px 0 rgba(255, 250, 235, .7);
+  background:
+    linear-gradient(180deg, transparent 0 3px, var(--band) 3px 4.2px, transparent 4.2px calc(100% - 4.2px), var(--band) calc(100% - 4.2px) calc(100% - 3px), transparent 0),
+    linear-gradient(90deg, rgba(50, 24, 0, .3), transparent 9%, transparent 91%, rgba(50, 24, 0, .3)),
+    linear-gradient(180deg, rgba(255, 255, 255, .38), transparent 42%, rgba(0, 0, 0, .1)),
+    repeating-linear-gradient(90deg, var(--weave) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(0deg, var(--weave) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, var(--silk1), var(--silk2) 60%, var(--silk3));
+  box-shadow: 0 1px 0 rgba(0, 0, 0, .35), 0 6px 10px rgba(0, 0, 0, .5);
+}
+.cw-c::before { /* 两端轴头 */
+  top: var(--rod-y); bottom: var(--rod-y); left: calc(var(--rod-w) * -.8); right: calc(var(--rod-w) * -.8);
+  background: var(--rod) left center / var(--rod-w) 100% no-repeat, var(--rod) right center / var(--rod-w) 100% no-repeat;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .65));
+}
+.cw-c::after { /* 流云（上行向右、下行向左） */
+  z-index: 0; left: 6px; right: 6px; top: 5px; bottom: 5px; opacity: var(--cloud-op);
+  background: var(--cloud) 0 0 / 30px 10px repeat-x, var(--cloud) 15px 100% / 30px 10px repeat-x;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
+.cw-c .cw-label::before {
+  background: radial-gradient(ellipse 50% 70% at 50% 50%, rgba(255, 240, 200, .5), transparent 80%),
+    linear-gradient(90deg, rgba(40, 18, 0, .45), transparent 22%, transparent 78%, rgba(40, 18, 0, .45));
+  box-shadow: inset 0 4px 8px rgba(50, 24, 0, .45), inset 0 -2px 5px rgba(50, 24, 0, .3);
+}
+.cw-c.cw-primary, .cw-c.cw-chip.is-selected {
+  --cloud: var(--cw-band-gold); --silk1: #dc5a40; --silk2: #b3301d; --silk3: #861a0f; --band: #e8c878; --weave: rgba(255, 210, 160, .06);
+  color: #fff1cc; text-shadow: 0 1px 1px #4a0a04, 0 0 10px rgba(255, 190, 120, .3);
+}
+.cw-c.cw-tab { --silk1: #d9caa6; --silk2: #bea97e; --silk3: #a08858; --band: #7a5a28; --cloud-op: .25; color: #4a3216; }
+.cw-c.cw-chip { --rod-w: 9px; --rod-y: -4px; margin: 0 7px; }
+.cw-c.cw-chip::after { display: none; }
+.cw-c:hover:not(:disabled):not(.is-disabled) { transform: translateY(-1px); --cloud-op: .7; }
+.cw-c:hover:not(:disabled):not(.is-disabled)::after { animation: cw-flow 4s linear infinite; }
+.cw-c:active:not(:disabled):not(.is-disabled), .cw-c.is-pressed { transform: translateY(3px) scaleY(.95); }
+.cw-c:active:not(:disabled):not(.is-disabled)::before, .cw-c.is-pressed::before { transform: scaleX(.975); filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .7)) brightness(1.15); }
+.cw-c:active:not(:disabled):not(.is-disabled) .cw-label::before, .cw-c.is-pressed .cw-label::before { opacity: 1; }
+.cw-c.is-selected, .cw-c[aria-selected="true"] {
+  --rod: var(--cw-rod-lit); --cloud: var(--cw-band-lit); --cloud-op: 1;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 0 18px 2px rgba(255, 206, 120, .4), 0 6px 10px rgba(0, 0, 0, .45);
+}
+.cw-c.cw-tab.is-selected, .cw-c.cw-tab[aria-selected="true"] {
+  --silk1: #fffaea; --silk2: #f4e6c2; --silk3: #e2cc98; --band: #c9982e; --cloud: var(--cw-band-deep); color: #8c1e14;
+}
+.cw-c.cw-secondary.is-selected { --cloud: var(--cw-band-deep); }
+.cw-c.cw-primary { min-width: 100px; }
+.cw-c.cw-secondary .cw-label { padding: 0 14px 0 calc(14px + .16em); }
+.cw-c.is-selected::before, .cw-c[aria-selected="true"]::before {
+  filter: drop-shadow(0 0 4px rgba(255, 226, 140, 1)) drop-shadow(0 0 10px rgba(255, 190, 90, .75));
+}
+.cw-c.is-selected::after, .cw-c[aria-selected="true"]::after { animation: cw-flow 3.2s linear infinite; }
+@keyframes cw-flow { to { background-position: 30px 0, -15px 100%; } }
+.cw-c:disabled, .cw-c.is-disabled {
+  --rod: var(--cw-rod-off); --cloud-op: .12; filter: saturate(.12) brightness(.52) contrast(.95); transform: translateY(2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, .4);
+}
+
+/* ============ D 镂空窗棂 ============ */
+.cw-d {
+  --ring: 10px; --lt1: rgba(255, 206, 130, .75); --lt2: rgba(200, 110, 40, .45); --lop: .6;
+  --panel1: #3c2714; --panel2: #1e1308; --pglow: rgba(255, 200, 120, 0); --frame: rgba(201, 160, 69, .8);
+  border-radius: 5px; color: #f0d690; text-shadow: 0 1px 2px #000, 0 0 10px rgba(232, 180, 90, .25);
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 210, 150, .04) 0 1px, transparent 1px 5px),
+    var(--cw-noise),
+    linear-gradient(180deg, #4e331a, #2c1b0b 50%, #1c1106);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 225, 170, .28), inset 0 -2px 3px rgba(0, 0, 0, .55),
+    0 0 0 1.2px #c9a045, 0 0 0 2.4px #140a04, 0 0 0 3.2px rgba(201, 160, 69, .35),
+    0 4px 0 1.6px #0c0703, 0 10px 15px rgba(0, 0, 0, .6);
+}
+.cw-d::before { /* 透过镂空云雷格的光 */
+  inset: 1px; padding: calc(var(--ring) - 1px); border-radius: inherit; opacity: var(--lop);
+  background: radial-gradient(ellipse at 50% 50%, var(--lt1), var(--lt2));
+  mask: var(--cw-lattice) 0 0 / calc(var(--ring) * 2) var(--ring) round, linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: intersect, exclude;
+}
+.cw-d::after { /* 内框金线 */
+  inset: calc(var(--ring) - 1px); border: 1px solid var(--frame); border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .55), inset 0 0 0 1px rgba(0, 0, 0, .5);
+}
+.cw-d .cw-label::before { /* 中心漆板，被透进来的光照亮 */
+  opacity: 1; inset: var(--ring); border-radius: 2px;
+  background: radial-gradient(ellipse 70% 90% at 50% 50%, var(--pglow), transparent 75%), linear-gradient(180deg, var(--panel1), var(--panel2));
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, .7), inset 0 -1px 0 rgba(255, 220, 160, .1);
+}
+.cw-d.cw-primary, .cw-d.cw-chip.is-selected {
+  --lt1: rgba(255, 170, 110, .85); --lt2: rgba(196, 64, 44, .6); --panel1: #641f12; --panel2: #300c06; color: #ffe6b0;
+}
+.cw-d.cw-tab { --ring: 7px; --lop: .38; color: #cdae70; }
+.cw-d.cw-chip { --ring: 5px; }
+.cw-d:hover:not(:disabled):not(.is-disabled) { --lop: .95; transform: translateY(-1px); }
+.cw-d:active:not(:disabled):not(.is-disabled), .cw-d.is-pressed {
+  --lop: 1; --lt1: rgba(255, 236, 180, .95); --pglow: rgba(255, 180, 90, .32); transform: translateY(4px);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, .6),
+    0 0 0 1.2px #c9a045, 0 0 0 2.4px #140a04, 0 0 0 3.2px rgba(201, 160, 69, .35),
+    0 0.5px 0 1.6px #0c0703, 0 3px 6px rgba(0, 0, 0, .6);
+}
+.cw-d:active:not(:disabled):not(.is-disabled) .cw-label::before, .cw-d.is-pressed .cw-label::before {
+  box-shadow: inset 0 3px 7px rgba(0, 0, 0, .85), inset 0 0 12px rgba(255, 170, 80, .3);
+}
+.cw-d.is-selected, .cw-d[aria-selected="true"] {
+  --lop: 1; --lt1: #fff4c8; --lt2: #f09a3a; --pglow: rgba(255, 196, 100, .42); --frame: #ffe6a0;
+  color: #fff6dc; text-shadow: 0 1px 2px #2a1000, 0 0 12px rgba(255, 210, 120, .85);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 225, 170, .35),
+    0 0 0 1.4px #ffe6a0, 0 0 0 2.6px #1a0c04, 0 0 0 3.6px rgba(255, 220, 140, .7),
+    0 4px 0 2px #0c0703, 0 0 24px 5px rgba(255, 170, 70, .45), 0 10px 15px rgba(0, 0, 0, .55);
+}
+.cw-d.cw-primary.is-selected, .cw-d.cw-chip.is-selected { --lt1: #ffe4b8; --lt2: #e8583a; --pglow: rgba(255, 140, 90, .45); }
+.cw-d:disabled, .cw-d.is-disabled {
+  --lop: .14; --lt1: #9a8e78; --lt2: #5a5040; --frame: rgba(120, 104, 76, .6);
+  color: #857660; text-shadow: 0 1px 1px #000; filter: saturate(.3); transform: translateY(3px);
+  box-shadow: 0 0 0 1.2px #6e6048, 0 0 0 2.4px #100804, 0 1px 0 1.2px #0c0703, 0 4px 8px rgba(0, 0, 0, .5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cw, .cw::before, .cw::after, .cw-label::before { transition: none; animation: none !important; }
+}
