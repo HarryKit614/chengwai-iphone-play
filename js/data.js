@@ -97,6 +97,15 @@
   add({ id: "fu_mountain_wood", n: "山木令", slot: "fu", fuType: "道途符", grade: "rui", src: "道途解锁", srcLong: "与顾山羁绊阶 8 解锁（待做）", sub: "顾山 · 羁绊阶 8", attrs: [10, 1, 1, 1, 1, 1], kind: "顾山专属",
     desc: "山木片刻的令，他说只给你一个人看。", ic: "fu_paper", tint: "#c8a070" });
 
+  // 顾山衣装展示 CG（定稿，16:9）：cg=大图，img=裁切缩略图；cgX/cgY=人物焦点（0~1），用于 cover 裁切定位
+  const BV = ((document.querySelector('meta[name="cw-build"]') || {}).content) || "";
+  const CG_DIR = "images/art/outfits/cg/final/gu_cg_";
+  const CG = { cloth_a: ["liefu", .49, .35], cloth_b: ["yechang", .49, .35], cloth_c: ["rijian", .33, .35], cloth_d: ["suan", .62, .45],
+    cloth_e: ["yusuo", .49, .35], cloth_f: ["dongao", .47, .4], cloth_g: ["duqi", .5, .4] };
+  I.forEach((it) => {
+    const c = CG[it.id]; if (!c) return;
+    it.cg = CG_DIR + c[0] + ".jpg?v=" + BV; it.img = CG_DIR + c[0] + "_thumb.jpg?v=" + BV; it.cgX = c[1]; it.cgY = c[2];
+  });
   const ITEMS = {};
   I.forEach((it) => { ITEMS[it.id] = it; });
 

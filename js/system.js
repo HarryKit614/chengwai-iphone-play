@@ -90,6 +90,17 @@
     }).join("") + `</div>`;
   }
   const attrSum = (attrs) => attrs.reduce((a, b) => a + b, 0);
+  /* 衣装 CG：16:9 原图按 cover 填入 bw×bh 框时，按人物焦点算 object-position，不拉伸 */
+  function cgPos(it, bw, bh) {
+    const k = Math.max(bw / 1280, bh / 720), sw = 1280 * k, sh = 720 * k;
+    const f = (c, s2, b) => (s2 - b > 1 ? Math.min(100, Math.max(0, ((c * s2 - b / 2) / (s2 - b)) * 100)) : 50);
+    return `${f(it.cgX == null ? .5 : it.cgX, sw, bw).toFixed(1)}% ${f(it.cgY == null ? .5 : it.cgY, sh, bh).toFixed(1)}%`;
+  }
+  function cgView(it) {
+    modal.innerHTML = `<div class="cg-lb"><img src="${it.cg}" alt="${it.n}"><div class="cg-cap"><b>${it.n}</b> · 顾山衣装 CG · 点击任意处关闭</div></div>`;
+    modal.classList.add("on"); modal.setAttribute("aria-hidden", "false");
+    $(".cg-lb", modal).addEventListener("click", (e) => { e.stopPropagation(); modal.classList.remove("on"); modal.setAttribute("aria-hidden", "true"); modal.innerHTML = ""; });
+  }
 
   function topLeft(title, sub, seal) {
     return `<div class="topleft"><button class="cw cw-d cw-secondary cw-back" data-act="hub"><span class="cw-label"><span class="arr"><svg width="14" height="14" viewBox="0 0 18 18"><path d="M11,3 L5,9 L11,15" fill="none" stroke="#3a2808" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>回主殿</span></button>
@@ -243,7 +254,7 @@
 
     const BN = {
       fu: { thumb: "images/ui/thumb_fu_floor.png", k: "天市符 · 按期上新", t: "第壹期「烛夜长明」", d: "本期上新：烛夜长明、山君护身<br>符材随期更换，不限于黄纸", time: "9月25日 — 10月8日", left: "本期余 13 日" },
-      waiguan: { ic: "cloak", k: "天市外观 · 常驻", t: "顾山 · 衣冠部件", d: "头发、衣服、配饰六格、动作表情<br>同槽互斥，购后在衣冠穿戴", time: "薪币／道薪分开标价", left: "常驻不下架" },
+      waiguan: { thumb: D.ITEMS.cloth_b.img, k: "天市外观 · 常驻", t: "顾山 · 衣冠部件", d: "头发、衣服、配饰六格、动作表情<br>同槽互斥，购后在衣冠穿戴", time: "薪币／道薪分开标价", left: "常驻不下架" },
       libao: { ic: "bundle", k: "礼包 · 暂只一款", t: "新人礼包", d: "外观拆成部件入库，可混搭<br>外观礼包、道具礼包以后再加", time: "限购一次", left: "内容暂定" },
       jiaohuan: { ic: "hide", k: "以物换物 · 不花道薪", t: "行职兑换物换外观", d: "山货皮出自道途行职<br>山叶签出自日常行职", time: "只换「行职解锁」外观", left: "兑换物在行囊" }
     }[ts.tab];
@@ -299,11 +310,15 @@
     if (buyBtn) buyBtn.addEventListener("click", () => doBuy(sel));
     const goYg = $("#pv-goyg", scr.page);
     if (goYg) goYg.addEventListener("click", () => openPage("yiguan", { slot: sel.slot || "cloth" }));
+    $$("[data-cgview]", scr.page).forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); cgView(D.ITEMS[b.dataset.cgview]); }));
+    const pvCg = $(".pv-img img.cg", scr.page);
+    if (pvCg && sel && sel.cg) pvCg.addEventListener("click", () => cgView(sel));
   }
   function tsPreview(it) {
     const st = itemState(it);
     let img, cap;
-    if (it.pv) { img = `<img class="scene" src="${it.pv}" alt="">`; cap = it.pvCap; }
+    if (it.cg) { img = `<img class="scene cg" src="${it.cg}" alt="${it.n}" style="object-position:${cgPos(it, 400, 296)}"><button class="cg-full" data-cgview="${it.id}">全图</button>`; cap = `衣装 CG · ${it.n}（部件分层立绘后续叠加）`; }
+    else if (it.pv) { img = `<img class="scene" src="${it.pv}" alt="">`; cap = it.pvCap; }
     else {
       const spr = it.sprite ? `images/sprites/gu_${it.sprite}.png` : "images/sprites/gu_idle.png";
       img = `<div class="halo"></div><img class="sprite" src="${spr}" alt=""><span class="pv-ic">${icon(it.bundle ? "bundle" : it.ic, it.tint)}</span><span class="ph-tag">占位</span>`;
@@ -402,13 +417,19 @@
       `<button class="who ${r[1] ? "on" : ""}" data-who="${r[0]}" data-lock="${r[1] ? 0 : 1}" style="top:${36 + i * 94}px"><div class="face">${r[1] ? `<img src="images/ui/gu_face_thumb.png" alt="">` : sil + `<div class="lk">${V4.lockIco(24)}</div>`}</div><div class="nm">${r[0]}</div></button>`).join("") + `</div>`;
 
     const fuIt = eq.fu ? D.ITEMS[eq.fu] : null;
-    html += `<div class="dais ${fuIt ? "has-fu" : ""}"><div class="glow"></div><div class="fu-aura"></div>
+    // 展示 CG：选中的衣服有 CG 就展示选中项，否则展示当前穿着衣服的 CG（部件分层立绘仍在下方保留，有 CG 时隐藏）
+    const selIt = yg.sel && yg.sel !== "__none" ? D.ITEMS[yg.sel] : null;
+    const cgIt = selIt && selIt.cg ? selIt : (eq.cloth && D.ITEMS[eq.cloth] && D.ITEMS[eq.cloth].cg ? D.ITEMS[eq.cloth] : null);
+    const cgHTML = cgIt ? `<div class="cg-frame"><img class="cg" src="${cgIt.cg}" alt="${cgIt.n}" style="object-position:${cgPos(cgIt, 468, 638)}"></div>
+      <span class="cg-tag">衣装 CG · <b>${cgIt.n}</b>${owns(cgIt.id) ? (eq.cloth === cgIt.id ? " · 穿戴中" : "") : " · 未拥有 · 试看"}</span>
+      <button class="cg-full" data-cgview="${cgIt.id}">全图</button>` : "";
+    html += `<div class="dais ${fuIt ? "has-fu" : ""} ${cgIt ? "has-cg" : ""}">${cgHTML}<div class="glow"></div><div class="fu-aura"></div>
       <svg class="ring" viewBox="0 0 440 440"><g fill="none" stroke="#e8c878" stroke-linecap="round">
         <circle cx="220" cy="220" r="200" stroke-width="1.2" opacity=".55"/><circle cx="220" cy="220" r="186" stroke-width=".7" opacity=".4" stroke-dasharray="2 6"/><circle cx="220" cy="220" r="150" stroke-width=".8" opacity=".3"/>
         ${[0, 45, 90, 135, 180, 225, 270, 315].map((a) => `<g transform="rotate(${a} 220 220)" opacity=".75" stroke-width="1.3"><path d="M220,14 C212,8 204,16 210,22 C214,26 220,22 217,18"/><path d="M220,14 C228,8 236,16 230,22 C226,26 220,22 223,18"/></g>`).join("")}
       </g></svg>
       <img class="sprite" src="images/sprites/gu_${guEmo()}.png" alt="顾山">
-      <span class="ph-tag">部件分层立绘未出图 · 暂用默认立绘（穿戴已记录）</span>
+      <span class="ph-tag spr-tag">部件分层立绘未出图 · 暂用默认立绘（穿戴已记录）</span>
       ${fuIt ? `<span class="ph-tag" style="left:12px;top:44px;background:rgba(90,60,14,.9)">符光示意：${fuIt.n}</span>` : ""}</div>`;
     const diff = planDiff();
     html += `<div class="cw cw-d dframe outfit-tag"><span class="cw-label">顾山 ·<b>方案 ${S.plan}</b>· ${S.plans[S.plan] ? (diff ? `未保存改动 ${diff} 处` : "已保存") : "未保存"}</span></div>`;
@@ -472,6 +493,8 @@
 
     mount("yg", html, ["yg-roster", "yg-rail", "yg-owned"]);
     const root = scr.page;
+    $$("[data-cgview]", root).forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); cgView(D.ITEMS[b.dataset.cgview]); }));
+    if (cgIt) $(".dais .cg-frame", root).addEventListener("click", () => cgView(cgIt));
     $$("[data-who]", root).forEach((b) => b.addEventListener("click", () => { if (b.dataset.lock === "1") toast(b.dataset.who + " · 尚未解锁"); }));
     $$("[data-slot]", root).forEach((b) => b.addEventListener("click", () => renderYiguan({ slot: b.dataset.slot })));
     $$("[data-oc]", root).forEach((b) => b.addEventListener("click", () => {
@@ -548,7 +571,7 @@
       <div class="set-row"><div class="sr-t">恢复演示余额</div><div class="sr-d">把薪币、道薪恢复为 124,860 ／ 2,350。已拥有的物件不变。</div><button class="cw cw-d cw-secondary" data-set="bal"><span class="cw-label">恢复</span></button></div>
       <div class="set-row"><div class="sr-t">重置系统存档</div><div class="sr-d">货币、行囊、衣冠穿戴与三套方案全部回到初始（演示物件）。</div><button class="cw cw-d cw-secondary" data-set="sys"><span class="cw-label">重置</span></button></div>
       <div class="set-row"><div class="sr-t">重置剧情进度</div><div class="sr-d">主线「渡气」读档点、共处状态、轻触台词进度回到开头。</div><button class="cw cw-d cw-secondary" data-set="story"><span class="cw-label">重置</span></button></div>
-      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925c · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
+      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925d · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
     </div></div>`;
     mount("gp", html, ["gp-main"]);
     $$("[data-set]", scr.page).forEach((b) => b.addEventListener("click", () => {
