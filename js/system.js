@@ -157,7 +157,7 @@
     <path d="M34,52 C30,46 38,42 42,46 C46,50 40,56 36,52"/><path d="M58,50 C56,44 64,40 68,46"/><path d="M14,76 H106" opacity=".7"/><path d="M6,82 H60" opacity=".45"/></g></svg>`;
   const SIDE = [
     { k: "xingzhi", n: "行职录", ico: "xingzhi" },
-    { k: "yiguan", n: "衣冠", ico: "yiguan" },
+    { k: "yiguan", n: "出战", ico: "yiguan" },
     { k: "xingnang", n: "行囊", ico: "xingnang" },
     { k: "tianshi", n: "天市", ico: "tianshi" },
     { k: "shuwu", n: "署务", ico: "shuwu" }
@@ -254,7 +254,7 @@
 
     const BN = {
       fu: { thumb: "images/ui/thumb_fu_floor.png", k: "天市符 · 按期上新", t: "第壹期「烛夜长明」", d: "本期上新：烛夜长明、山君护身<br>符材随期更换，不限于黄纸", time: "9月25日 — 10月8日", left: "本期余 13 日" },
-      waiguan: { thumb: D.ITEMS.cloth_b.img, k: "天市外观 · 常驻", t: "顾山 · 衣冠部件", d: "头发、衣服、配饰六格、动作表情<br>同槽互斥，购后在衣冠穿戴", time: "薪币／道薪分开标价", left: "常驻不下架" },
+      waiguan: { thumb: D.ITEMS.cloth_b.img, k: "天市外观 · 常驻", t: "顾山 · 出战立绘", d: "买下整张立绘，到「出战」里选用<br>不再拆成头发、配饰分开穿", time: "薪币／道薪分开标价", left: "常驻不下架" },
       libao: { ic: "bundle", k: "礼包 · 暂只一款", t: "新人礼包", d: "外观拆成部件入库，可混搭<br>外观礼包、道具礼包以后再加", time: "限购一次", left: "内容暂定" },
       jiaohuan: { ic: "hide", k: "以物换物 · 不花道薪", t: "行职兑换物换外观", d: "山货皮出自道途行职<br>山叶签出自日常行职", time: "只换「行职解锁」外观", left: "兑换物在行囊" }
     }[ts.tab];
@@ -266,7 +266,7 @@
     if (ts.tab === "waiguan") subs = WG_SUBS.map((s, i) => [s[0], i]);
     if (ts.tab === "fu") subs = FU_SUBS.map((s, i) => [s, i]);
     if (ts.tab === "libao") subs = [["全部礼包", 0]];
-    const hint = { waiguan: "购得入行囊 · 衣冠中穿戴", fu: "符箓只用道薪购买 · 不售的标来源", libao: "礼包暂只一个 · 内容暂定", jiaohuan: "只换「行职解锁」外观 · 不花道薪" }[ts.tab];
+    const hint = { waiguan: "立绘买下后到「出战」选用", fu: "符箓不计战力 · 不售的标来源", libao: "礼包暂只一个 · 内容暂定", jiaohuan: "只换已有的行职立绘 · 不花道薪" }[ts.tab];
     html += `<div class="subtabs">`;
     if (ts.tab === "jiaohuan") {
       html += `<span class="hold-lb">行囊兑换物</span>` + ["swap_hide", "swap_leaf"].map((id) => `<span class="hold"><span class="mi">${icon(D.BAG[id].ic)}</span>${D.BAG[id].n} <b>× ${bagQty(id)}</b></span>`).join("");
@@ -317,7 +317,7 @@
   function tsPreview(it) {
     const st = itemState(it);
     let img, cap;
-    if (it.cg) { img = `<img class="scene cg" src="${it.cg}" alt="${it.n}" style="object-position:${cgPos(it, 400, 296)}"><button class="cg-full" data-cgview="${it.id}">全图</button>`; cap = `衣装 CG · ${it.n}（部件分层立绘后续叠加）`; }
+    if (it.cg) { img = `<img class="scene cg" src="${it.cg}" alt="${it.n}" style="object-position:${cgPos(it, 400, 296)}"><button class="cg-full" data-cgview="${it.id}">全图</button>`; cap = `出战立绘 · ${it.n}`; }
     else if (it.pv) { img = `<img class="scene" src="${it.pv}" alt="">`; cap = it.pvCap; }
     else {
       const spr = it.sprite ? `images/sprites/gu_${it.sprite}.png` : "images/sprites/gu_idle.png";
@@ -331,11 +331,13 @@
       note = `含：<b>${parts.join("、")}</b><br>${it.note}`;
     } else if (it.slot === "fu") {
       tier = `${it.fuType} · ${it.kind}`;
-      const how = it.price ? "购得入行囊，于衣冠「符箓」槽佩戴，可随时取下。" : `来源：${it.srcLong} · 天市不售，只标来源方便查找。`;
-      note = `不计战力。符箓属性已改到立绘上，佩戴不改变出战形象。<div style="margin-top:6px">${how}</div>`;
+      const how = it.price ? "购得只作收藏，不提供战力，也不改出战形象。" : `来源：${it.srcLong} · 天市不售，只标来源方便查找。`;
+      note = `不计战力。战力在出战立绘上。<div style="margin-top:6px">${how}</div>`;
     } else {
-      tier = `${D.SLOT_NAME[it.slot]} · ${it.id}`;
-      const how = it.price ? `同槽互斥，穿上替换当前${D.SLOT_NAME[it.slot]}。购得入行囊，于衣冠「${D.SLOT_NAME[it.slot]}」槽穿戴。` : `来源：${it.srcLong || it.src}。`;
+      tier = it.slot === "cloth" ? `出战立绘 · ${D.GRADE[it.grade]}` : `${D.SLOT_NAME[it.slot]}`;
+      const how = it.slot === "cloth"
+        ? (it.price ? "买下后可在「出战」里选这张进副本。" : `来源：${it.srcLong || it.src}。`)
+        : `来源：${it.srcLong || it.src || "暂不穿戴"}。换装已取消，这件不单独上身。`;
       note = how + (it.slot === "cloth" && it.attrs ? `<br>出战战力 +${attrSum(it.attrs)}（${D.GRADE[it.grade]}）。主线形象不变。` : "") + (it.trade ? `<br>也可以物换物：${D.BAG[it.trade[0]].n} × ${it.trade[1]}。` : "");
     }
     let price = "", btn = "购买", dis = false;
@@ -347,7 +349,7 @@
       price = `<div class="price"><span class="mi">${icon(D.BAG[st.tr[0]].ic)}</span>${D.BAG[st.tr[0]].n} × ${st.tr[1]}</div>`;
       btn = "兑换"; if (bagQty(st.tr[0]) < st.tr[1]) { dis = true; btn = "兑换物不足"; }
     } else { price = `<div class="price"><small>${it.src || "行职解锁"}</small></div>`; btn = "不售"; dis = true; }
-    const goYg = st.k === "owned" && !it.bundle ? `<button class="cw cw-d cw-chip go-yg" id="pv-goyg"><span class="cw-label">去衣冠</span></button>` : "";
+    const goYg = st.k === "owned" && it.slot === "cloth" ? `<button class="cw cw-d cw-chip go-yg" id="pv-goyg"><span class="cw-label">设为出战</span></button>` : "";
     return `<div class="lacq preview" id="ts-preview">
       <div class="pv-head"><span>试穿预览 · 顾山</span><span class="tog"><span>原装</span><b>试穿中</b></span></div>
       <div class="pv-img">${img}<div class="cap">${cap}</div></div>
@@ -388,141 +390,42 @@
     }
   }
 
-  /* ================= 衣冠 ================= */
-  const yg = { slot: "cloth", sel: null };
+  /* ================= 出战立绘（衣冠换装已取消） ================= */
   const ROSTER = [["顾山", 1], ["沈砚"], ["陆星阑"], ["萧铁衣"], ["裴无咎"], ["白鹤眠"]];
-  const slotDef = (k) => D.SLOTS.find((s) => s.k === k);
-  const canEmpty = (k) => { const s = slotDef(k); return !!(s && (s.acc || k === "fu")); };
-  function planDiff() {
-    const p = S.plans[S.plan];
-    const base = p || D.DEFAULT_OUTFIT;
-    return Object.keys(D.DEFAULT_OUTFIT).filter((k) => (S.equipped[k] || null) !== (base[k] || null)).length + (p ? 0 : 0);
-  }
   function guEmo() {
     const e = D.ITEMS[S.equipped.emo];
     return e && e.sprite ? e.sprite : "idle";
   }
-  function renderYiguan(opt) {
-    if (opt.slot) { yg.slot = opt.slot; yg.sel = null; }
-    const eq = S.equipped, plan = S.plans[S.plan] || {};
-    const slotItems = D.ITEM_LIST.filter((it) => it.slot === yg.slot);
-    const ownedItems = slotItems.filter((it) => owns(it.id));
-    const unowned = slotItems.filter((it) => !owns(it.id));
-    const sd = slotDef(yg.slot);
-    if (!yg.sel) yg.sel = eq[yg.slot] || (canEmpty(yg.slot) ? "__none" : null);
-
-    let html = topLeft("衣冠", "选定一张立绘出战 · 剧情不改形象", "冠") + currencyBar(false);
-    const sil = `<svg class="sil" viewBox="0 0 62 62"><circle cx="31" cy="24" r="11" fill="#5a4a34"/><path d="M8,62 C10,44 20,38 31,38 C42,38 52,44 54,62 Z" fill="#5a4a34"/></svg>`;
-    html += `<div class="lacq roster" id="yg-roster"><div class="rh">男主</div>` + ROSTER.map((r, i) =>
-      `<button class="who ${r[1] ? "on" : ""}" data-who="${r[0]}" data-lock="${r[1] ? 0 : 1}" style="top:${36 + i * 94}px"><div class="face">${r[1] ? `<img src="images/ui/gu_face_thumb.png" alt="">` : sil + `<div class="lk">${V4.lockIco(24)}</div>`}</div><div class="nm">${r[0]}</div></button>`).join("") + `</div>`;
-
-    const selIt = yg.sel && yg.sel !== "__none" ? D.ITEMS[yg.sel] : null;
-    const cgIt = (selIt && selIt.slot === "cloth" && selIt.cg) ? selIt : (eq.cloth && D.ITEMS[eq.cloth] && D.ITEMS[eq.cloth].cg ? D.ITEMS[eq.cloth] : null);
-    const worn = cgIt && eq.cloth === cgIt.id;
-    let cgHTML = "";
-    if (cgIt) {
-      cgHTML = `<div class="cg-frame paint-frame"><img class="cg" src="${cgIt.cg}" alt="${cgIt.n}"></div>
-      <span class="cg-tag">出战立绘 · <b>${cgIt.n}</b> · ${D.GRADE[cgIt.grade]} · 战力 +${attrSum(cgIt.attrs || [])}${worn ? " · 当前" : ""}</span>
-      <button class="cg-full" data-cgview="${cgIt.id}">全图</button>`;
-    }
-    html += `<div class="dais ${cgIt ? "has-cg" : ""}">${cgHTML}<div class="glow"></div><div class="fu-aura"></div>
-      <svg class="ring" viewBox="0 0 440 440"><g fill="none" stroke="#e8c878" stroke-linecap="round">
-        <circle cx="220" cy="220" r="200" stroke-width="1.2" opacity=".55"/><circle cx="220" cy="220" r="186" stroke-width=".7" opacity=".4" stroke-dasharray="2 6"/><circle cx="220" cy="220" r="150" stroke-width=".8" opacity=".3"/>
-        ${[0, 45, 90, 135, 180, 225, 270, 315].map((a) => `<g transform="rotate(${a} 220 220)" opacity=".75" stroke-width="1.3"><path d="M220,14 C212,8 204,16 210,22 C214,26 220,22 217,18"/><path d="M220,14 C228,8 236,16 230,22 C226,26 220,22 223,18"/></g>`).join("")}
-      </g></svg>
-      <img class="sprite" src="images/sprites/gu_${guEmo()}.png" alt="顾山">
-      <span class="ph-tag spr-tag">未选出战立绘</span></div>`;
-    const diff = planDiff();
-    html += `<div class="cw cw-d dframe outfit-tag"><span class="cw-label">顾山 ·<b>方案 ${S.plan}</b>· ${S.plans[S.plan] ? (diff ? `未保存改动 ${diff} 处` : "已保存") : "未保存"}</span></div>`;
-
-    let y = 12;
-    html += `<div class="lacq rail" id="yg-rail">` + D.SLOTS.map((s) => {
-      if (s.grp) { const h = `<div class="grp" style="top:${y}px">${s.grp}</div>`; y += 22; return h; }
-      const on = s.k === yg.slot;
-      const id = eq[s.k]; const it = id ? D.ITEMS[id] : null;
-      const txt = it ? it.n : s.k === "fu" ? "未佩" : "未戴";
-      const chg = S.plans[S.plan] && (plan[s.k] || null) !== (id || null);
-      const h = `<button class="cw cw-d cw-slot ${on ? "is-selected" : ""}" ${on ? 'aria-selected="true"' : ""} data-slot="${s.k}" style="top:${y}px"><span class="cw-label">
-        <span class="si">${icon(s.ic, on ? "#fff0c0" : "#e8c878")}</span><span class="tx"><span class="sn">${s.n}</span><span class="se ${it ? "" : "empty"} ${chg ? "chg" : ""}">${txt}${chg ? " ·改" : ""}</span></span></span></button>`;
-      y += 58; return h;
-    }).join("") + `</div>`;
-
-    // 已有格
-    const cells = [];
-    if (canEmpty(yg.slot)) cells.push({ none: 1 });
-    ownedItems.forEach((it) => cells.push({ it }));
-    unowned.forEach((it) => cells.push({ it, no: 1 }));
-    const goLabel = yg.slot === "fu" ? "天市符 · 去天市" : `未有 ${unowned.length} 件 · 去天市`;
-    html += `<div class="lacq owned" id="yg-owned">
-      <div class="ow-head"><span class="t">${sd.n}</span><span class="c">行囊中已有 ${ownedItems.length} 件</span><button class="cw cw-d cw-chip" id="yg-go"><span class="cw-label">${goLabel}</span></button></div>
-      <div class="ogrid scroll">` + cells.map((c) => {
-        if (c.none) {
-          const on = !eq[yg.slot];
-          return `<button class="oc ${yg.sel === "__none" ? "sel" : ""}" data-oc="__none"><div class="art"><span class="ic">${icon("none")}</span></div>${on ? `<span class="seal">${V4.checkSeal(24)}</span>` : ""}<div class="nm">${yg.slot === "fu" ? "不佩符" : "不戴"}</div><div class="st ${on ? "wear" : ""}">${on ? "当前" : yg.slot === "fu" ? "关闭符光" : "空着"}</div></button>`;
-        }
-        const it = c.it, worn = eq[yg.slot] === it.id;
-        let st, cls = "";
-        if (c.no) { st = it.price ? "未有 · 去天市" : (it.src || "行职解锁"); cls = "shop"; }
-        else if (worn) { st = "穿戴中"; cls = "wear"; }
-        else if (it.slot === "fu") st = `${D.GRADE[it.grade]}·${TIER_CN[tierOf(it.id)]}`;
-        else st = it.def ? "默认" : it.price ? "天市购得" : (it.src || "行职解锁");
-        const art = it.img ? `<img src="${it.img}" alt="">` : `<span class="ic">${icon(it.ic, it.tint)}</span><span class="ph-tag">占位</span>`;
-        return `<button class="oc ${yg.sel === it.id ? "sel" : ""} ${c.no ? "no" : ""}" data-oc="${it.id}"><div class="art">${art}</div>${worn ? `<span class="seal">${V4.checkSeal(24)}</span>` : ""}${it.slot === "fu" ? rar(it.grade) : ""}<div class="nm">${it.n}</div><div class="st ${cls}">${st}</div></button>`;
-      }).join("") + `</div>`;
-
-    // 详情
-    const si = yg.sel && yg.sel !== "__none" ? D.ITEMS[yg.sel] : null;
-    let det;
-    if (!si) det = `<div class="detail"><div class="d1">${yg.slot === "fu" ? "不佩符" : "不戴"}</div><div class="d2">${yg.slot === "fu" ? "符箓不加战力。" : "这一格空着。"}点「保存搭配」后写入当前方案。</div></div>`;
-    else if (si.slot === "fu") {
-      det = `<div class="detail"><div class="d1">${si.n}${rar(si.grade)}<span class="tier">${si.fuType} · 不计战力</span></div>
-        <div class="d2">符箓的属性已经拿掉，战力改记在立绘上。这张符只作收藏，不改变出战形象，也不进主线剧情。</div></div>`;
-    } else if (si.slot === "cloth") {
-      const bonus = si.attrs || [0, 0, 0, 0, 0, 0];
-      const panel = D.ATTRS.map((a, i) => `${a} ${D.GU_BASE[i] + bonus[i]}`).join(" · ");
-      det = `<div class="detail tall"><div class="d1">${si.n}${rar(si.grade)}<span class="tier">${D.GRADE[si.grade]} · 战力 +${attrSum(bonus)}</span></div>
-        <div class="d2">${si.desc}<br>${attrRow(bonus, 1)}出战面板：${panel}<br>主线仍按剧情原定形象。副本和战斗用这一张。</div></div>`;
-    } else {
-      const how = owns(si.id) ? (si.slot === "emo" && !si.sprite ? "立绘未出，暂用默认立绘。" : "同槽互斥，替换当前" + sd.n + "。") : `未拥有 · ${si.price ? "天市 " + fmt(si.price[1]) + " " + curName(si.price[0]) : (si.srcLong || si.src)}`;
-      det = `<div class="detail"><div class="d1">${si.n}${rar(si.grade)}</div><div class="d2">${si.desc}<br>${how} 点「保存搭配」后写入当前方案。</div></div>`;
-    }
-    html += det;
-    if (yg.slot !== "fu") html += `<div class="flow"><b>天市</b>购得<i>→</i><b>行囊</b>收纳<i>→</i><b>衣冠</b>穿戴</div>`;
-    html += `<div class="plans"><span class="lb">搭配方案</span>` + [1, 2, 3].map((n) => {
-      const on = n === S.plan;
-      return `<button class="cw cw-d cw-tab ${on ? "is-selected" : ""}" ${on ? 'aria-selected="true"' : ""} data-plan="${n}"><span class="cw-label">方案 ${n}${S.plans[n] ? "" : `<span class="empty">空</span>`}</span>${on && diff && S.plans[n] ? `<i class="dot"></i>` : ""}</button>`;
-    }).join("") + `</div>
-      <div class="acts"><button class="cw cw-d cw-secondary" id="yg-save"><span class="cw-label">保存搭配</span></button><button class="cw cw-d cw-primary" id="yg-battle"><span class="cw-label">以此出战</span></button></div></div>`;
-
-    mount("yg", html, ["yg-roster", "yg-rail", "yg-owned"]);
+  function renderYiguan() {
+    const id = S.equipped.cloth || "cloth_a";
+    const it = D.ITEMS[id] || D.ITEMS.cloth_a;
+    const paints = D.ITEM_LIST.filter((p) => p.slot === "cloth" && p.cg);
+    let html = topLeft("出战", "选一张立绘进副本 · 主线不换形象", "战") + currencyBar(false);
+    html += `<div class="lacq battle" id="bt-main">
+      <div class="bt-cg"><img src="${it.cg}" alt="${it.n}"><span class="cg-tag">当前出战 · <b>${it.n}</b> · ${D.GRADE[it.grade]} · 战力 +${attrSum(it.attrs || [])}</span><button class="cg-full" data-cgview="${it.id}">全图</button></div>
+      <div class="bt-side">
+        <div class="bt-t">立绘</div>
+        <div class="bt-d">点一张就换上。这一张的战力只在副本里算。</div>
+        <div class="paint-list">` + paints.map((p) => {
+          const on = p.id === it.id;
+          const have = owns(p.id);
+          return `<button class="paint ${on ? "on" : ""} ${have ? "" : "no"}" data-paint="${p.id}"><img src="${p.img}" alt=""><b>${p.n}</b><small>${have ? `${D.GRADE[p.grade]} +${attrSum(p.attrs || [])}` : "未有"}</small></button>`;
+        }).join("") + `</div>
+        <button class="cw cw-d cw-primary" id="yg-battle"><span class="cw-label">进入副本</span></button>
+      </div></div>`;
+    mount("gp", html, ["bt-main"]);
     const root = scr.page;
     $$("[data-cgview]", root).forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); cgView(D.ITEMS[b.dataset.cgview]); }));
-    if (cgIt) $(".dais .cg-frame", root).addEventListener("click", () => cgView(cgIt));
-    $$("[data-who]", root).forEach((b) => b.addEventListener("click", () => { if (b.dataset.lock === "1") toast(b.dataset.who + " · 尚未解锁"); }));
-    $$("[data-slot]", root).forEach((b) => b.addEventListener("click", () => renderYiguan({ slot: b.dataset.slot })));
-    $$("[data-oc]", root).forEach((b) => b.addEventListener("click", () => {
-      const id = b.dataset.oc;
-      const g = $(".ogrid", root), top = g.scrollTop;
-      if (id === "__none") { S.equipped[yg.slot] = null; yg.sel = "__none"; save(); }
-      else if (owns(id)) {
-        if (S.equipped[yg.slot] === id && canEmpty(yg.slot)) { S.equipped[yg.slot] = null; yg.sel = id; toast(`已卸下「${D.ITEMS[id].n}」`); }
-        else { S.equipped[yg.slot] = id; yg.sel = id; if (D.ITEMS[id].slot === "cloth") toast(`出战立绘改为「${D.ITEMS[id].n}」`); }
-        save();
-      } else yg.sel = id;
-      renderYiguan({}); $(".ogrid", scr.page).scrollTop = top;
+    $(".bt-cg", root).addEventListener("click", () => cgView(it));
+    $$("[data-paint]", root).forEach((b) => b.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const pid = b.dataset.paint;
+      if (!owns(pid)) { toast(`还没有「${D.ITEMS[pid].n}」`); return; }
+      S.equipped.cloth = pid;
+      save();
+      toast(`出战改为「${D.ITEMS[pid].n}」`);
+      renderYiguan();
     }));
-    $("#yg-go", root).addEventListener("click", () => {
-      if (yg.slot === "fu") openPage("tianshi", { tab: "fu", sub: 0 });
-      else openPage("tianshi", { tab: "waiguan", sub: WG_SUBS.findIndex((w) => w[1].includes(yg.slot)) });
-    });
-    $$("[data-plan]", root).forEach((b) => b.addEventListener("click", () => {
-      const n = +b.dataset.plan; if (n === S.plan) return;
-      S.plan = n;
-      if (S.plans[n]) { S.equipped = Object.assign(clone(D.DEFAULT_OUTFIT), clone(S.plans[n])); toast(`已换上方案 ${n}`); }
-      else toast(`方案 ${n} 还是空的 · 保存搭配即可写入`);
-      yg.sel = null; save(); renderYiguan({});
-    }));
-    $("#yg-save", root).addEventListener("click", () => { S.plans[S.plan] = clone(S.equipped); save(); renderYiguan({}); toast(`已保存到方案 ${S.plan}`); });
     $("#yg-battle", root).addEventListener("click", () => openPage("battle"));
   }
 
@@ -541,7 +444,7 @@
         <div class="bt-d">顾山以「${it.n}」进入这场副本。主线「渡气」仍是剧情里的原定形象，不会换成这身。</div>
         <div class="bt-p">战力 <b>${power}</b> · 关卡 ${foe}<br>${D.ATTRS.map((a, i) => `${a} ${D.GU_BASE[i] + bonus[i]}`).join(" · ")}</div>
         <div class="bt-r ${ok ? "ok" : ""}">${ok ? "战力够，这一关过了。" : "这身战力不够，换一张更高的立绘再来。"}</div>
-        <button class="cw cw-d cw-secondary" id="bt-back"><span class="cw-label">回衣冠换立绘</span></button>
+        <button class="cw cw-d cw-secondary" id="bt-back"><span class="cw-label">换一张立绘</span></button>
       </div>
     </div>`;
     mount("gp", html, ["bt-main"]);
@@ -580,7 +483,7 @@
     html += `<div class="lacq main" id="gp-main"><div class="gtabs">` + TABS.map(([k, n]) => { const on = k === xnTab; return `<button class="cw cw-d cw-tab ${on ? "is-selected" : ""}" ${on ? 'aria-selected="true"' : ""} data-xn="${k}" style="min-width:112px"><span class="cw-label">${n}</span></button>`; }).join("") +
       `<span class="note">共 ${cells.length} 种</span></div><div class="gbody scroll" style="bottom:96px">` +
       (cells.length ? `<div class="bag-grid">` + cells.map((c, i) => `<button class="oc" data-xi="${i}"><div class="art">${c.img ? `<img src="${c.img}" alt="">` : `<span class="ic">${icon(c.ic, c.tint)}</span><span class="ph-tag">占位</span>`}</div>${c.g ? rar(c.g) : ""}${c.q ? `<span class="qty">× ${c.q}</span>` : ""}<div class="nm">${c.n}</div><div class="st">${c.st}</div></button>`).join("") + `</div>` : `<div class="tip">这一格还空着。去行职录或天市看看。</div>`) +
-      `</div><div class="bag-detail" id="xn-detail"><b>行囊</b><span>点一件物品看详情。外观与符箓在衣冠穿戴。</span></div></div>`;
+      `</div><div class="bag-detail" id="xn-detail"><b>行囊</b><span>点一件物品看详情。出战只选立绘，符箓不计战力。</span></div></div>`;
     mount("gp", html, ["gp-main"]);
     $$("[data-xn]", scr.page).forEach((b) => b.addEventListener("click", () => renderXingnang({ tab: b.dataset.xn })));
     $$("[data-xi]", scr.page).forEach((b) => b.addEventListener("click", () => {
@@ -594,15 +497,15 @@
     let html = topLeft("署务", "设置 · 存档", "署") + currencyBar(false);
     html += `<div class="lacq main" id="gp-main"><div class="gtabs"><button class="cw cw-d cw-tab is-selected" aria-selected="true"><span class="cw-label">设置</span></button><span class="note">本地自玩 · 进度只存在本机 Safari</span></div><div class="gbody scroll">
       <div class="set-row"><div class="sr-t">恢复演示余额</div><div class="sr-d">把薪币、道薪恢复为 124,860 ／ 2,350。已拥有的物件不变。</div><button class="cw cw-d cw-secondary" data-set="bal"><span class="cw-label">恢复</span></button></div>
-      <div class="set-row"><div class="sr-t">重置系统存档</div><div class="sr-d">货币、行囊、衣冠穿戴与三套方案全部回到初始（演示物件）。</div><button class="cw cw-d cw-secondary" data-set="sys"><span class="cw-label">重置</span></button></div>
+      <div class="set-row"><div class="sr-t">重置系统存档</div><div class="sr-d">货币、行囊和出战立绘回到初始。</div><button class="cw cw-d cw-secondary" data-set="sys"><span class="cw-label">重置</span></button></div>
       <div class="set-row"><div class="sr-t">重置剧情进度</div><div class="sr-d">主线「渡气」读档点、共处状态、轻触台词进度回到开头。</div><button class="cw cw-d cw-secondary" data-set="story"><span class="cw-label">重置</span></button></div>
-      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925j · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
+      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925k · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
     </div></div>`;
     mount("gp", html, ["gp-main"]);
     $$("[data-set]", scr.page).forEach((b) => b.addEventListener("click", () => {
       const k = b.dataset.set;
       if (k === "bal") confirmBox({ title: "恢复演示余额", body: "薪币 124,860 · 道薪 2,350", onOk() { S.xb = D.DEFAULT_SAVE.xb; S.dx = D.DEFAULT_SAVE.dx; save(); renderShuwu(); toast("余额已恢复"); } });
-      if (k === "sys") confirmBox({ title: "重置系统存档", body: "货币、行囊、衣冠都会回到初始。确定吗？", okText: "确定重置", onOk() { localStorage.removeItem(SAVE_KEY); load(); save(); renderShuwu(); toast("系统存档已重置"); } });
+      if (k === "sys") confirmBox({ title: "重置系统存档", body: "货币、行囊和出战立绘都会回到初始。确定吗？", okText: "确定重置", onOk() { localStorage.removeItem(SAVE_KEY); load(); save(); renderShuwu(); toast("系统存档已重置"); } });
       if (k === "story") confirmBox({ title: "重置剧情进度", body: "主线、共处、轻触进度回到开头。确定吗？", okText: "确定重置", onOk() { if (window.CW_SCENE) window.CW_SCENE.resetProgress(); toast("剧情进度已重置"); } });
     }));
   }
