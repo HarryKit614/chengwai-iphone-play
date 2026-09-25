@@ -491,7 +491,7 @@
     const foe = FOES[opt.foe] || FOES.b14;
     const it = D.ITEMS[S.equipped.cloth] || D.ITEMS.cloth_a;
     const attrs = clothAttrs(it);
-    fight = { foe, it, attrs, gu: guHpOf(attrs), guMax: guHpOf(attrs), foeHp: foe.hp, foeMax: foe.hp, busy: false, over: "" };
+    fight = { foe, it, attrs, gu: guHpOf(attrs), guMax: guHpOf(attrs), foeHp: foe.hp, foeMax: foe.hp, busy: false, over: "", turn: "gu", round: 1 };
     paintFight();
   }
   function bar(now, max) { return Math.max(0, Math.min(100, Math.round(now / max * 100))); }
@@ -505,14 +505,17 @@
         <div class="actor foe" id="act-foe">${foeBody(foe.kind)}</div>
         <div class="slash" id="slash"></div>
         <div class="floats" id="floats"></div>
+        <div class="turn-flag" id="turn-flag">${f.over ? "战斗结束" : "第 " + f.round + " 回合 · 你的回合"}</div>
         <p class="fight-line" id="fight-line">${f.over || foe.line}</p>
         <div class="skill-bar">
-          <button class="cw cw-d cw-primary" id="sk-knife" ${f.over ? "disabled" : ""}><span class="cw-label">短刀</span></button>
+          <button class="cw cw-d cw-primary" id="sk-knife" ${f.over || f.turn !== "gu" ? "disabled" : ""}><span class="cw-label">短刀</span></button>
           <button class="cw cw-d cw-secondary" disabled><span class="cw-label">道途未开</span></button>
           <button class="cw cw-d cw-secondary" id="bt-back"><span class="cw-label">${f.over ? "离开" : "退出"}</span></button>
         </div>
       </div>`;
     scr.page.innerHTML = `<div class="pg gp">${html}</div>`;
+    const stage = $("#fight", scr.page);
+    if (stage) stage.classList.add(f.turn === "foe" ? "whose-foe" : "whose-gu");
     bindCommon(scr.page);
     $("#bt-back", scr.page).addEventListener("click", () => openPage("yiguan"));
     const btn = $("#sk-knife", scr.page);
@@ -527,15 +530,34 @@
     box.appendChild(el);
     setTimeout(() => el.remove(), 800);
   }
+  function markTurn(who) {
+    const f = fight;
+    if (!f) return;
+    f.turn = who;
+    const stage = $("#fight", scr.page), flag = $("#turn-flag", scr.page), line = $("#fight-line", scr.page), btn = $("#sk-knife", scr.page);
+    if (stage) { stage.classList.toggle("whose-gu", who === "gu"); stage.classList.toggle("whose-foe", who === "foe"); }
+    if (who === "gu") {
+      if (flag) flag.textContent = "第 " + f.round + " 回合 · 你的回合";
+      if (line) line.textContent = "轮到顾山。点短刀。";
+      if (btn) btn.disabled = false;
+    } else {
+      if (flag) flag.textContent = "第 " + f.round + " 回合 · 对方的回合";
+      if (line) line.textContent = foeName() + "正在扑上来。";
+      if (btn) btn.disabled = true;
+    }
+  }
+  function foeName() { return fight && fight.foe ? fight.foe.n : "对方"; }
   function knifeTurn() {
     const f = fight;
-    if (!f || f.busy || f.over) return;
+    if (!f || f.busy || f.over || f.turn !== "gu") return;
     f.busy = true;
     const btn = $("#sk-knife", scr.page);
     if (btn) btn.disabled = true;
     const dmg = knifeOf(f.attrs) + Math.floor(Math.random() * 4);
     f.foeHp = Math.max(0, f.foeHp - dmg);
     const gu = $("#act-gu", scr.page), foe = $("#act-foe", scr.page), slash = $("#slash", scr.page);
+    const line = $("#fight-line", scr.page);
+    if (line) line.textContent = "顾山挥短刀。";
     if (gu) gu.classList.add("atk");
     if (slash) slash.classList.add("on");
     floatDmg("-" + dmg, "foe");
@@ -549,23 +571,33 @@
       if (gu) gu.classList.remove("atk");
       if (foe) foe.classList.remove("hurt");
       if (slash) slash.classList.remove("on");
-      if (f.foeHp <= 0) { f.over = "这一场过去了。刀收回去，他先看你有没有被碰到。"; f.busy = false; paintFight(); return; }
-      const hit = f.foe.atk + Math.floor(Math.random() * 3);
-      f.gu = Math.max(0, f.gu - hit);
-      if (foe) foe.classList.add("atk");
-      floatDmg("-" + hit, "gu");
-      const gem = $(".hp.gu em", scr.page), gnum = $(".hp.gu span", scr.page);
-      if (gem) gem.style.width = bar(f.gu, f.guMax) + "%";
-      if (gnum) gnum.textContent = f.gu + "/" + f.guMax;
-      if (gu) gu.classList.add("hurt");
-      setTimeout(() => {
-        if (foe) foe.classList.remove("atk");
-        if (gu) gu.classList.remove("hurt");
-        f.busy = false;
-        if (f.gu <= 0) { f.over = "他挡不住。回出战，换一张更厚的立绘再来。"; paintFight(); return; }
-        if (btn) btn.disabled = false;
-      }, 420);
-    }, 520);
+      f.busy = false;
+      if (f.foeHp <= 0) { f.over = "这一场过去了。刀收回去，他先看你有没有被碰到。"; paintFight(); return; }
+      markTurn("foe");
+      setTimeout(foeTurn, 700);
+    }, 560);
+  }
+  function foeTurn() {
+    const f = fight;
+    if (!f || f.over || f.turn !== "foe") return;
+    f.busy = true;
+    const hit = f.foe.atk + Math.floor(Math.random() * 3);
+    f.gu = Math.max(0, f.gu - hit);
+    const gu = $("#act-gu", scr.page), foe = $("#act-foe", scr.page);
+    if (foe) foe.classList.add("atk");
+    floatDmg("-" + hit, "gu");
+    const gem = $(".hp.gu em", scr.page), gnum = $(".hp.gu span", scr.page);
+    if (gem) gem.style.width = bar(f.gu, f.guMax) + "%";
+    if (gnum) gnum.textContent = f.gu + "/" + f.guMax;
+    if (gu) gu.classList.add("hurt");
+    setTimeout(() => {
+      if (foe) foe.classList.remove("atk");
+      if (gu) gu.classList.remove("hurt");
+      f.busy = false;
+      if (f.gu <= 0) { f.over = "他挡不住。回出战，换一张更厚的立绘再来。"; paintFight(); return; }
+      f.round += 1;
+      markTurn("gu");
+    }, 620);
   }
 
   /* ================= 许愿 ================= */
@@ -649,7 +681,7 @@
       <div class="set-row"><div class="sr-t">恢复道薪</div><div class="sr-d">把道薪恢复为 2,350。已有的立绘和命座不变。</div><button class="cw cw-d cw-secondary" data-set="bal"><span class="cw-label">恢复</span></button></div>
       <div class="set-row"><div class="sr-t">重置系统存档</div><div class="sr-d">货币、行囊和出战立绘回到初始。</div><button class="cw cw-d cw-secondary" data-set="sys"><span class="cw-label">重置</span></button></div>
       <div class="set-row"><div class="sr-t">重置剧情进度</div><div class="sr-d">主线「渡气」读档点、共处状态、轻触台词进度回到开头。</div><button class="cw cw-d cw-secondary" data-set="story"><span class="cw-label">重置</span></button></div>
-      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925y · 16:9 横屏舞台 1280×720。立绘从许愿获得，出战按命座算战力。</div></div>
+      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925z · 16:9 横屏舞台 1280×720。立绘从许愿获得，出战按命座算战力。</div></div>
     </div></div>`;
     mount("gp", html, ["gp-main"]);
     $$("[data-set]", scr.page).forEach((b) => b.addEventListener("click", () => {
