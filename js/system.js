@@ -1,4 +1,4 @@
-/* 《廿四道·城外》系统层：舞台缩放、主殿、天市、衣冠、行职录、行囊、署务、图鉴、存档 */
+/* 《廿四道·城外》系统层：舞台缩放、主殿、许愿、出战、行囊、署务、图鉴、存档 */
 (function () {
   const D = window.CW_DATA;
   const $ = (s, r) => (r || document).querySelector(s);
@@ -60,8 +60,6 @@
   function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (_) {} }
   load();
   const owns = (id) => S.owned.includes(id);
-  const bagQty = (id) => S.bag[id] || 0;
-  const tierOf = (id) => S.fuTier[id] || 1;
   const TIER_CN = ["", "一阶", "二阶", "三阶"];
 
   /* ---------------- 通用 ---------------- */
@@ -203,14 +201,14 @@
   }
   function currencyBar(orb) {
     const c = (cur, lb, v) => `<div class="cw cw-d dframe" data-cur="${cur}"><span class="cw-label">${curIco(cur)}<span class="lb">${lb}</span><span class="val">${fmt(v)}</span><button class="plus" data-act="plus" aria-label="${lb}">+</button></span></div>`;
-    return `<div class="currency-bar">${c(D.XB, "薪币", S.xb)}${c(D.DX, "道薪", S.dx)}${orb ? `<button class="orb" data-act="shuwu" aria-label="署务 · 设置"></button>` : ""}</div>`;
+    return `<div class="currency-bar">${c(D.DX, "道薪", S.dx)}${orb ? `<button class="orb" data-act="shuwu" aria-label="署务 · 设置"></button>` : ""}</div>`;
   }
   function bindCommon(root) {
     $$("[data-act]", root).forEach((b) => b.addEventListener("click", (e) => {
       e.stopPropagation();
       const a = b.dataset.act;
       if (a === "hub") goHub();
-      else if (a === "plus") toast("个人自玩版不设充值 · 可在署务恢复演示余额");
+      else if (a === "plus") toast("个人自玩版不设充值 · 可在署务恢复道薪");
       else if (a === "shuwu") openPage("shuwu");
     }));
   }
@@ -257,18 +255,17 @@
     <path d="M20,60 C6,56 8,36 26,36 C30,22 50,20 56,34 C66,26 84,32 80,46 C96,46 100,64 84,68 L28,68 C22,68 18,64 20,60 Z" fill="rgba(232,200,120,.1)"/>
     <path d="M34,52 C30,46 38,42 42,46 C46,50 40,56 36,52"/><path d="M58,50 C56,44 64,40 68,46"/><path d="M14,76 H106" opacity=".7"/><path d="M6,82 H60" opacity=".45"/></g></svg>`;
   const SIDE = [
-    { k: "xingzhi", n: "行职录", ico: "xingzhi" },
     { k: "yiguan", n: "出战", ico: "yiguan" },
     { k: "xingnang", n: "行囊", ico: "xingnang" },
-    { k: "tianshi", n: "天市", ico: "tianshi" },
+    { k: "xuyuan", n: "许愿", ico: "tianshi" },
     { k: "shuwu", n: "署务", ico: "shuwu" }
   ];
   const BUILD = ((document.querySelector('meta[name="cw-build"]') || {}).content) || "";
   const HUB_HITS = [
-    ["xingzhi", "行职录", 32, 142, 276, 76],
+    ["xuyuan", "许愿", 32, 142, 276, 76],
     ["yiguan", "出战", 32, 224, 276, 82],
     ["xingnang", "行囊", 32, 314, 276, 78],
-    ["tianshi", "天市", 32, 400, 276, 76],
+    ["xuyuan", "许愿", 32, 400, 276, 76],
     ["shuwu", "署务", 32, 486, 276, 70]
   ];
   const DOCK_HITS = [["home", "在场"], ["story", "主线"], ["home-life", "共处"], ["gallery", "图鉴"]];
@@ -289,7 +286,7 @@
       const pid = b.dataset.hubpaint;
       const item = D.ITEMS[pid];
       if (!item) return;
-      if (!owns(pid)) { toast(`还没得到「${item.n}」。去天市看看。`); return; }
+      if (!owns(pid)) { toast(`还没得到「${item.n}」。去许愿看看。`); return; }
       if (S.equipped.cloth === pid) return;
       S.equipped.cloth = pid;
       save();
@@ -299,7 +296,7 @@
   }
   function bindHubLines() {
     let gi = 0;
-    const lines = ["……你回来了。外头雨小了点。", "看我做什么。我在这儿，不走。", "天市那边别乱花。想要什么，跟我说。", "火我添过了。你坐近些。"];
+    const lines = ["……你回来了。外头雨小了点。", "看我做什么。我在这儿，不走。", "想要新衣服，去许愿。别指望我给你挑。", "火我添过了。你坐近些。"];
     $(".hub-touch", scr.hub).addEventListener("click", () => {
       const line = $("#hub-aside", scr.hub);
       line.textContent = lines[gi++ % lines.length];
@@ -384,7 +381,7 @@
   /* ---------------- 系统页路由 ---------------- */
   function openPage(k, opt) {
     opt = opt || {};
-    const R = { tianshi: renderTianshi, yiguan: renderYiguan, xingzhi: renderXingzhi, xingnang: renderXingnang, shuwu: renderShuwu, tujian: renderTujian, battle: renderBattle, xuyuan: renderXuyuan };
+    const R = { tianshi: renderXuyuan, yiguan: renderYiguan, xingnang: renderXingnang, shuwu: renderShuwu, tujian: renderTujian, battle: renderBattle, xuyuan: renderXuyuan };
     if (!R[k]) return;
     R[k](opt);
     show("page");
@@ -395,210 +392,7 @@
     bindCommon(scr.page);
   }
 
-  /* ================= 天市 ================= */
-  const TS_TABS = [
-    { k: "waiguan", n: "外观", ico: "cloth" },
-    { k: "fu", n: "符箓", ico: "fu_paper" },
-    { k: "libao", n: "礼包", ico: "bundle" },
-    { k: "jiaohuan", n: "以物换物", ico: "hide" }
-  ];
-  const WG_SUBS = [["头发", ["hair"]], ["衣服", ["cloth"]], ["配饰", ["acc_head", "acc_ear", "acc_neck", "acc_hand", "acc_waist", "acc_back"]], ["动作表情", ["emo"]]];
-  const FU_SUBS = ["全部", "天市符", "行职符", "章节符", "道途符"];
-  const FU_ORDER = { "天市符": 0, "行职符": 1, "章节符": 2, "道途符": 3 };
-  const ts = { tab: "fu", sub: { waiguan: 1, fu: 0, libao: 0, jiaohuan: 0 }, sel: {} };
-
-  function tsList() {
-    if (ts.tab === "waiguan") {
-      const slots = WG_SUBS[ts.sub.waiguan][1];
-      return D.ITEM_LIST.filter((it) => slots.includes(it.slot));
-    }
-    if (ts.tab === "fu") {
-      const f = FU_SUBS[ts.sub.fu];
-      return D.ITEM_LIST.filter((it) => it.slot === "fu" && (f === "全部" || it.fuType === f)).sort((a, b) => FU_ORDER[a.fuType] - FU_ORDER[b.fuType]);
-    }
-    if (ts.tab === "libao") return D.BUNDLES.map((b) => Object.assign({ bundle: 1 }, b));
-    return D.ITEM_LIST.filter((it) => it.trade);
-  }
-  function itemState(it) {
-    if (it.bundle) {
-      if (S.bought[it.id] >= (it.limit || 99)) return { k: "owned", t: "已购" };
-      return { k: "buy", p: it.price };
-    }
-    if (owns(it.id)) return { k: "owned", t: "已拥有" };
-    if (ts.tab === "jiaohuan" && it.trade) return { k: "trade", tr: it.trade };
-    if (it.price) return { k: "buy", p: it.price };
-    const lock = it.fuType === "章节符" || it.fuType === "道途符";
-    return { k: lock ? "lock" : "task", t: (it.src || "行职解锁") + " · 不售" };
-  }
-  function cardArt(it) {
-    if (it.img) return `<img src="${it.img}" alt="">${it.slot === "fu" ? `<span class="ph-tag" style="background:rgba(60,40,10,.85)">示意</span>` : ""}`;
-    return `<span class="ic">${icon(it.bundle ? "bundle" : it.ic, it.tint)}</span><span class="ph-tag">占位</span>`;
-  }
-  function renderTianshi(opt) {
-    if (opt.tab) ts.tab = opt.tab;
-    if (opt.sub != null) ts.sub[ts.tab] = opt.sub;
-    if (opt.sel) ts.sel[ts.tab] = opt.sel;
-    const list = tsList();
-    let selId = ts.sel[ts.tab + ":" + ts.sub[ts.tab]];
-    if (!selId || !list.find((x) => x.id === selId)) {
-      const firstBuy = list.find((x) => itemState(x).k === "buy" || itemState(x).k === "trade");
-      selId = (firstBuy || list[0] || {}).id;
-    }
-    ts.sel[ts.tab + ":" + ts.sub[ts.tab]] = selId;
-    const sel = list.find((x) => x.id === selId);
-
-    let html = topLeft("天市", "购得入行囊", "市") + currencyBar(false);
-    html += `<div class="tabs" role="tablist">` + TS_TABS.map((t) => {
-      const on = t.k === ts.tab;
-      return `<button class="cw cw-d cw-tab ${on ? "is-selected" : ""}" role="tab" ${on ? 'aria-selected="true"' : ""} data-tab="${t.k}"><span class="cw-label"><span class="ti">${icon(t.ico, on ? "#fff0c0" : "#e8c878")}</span><span>${t.n}</span></span></button>`;
-    }).join("") + `</div>`;
-
-    const BN = {
-      fu: { thumb: "images/ui/thumb_fu_floor.png", k: "天市符 · 按期上新", t: "第壹期「烛夜长明」", d: "本期上新：烛夜长明、山君护身<br>符材随期更换，不限于黄纸", time: "9月25日 — 10月8日", left: "本期余 13 日" },
-      waiguan: { thumb: D.ITEMS.cloth_g.img, k: "天市外观 · 常驻", t: "凡品可买 · 珍品极品许愿", d: "凡品用薪币或行职换<br>珍品、极品只在许愿卡池", time: "极品 1.5% · 80／120 保底", left: "去许愿" },
-      libao: { ic: "bundle", k: "礼包 · 暂只一款", t: "新人礼包", d: "外观拆成部件入库，可混搭<br>外观礼包、道具礼包以后再加", time: "限购一次", left: "内容暂定" },
-      jiaohuan: { ic: "hide", k: "以物换物 · 不花道薪", t: "行职兑换物换外观", d: "山货皮出自道途行职<br>山叶签出自日常行职", time: "只换「行职解锁」外观", left: "兑换物在行囊" }
-    }[ts.tab];
-    html += `<div class="lacq banner" id="ts-banner"><div class="bn-glow"></div><div class="bn-thumb" style="${BN.thumb ? `background-image:url('${BN.thumb}')` : ""}">${BN.ic ? `<span class="ic">${icon(BN.ic, "#ffe9a0")}</span>` : ""}</div>
-      <div class="bn-kicker">${BN.k}</div><div class="bn-title">${BN.t}</div><div class="bn-desc">${BN.d}</div>
-      <div class="bn-time"><div class="d">${BN.time}</div><div class="left">${BN.left}</div></div></div>`;
-
-    let subs = "";
-    if (ts.tab === "waiguan") subs = WG_SUBS.map((s, i) => [s[0], i]);
-    if (ts.tab === "fu") subs = FU_SUBS.map((s, i) => [s, i]);
-    if (ts.tab === "libao") subs = [["全部礼包", 0]];
-    const hint = { waiguan: "衣服里的珍品、极品去许愿", fu: "符箓不计战力 · 不售的标来源", libao: "礼包暂只一个 · 内容暂定", jiaohuan: "只换已有的行职立绘 · 不花道薪" }[ts.tab];
-    html += `<div class="subtabs">`;
-    if (ts.tab === "jiaohuan") {
-      html += `<span class="hold-lb">行囊兑换物</span>` + ["swap_hide", "swap_leaf"].map((id) => `<span class="hold"><span class="mi">${icon(D.BAG[id].ic)}</span>${D.BAG[id].n} <b>× ${bagQty(id)}</b></span>`).join("");
-    } else {
-      html += subs.map(([s, i]) => { const on = i === ts.sub[ts.tab]; return `<button class="cw cw-d cw-chip ${on ? "is-selected" : ""}" ${on ? 'aria-selected="true"' : ""} data-sub="${i}"><span class="cw-label">${s}</span></button>`; }).join("");
-    }
-    html += `<span class="hint">${hint}</span><button class="cw cw-d cw-chip" data-go-xuyuan><span class="cw-label">许愿</span></button></div>`;
-
-    const cols = ts.tab === "libao" ? 3 : 4;
-    let cards = list.map((it) => {
-      const st = itemState(it);
-      let pr;
-      if (st.k === "owned") pr = `<div class="pr state owned">${st.t}</div>`;
-      else if (st.k === "buy") pr = `<div class="pr">${priceHTML(st.p, 19)}</div>`;
-      else if (st.k === "trade") pr = `<div class="pr"><span class="mi">${icon(D.BAG[st.tr[0]].ic)}</span><span>${D.BAG[st.tr[0]].n} × ${st.tr[1]}</span></div>`;
-      else pr = `<div class="pr state ${st.k}">${st.k === "lock" ? V4.lockIco(18, "#b8a080") : ""}${st.t}</div>`;
-      let sb;
-      if (it.bundle) sb = it.desc;
-      else if (it.slot === "fu") sb = `${it.fuType} · ${it.sub || ""}`;
-      else sb = `${D.SLOT_NAME[it.slot]} · ${it.desc.split(/[，。]/)[0]}`;
-      const dim = st.k === "lock" || st.k === "task";
-      return `<button class="card ${it.id === selId ? "sel" : ""} ${dim ? "dim" : ""}${fullMing(it) ? " ming6" : ""}" data-id="${it.id}">
-        ${frameHTML(it)}<div class="art">${cardArt(it)}</div>${rar(it.grade)}${it.period ? `<span class="ribbon">${it.period}</span>` : ""}
-        ${st.k === "owned" ? `<span class="owned-seal">${V4.checkSeal(28)}</span>` : ""}
-        <div class="nm">${it.n}</div><div class="sb">${sb}</div>${pr}</button>`;
-    }).join("");
-    if (ts.tab === "libao") cards += `<div class="card placeholder"><div class="nm">外观礼包</div><div class="sb">以后再加 · 待商量</div></div><div class="card placeholder"><div class="nm">道具礼包</div><div class="sb">以后再加 · 待商量</div></div>`;
-    html += `<div class="grid scroll ${cols === 3 ? "bundle" : ""}" style="grid-template-columns:repeat(${cols},1fr)">${cards}</div>`;
-    html += sel ? tsPreview(sel) : `<div class="lacq preview" id="ts-preview"></div>`;
-
-    mount("ts", html, ["ts-banner", "ts-preview"]);
-    $$(".card.sel", scr.page).forEach((el) => V4.decorate(el, true, "#ffe9a0"));
-    $$("[data-tab]", scr.page).forEach((b) => b.addEventListener("click", () => { renderTianshi({ tab: b.dataset.tab }); }));
-    $$("[data-sub]", scr.page).forEach((b) => b.addEventListener("click", () => { renderTianshi({ sub: +b.dataset.sub }); }));
-    $$(".card[data-id]", scr.page).forEach((b) => b.addEventListener("click", () => {
-      ts.sel[ts.tab + ":" + ts.sub[ts.tab]] = b.dataset.id;
-      const g = $(".grid", scr.page), top = g.scrollTop;
-      renderTianshi({}); $(".grid", scr.page).scrollTop = top;
-    }));
-    const buyBtn = $("#pv-buy", scr.page);
-    if (buyBtn) buyBtn.addEventListener("click", () => doBuy(sel));
-    const goYg = $("#pv-goyg", scr.page);
-    if (goYg) goYg.addEventListener("click", () => openPage("yiguan", { slot: sel.slot || "cloth" }));
-    const goXy = $("[data-go-xuyuan]", scr.page);
-    if (goXy) goXy.addEventListener("click", () => openPage("xuyuan"));
-    const pvXy = $("#pv-xuyuan", scr.page);
-    if (pvXy) pvXy.addEventListener("click", () => openPage("xuyuan"));
-    $$("[data-cgview]", scr.page).forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); cgView(D.ITEMS[b.dataset.cgview]); }));
-    const pvCg = $(".pv-img img.cg", scr.page);
-    if (pvCg && sel && sel.cg) pvCg.addEventListener("click", () => cgView(sel));
-  }
-  function tsPreview(it) {
-    const st = itemState(it);
-    let img, cap;
-    if (it.cg) { img = `<img class="scene cg" src="${it.cg}" alt="${it.n}" style="object-position:${cgPos(it, 400, 296)}"><button class="cg-full" data-cgview="${it.id}">全图</button>`; cap = `出战立绘 · ${it.n}`; }
-    else if (it.pv) { img = `<img class="scene" src="${it.pv}" alt="">`; cap = it.pvCap; }
-    else {
-      const spr = it.sprite ? `images/sprites/gu_${it.sprite}.png` : "images/sprites/gu_idle.png";
-      img = `<div class="halo"></div><img class="sprite" src="${spr}" alt=""><span class="pv-ic">${icon(it.bundle ? "bundle" : it.ic, it.tint)}</span><span class="ph-tag">占位</span>`;
-      cap = it.bundle ? "套装立绘未出图：暂以默认立绘示意" : it.sprite ? "现有立绘：" + it.n : it.slot === "fu" ? "符箓效果图未出：暂以默认立绘示意" : "立绘部件层未出图：暂以默认立绘示意";
-    }
-    let tier, note;
-    if (it.bundle) {
-      tier = "礼包 · 暂定";
-      const parts = it.parts.map((p) => D.ITEMS[p].n).concat(Object.keys(it.bag).map((b) => `${D.BAG[b].n} × ${it.bag[b]}`));
-      note = `含：<b>${parts.join("、")}</b><br>${it.note}`;
-    } else if (it.slot === "fu") {
-      tier = `${it.fuType} · ${it.kind}`;
-      const how = it.price ? "购得只作收藏，不提供战力，也不改出战形象。" : `来源：${it.srcLong} · 天市不售，只标来源方便查找。`;
-      note = `不计战力。战力在出战立绘上。<div style="margin-top:6px">${how}</div>`;
-    } else {
-      tier = it.slot === "cloth" ? `出战立绘 · ${D.GRADE[it.grade]}` : `${D.SLOT_NAME[it.slot]}`;
-      const how = it.slot === "cloth"
-        ? (it.price ? "买下后可在「出战」里选这张进副本。" : `来源：${it.srcLong || it.src}。`)
-        : `来源：${it.srcLong || it.src || "暂不穿戴"}。换装已取消，这件不单独上身。`;
-      const live = it.slot === "cloth" ? clothAttrs(it) : null;
-      note = how + (live ? `<br>出战战力 +${attrSum(live)}（${D.GRADE[it.grade]}${owns(it.id) ? " · " + mingOf(it.id) + "命" : ""}）。主线形象不变。` : "") + (it.trade ? `<br>也可以物换物：${D.BAG[it.trade[0]].n} × ${it.trade[1]}。` : "");
-    }
-    let price = "", btn = "购买", dis = false;
-    if (st.k === "owned") { dis = true; btn = st.t; price = it.price ? `<div class="price">${priceHTML(it.price, 26)}</div>` : ""; }
-    else if (st.k === "buy") {
-      price = `<div class="price">${priceHTML(st.p, 26)}</div>`;
-      if (bal(st.p[0]) < st.p[1]) { dis = true; btn = curName(st.p[0]) + "不足"; }
-    } else if (st.k === "trade") {
-      price = `<div class="price"><span class="mi">${icon(D.BAG[st.tr[0]].ic)}</span>${D.BAG[st.tr[0]].n} × ${st.tr[1]}</div>`;
-      btn = "兑换"; if (bagQty(st.tr[0]) < st.tr[1]) { dis = true; btn = "兑换物不足"; }
-    } else { price = `<div class="price"><small>${it.src || "行职解锁"}</small></div>`; btn = it.src === "许愿" ? "去许愿" : "不售"; dis = it.src !== "许愿"; }
-    const goYg = st.k === "owned" && it.slot === "cloth" ? `<button class="cw cw-d cw-chip go-yg" id="pv-goyg"><span class="cw-label">设为出战</span></button>` : "";
-    const wishGo = it.src === "许愿" && st.k !== "owned";
-    return `<div class="lacq preview" id="ts-preview">
-      <div class="pv-head"><span>试穿预览 · 顾山</span><span class="tog"><span>原装</span><b>试穿中</b></span></div>
-      <div class="pv-img${fullMing(it) ? " ming6" : ""}">${frameHTML(it)}${img}<div class="cap">${cap}</div></div>
-      <div class="pv-name"><span class="n">${it.n}</span>${rar(it.grade)}<span class="tier">${tier}</span></div>
-      <div class="pv-body scroll"><div class="pv-desc">${it.desc}</div><div class="pv-note">${note}</div></div>
-      <div class="pv-buy">${price}${goYg}<button class="cw cw-d cw-primary" id="${wishGo ? "pv-xuyuan" : "pv-buy"}" ${dis ? "disabled" : ""}><span class="cw-label">${btn}</span></button></div></div>`;
-  }
-  function doBuy(it) {
-    const st = itemState(it);
-    if (st.k === "buy") {
-      const p = st.p, after = bal(p[0]) - p[1];
-      confirmBox({
-        title: "确认购买", okText: "确认购买",
-        body: `购买「${it.n}」${rar(it.grade)}<div class="mi-line">${priceHTML(p, 24)}</div><small>购后余 ${fmt(after)} ${curName(p[0])} · 物件放入行囊</small>`,
-        onOk() {
-          if (bal(p[0]) < p[1]) { toast(curName(p[0]) + "不足"); return; }
-          if (p[0] === D.XB) S.xb -= p[1]; else S.dx -= p[1];
-          if (it.bundle) {
-            it.parts.forEach((id) => { if (!owns(id)) S.owned.push(id); });
-            Object.keys(it.bag).forEach((b) => { S.bag[b] = bagQty(b) + it.bag[b]; });
-            S.bought[it.id] = (S.bought[it.id] || 0) + 1;
-          } else if (!owns(it.id)) S.owned.push(it.id);
-          save(); renderTianshi({});
-          toast(`已购得「${it.n}」· 已放入行囊`);
-        }
-      });
-    } else if (st.k === "trade") {
-      const m = D.BAG[st.tr[0]];
-      confirmBox({
-        title: "确认兑换", okText: "确认兑换",
-        body: `用 ${m.n} × ${st.tr[1]} 兑换「${it.n}」<small>行囊中 ${m.n} 剩 ${bagQty(st.tr[0]) - st.tr[1]}</small>`,
-        onOk() {
-          if (bagQty(st.tr[0]) < st.tr[1]) { toast("兑换物不足"); return; }
-          S.bag[st.tr[0]] -= st.tr[1]; if (!owns(it.id)) S.owned.push(it.id);
-          save(); renderTianshi({}); toast(`已换得「${it.n}」· 已放入行囊`);
-        }
-      });
-    }
-  }
-
   /* ================= 出战立绘（衣冠换装已取消） ================= */
-  const ROSTER = [["顾山", 1], ["沈砚"], ["陆星阑"], ["萧铁衣"], ["裴无咎"], ["白鹤眠"]];
   function guEmo() {
     const e = D.ITEMS[S.equipped.emo];
     return e && e.sprite ? e.sprite : "idle";
@@ -742,41 +536,14 @@
     $("#xy-ten", root).addEventListener("click", () => doPull(10));
   }
 
-  /* ================= 行职录 ================= */
-  let xzTab = "daily";
-  function renderXingzhi(opt) {
-    if (opt.tab) xzTab = opt.tab;
-    const T = D.TASKS[xzTab];
-    const goName = { presence: "去在场", homelife: "去共处", story: "去主线" };
-    const goIco = { presence: "emo", homelife: "bundle", story: "fu_light" };
-    let html = topLeft("行职录", "做任务是为了多陪他一会儿", "职") + currencyBar(false);
-    html += `<div class="lacq main" id="gp-main"><div class="gtabs">` + Object.keys(D.TASKS).map((k) => { const on = k === xzTab; return `<button class="cw cw-d cw-tab ${on ? "is-selected" : ""}" ${on ? 'aria-selected="true"' : ""} data-xz="${k}"><span class="cw-label">${D.TASKS[k].n}</span></button>`; }).join("") +
-      `<span class="note">示意任务 · 奖励未接入</span></div><div class="gbody scroll"><div class="tip">${T.tip} · 漏做不扣东西</div>` +
-      T.list.map((t) => `<div class="xz-task"><span class="tk-ico">${icon(goIco[t.go])}</span><div class="tk-main"><div class="tk-t">${t.t}</div><div class="tk-r">奖励：<b>${t.r}</b></div></div><span class="demo">示意</span><button class="cw cw-d cw-secondary" data-gogo="${t.go}"><span class="cw-label">${goName[t.go]}</span></button></div>`).join("") + `</div></div>`;
-    mount("gp", html, ["gp-main"]);
-    $$("[data-xz]", scr.page).forEach((b) => b.addEventListener("click", () => renderXingzhi({ tab: b.dataset.xz })));
-    $$("[data-gogo]", scr.page).forEach((b) => b.addEventListener("click", () => {
-      const g = b.dataset.gogo, SC = window.CW_SCENE; if (!SC) return;
-      if (g === "presence") SC.goPresence(); else if (g === "homelife") SC.openPanel("home-life"); else SC.openStory();
-    }));
-  }
-
   /* ================= 行囊 ================= */
-  let xnTab = "look";
-  function renderXingnang(opt) {
-    if (opt.tab) xnTab = opt.tab;
-    const TABS = [["look", "外观"], ["fu", "符箓"]].concat(D.BAG_CATS);
-    let cells = [];
-    if (xnTab === "look") cells = S.owned.map((id) => D.ITEMS[id]).filter((it) => it && it.slot !== "fu").map((it) => ({ id: it.id, slot: it.slot, n: it.n, st: D.SLOT_NAME[it.slot], ic: it.ic, tint: it.tint, g: it.grade, img: it.img, line: `${it.n}（${D.GRADE[it.grade]} · ${D.SLOT_NAME[it.slot]}${fullMing(it) ? " · 满命卡面" : ""}）：${it.desc}` }));
-    else if (xnTab === "fu") cells = S.owned.map((id) => D.ITEMS[id]).filter((it) => it && it.slot === "fu").map((it) => ({ n: it.n, st: "不计战力", ic: it.ic, tint: it.tint, img: it.img, g: it.grade, line: `${it.n}（${it.fuType}）：不再提供属性，战力在出战立绘上。` }));
-    else cells = Object.keys(S.bag).filter((id) => S.bag[id] > 0 && D.BAG[id] && D.BAG[id].cat === xnTab).map((id) => ({ n: D.BAG[id].n, st: { keep: "信物", mat: "材料", use: "共处用品", swap: "兑换物" }[xnTab], ic: D.BAG[id].ic, tint: D.BAG[id].tint, q: S.bag[id], line: `${D.BAG[id].n}：${D.BAG[id].line}` }));
-    let html = topLeft("行囊", "天市购得 · 行职所得", "囊") + currencyBar(false);
-    html += `<div class="lacq main" id="gp-main"><div class="gtabs">` + TABS.map(([k, n]) => { const on = k === xnTab; return `<button class="cw cw-d cw-tab ${on ? "is-selected" : ""}" ${on ? 'aria-selected="true"' : ""} data-xn="${k}" style="min-width:112px"><span class="cw-label">${n}</span></button>`; }).join("") +
-      `<span class="note">共 ${cells.length} 种</span></div><div class="gbody scroll" style="bottom:96px">` +
-      (cells.length ? `<div class="bag-grid">` + cells.map((c, i) => `<button class="oc${fullMing(c) ? " ming6" : ""}" data-xi="${i}">${frameHTML(c)}<div class="art">${c.img ? `<img src="${c.img}" alt="">` : `<span class="ic">${icon(c.ic, c.tint)}</span><span class="ph-tag">占位</span>`}</div>${c.g ? rar(c.g) : ""}${c.q ? `<span class="qty">× ${c.q}</span>` : ""}<div class="nm">${c.n}</div><div class="st">${c.st}</div></button>`).join("") + `</div>` : `<div class="tip">这一格还空着。去行职录或天市看看。</div>`) +
-      `</div><div class="bag-detail" id="xn-detail"><b>行囊</b><span>点一件物品看详情。出战只选立绘，符箓不计战力。</span></div></div>`;
+  function renderXingnang() {
+    const cells = S.owned.map((id) => D.ITEMS[id]).filter((it) => it && it.slot === "cloth").map((it) => ({ id: it.id, slot: it.slot, n: it.n, st: `${D.GRADE[it.grade]} · ${mingOf(it.id)}命 · 碎片 ${fragOf(it.id)}`, g: it.grade, img: it.img, line: `${it.desc}${fullMing(it) ? " 满命卡面已打开。" : ""}` }));
+    let html = topLeft("行囊", "已有的立绘", "囊") + currencyBar(false);
+    html += `<div class="lacq main" id="gp-main"><div class="gtabs"><button class="cw cw-d cw-tab is-selected" aria-selected="true"><span class="cw-label">立绘</span></button><span class="note">共 ${cells.length} 张</span></div><div class="gbody scroll" style="bottom:96px">` +
+      (cells.length ? `<div class="bag-grid">` + cells.map((c, i) => `<button class="oc${fullMing(c) ? " ming6" : ""}" data-xi="${i}">${frameHTML(c)}<div class="art"><img src="${c.img}" alt=""></div>${rar(c.g)}<div class="nm">${c.n}</div><div class="st">${c.st}</div></button>`).join("") + `</div>` : `<div class="tip">还没有立绘。去许愿抽一张。</div>`) +
+      `</div><div class="bag-detail" id="xn-detail"><b>行囊</b><span>点一张立绘看说明。升命在出战。</span></div></div>`;
     mount("gp", html, ["gp-main"]);
-    $$("[data-xn]", scr.page).forEach((b) => b.addEventListener("click", () => renderXingnang({ tab: b.dataset.xn })));
     $$("[data-xi]", scr.page).forEach((b) => b.addEventListener("click", () => {
       $$(".oc.sel", scr.page).forEach((x) => x.classList.remove("sel")); b.classList.add("sel");
       const c = cells[+b.dataset.xi]; $("#xn-detail", scr.page).innerHTML = `<b>${c.n}</b><span>${c.line.replace(c.n + "：", "").replace(c.n, "")}</span>`;
@@ -787,26 +554,28 @@
   function renderShuwu() {
     let html = topLeft("署务", "设置 · 存档", "署") + currencyBar(false);
     html += `<div class="lacq main" id="gp-main"><div class="gtabs"><button class="cw cw-d cw-tab is-selected" aria-selected="true"><span class="cw-label">设置</span></button><span class="note">本地自玩 · 进度只存在本机 Safari</span></div><div class="gbody scroll">
-      <div class="set-row"><div class="sr-t">恢复演示余额</div><div class="sr-d">把薪币、道薪恢复为 124,860 ／ 2,350。已拥有的物件不变。</div><button class="cw cw-d cw-secondary" data-set="bal"><span class="cw-label">恢复</span></button></div>
+      <div class="set-row"><div class="sr-t">恢复道薪</div><div class="sr-d">把道薪恢复为 2,350。已有的立绘和命座不变。</div><button class="cw cw-d cw-secondary" data-set="bal"><span class="cw-label">恢复</span></button></div>
       <div class="set-row"><div class="sr-t">重置系统存档</div><div class="sr-d">货币、行囊和出战立绘回到初始。</div><button class="cw cw-d cw-secondary" data-set="sys"><span class="cw-label">重置</span></button></div>
       <div class="set-row"><div class="sr-t">重置剧情进度</div><div class="sr-d">主线「渡气」读档点、共处状态、轻触台词进度回到开头。</div><button class="cw cw-d cw-secondary" data-set="story"><span class="cw-label">重置</span></button></div>
-      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925w · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
+      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925x · 16:9 横屏舞台 1280×720。立绘从许愿获得，出战按命座算战力。</div></div>
     </div></div>`;
     mount("gp", html, ["gp-main"]);
     $$("[data-set]", scr.page).forEach((b) => b.addEventListener("click", () => {
       const k = b.dataset.set;
-      if (k === "bal") confirmBox({ title: "恢复演示余额", body: "薪币 124,860 · 道薪 2,350", onOk() { S.xb = D.DEFAULT_SAVE.xb; S.dx = D.DEFAULT_SAVE.dx; save(); renderShuwu(); toast("余额已恢复"); } });
+      if (k === "bal") confirmBox({ title: "恢复道薪", body: "道薪 2,350", onOk() { S.dx = D.DEFAULT_SAVE.dx; save(); renderShuwu(); toast("道薪已恢复"); } });
       if (k === "sys") confirmBox({ title: "重置系统存档", body: "货币、行囊和出战立绘都会回到初始。确定吗？", okText: "确定重置", onOk() { localStorage.removeItem(SAVE_KEY); load(); save(); renderShuwu(); toast("系统存档已重置"); } });
       if (k === "story") confirmBox({ title: "重置剧情进度", body: "主线、共处、轻触进度回到开头。确定吗？", okText: "确定重置", onOk() { if (window.CW_SCENE) window.CW_SCENE.resetProgress(); toast("剧情进度已重置"); } });
     }));
   }
 
-  /* ================= 图鉴（占位） ================= */
   function renderTujian() {
-    let html = topLeft("图鉴", "卡面与心迹 · 占位", "鉴") + currencyBar(false);
-    html += `<div class="lacq main" id="gp-main"><div class="gtabs"><button class="cw cw-d cw-tab is-selected" aria-selected="true"><span class="cw-label">男主</span></button><button class="cw cw-d cw-tab" disabled><span class="cw-label">卡面</span></button><button class="cw cw-d cw-tab" disabled><span class="cw-label">心迹</span></button><span class="note">立绘在天市「许愿」</span></div><div class="gbody scroll"><div class="gal-grid">` +
-      ROSTER.map((r) => `<div class="gal-card">${r[1] ? `<img src="images/sprites/gu_idle.png" alt="">` : `<div class="lk">${V4.lockIco(44)}</div>`}<div class="gn">${r[0]}<span class="gs">${r[1] ? "第一章 · 渡气" : "待解锁"}</span></div></div>`).join("") +
-      `</div><div class="tip" style="margin-top:18px">卡面与心迹将在后续章节解锁。</div></div></div>`;
+    const paints = D.ITEM_LIST.filter((it) => it.slot === "cloth" && it.cg);
+    let html = topLeft("图鉴", "顾山的立绘", "鉴") + currencyBar(false);
+    html += `<div class="lacq main" id="gp-main"><div class="gtabs"><button class="cw cw-d cw-tab is-selected" aria-selected="true"><span class="cw-label">立绘</span></button><span class="note">未抽到的先锁着</span></div><div class="gbody scroll"><div class="gal-grid">` +
+      paints.map((it) => {
+        const have = owns(it.id);
+        return `<div class="gal-card${fullMing(it) ? " ming6" : ""}">${frameHTML(it)}${have ? `<img src="${it.img}" alt="">` : `<div class="lk">${V4.lockIco(44)}</div>`}<div class="gn">${it.n}<span class="gs">${have ? `${D.GRADE[it.grade]} · ${mingOf(it.id)}命` : "未获得"}</span></div></div>`;
+      }).join("") + `</div></div></div>`;
     mount("gp", html, ["gp-main"]);
   }
 

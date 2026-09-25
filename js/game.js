@@ -215,7 +215,7 @@
       renderHomeLife();
       return;
     } else if (kind === "gallery") {
-      el.panel.innerHTML = CLOSE_BTN + '<h2>图鉴</h2><p>卡面与心迹将在后续解锁。本地自玩，不做抽卡。</p><ul><li>顾山 · 待解锁</li></ul>';
+      el.panel.innerHTML = CLOSE_BTN + '<h2>图鉴</h2><p>顾山的立绘在主殿图鉴里。</p>';
     } else {
       el.panel.innerHTML = CLOSE_BTN + '<h2>说明</h2><p>横屏 16:9。进度存在本机 Safari。仅供你自己玩。</p>';
     }
