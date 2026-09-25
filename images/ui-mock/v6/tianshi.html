@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1280" />
+<title>《廿四道·城外》天市 · UI 线框 v6 · 镂空窗棂</title>
+<link rel="stylesheet" href="../v4/v4-common.css" />
+<link rel="stylesheet" href="../v5/buttons.css" />
+<link rel="stylesheet" href="./v6-d.css" />
+<style>
+  /* —— 页签 —— */
+  .tabs { position: absolute; left: 20px; top: 74px; width: 792px; height: 48px; display: flex; gap: 12px; z-index: 5; }
+  .tabs .cw-tab { flex: 1; height: 48px; font-size: 18px; letter-spacing: .2em; }
+  .tabs .cw-tab .cw-label { gap: 8px; padding: 0 12px 0 calc(12px + .2em); }
+  .tabs .cw-tab .ti { width: 22px; height: 22px; display: inline-flex; }
+  .tab { position: relative; flex: 1; height: 48px; display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 18px; font-weight: 700; letter-spacing: .2em; }
+  .tab .t-bg { position: absolute; inset: 0; z-index: 0; }
+  .tab .t-bg svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .tab > *:not(.t-bg) { position: relative; z-index: 1; }
+  .tab.off { color: var(--gold); }
+  .tab.on { color: var(--ink); filter: drop-shadow(0 0 8px rgba(255,210,110,.55)); }
+  .tab .ti { width: 22px; height: 22px; }
+  .tab .tassel { position: absolute; right: 18px; bottom: -22px; width: 14px; height: 30px; z-index: 2; }
+
+  /* —— 主题期横幅 —— */
+  .banner { left: 20px; top: 132px; width: 792px; height: 78px; overflow: hidden; }
+  .banner .bn-glow { position: absolute; inset: 0; border-radius: 6px;
+    background: radial-gradient(ellipse at 18% 50%, rgba(255,190,90,.35), transparent 55%),
+                radial-gradient(ellipse at 90% 30%, rgba(255,220,140,.18), transparent 50%); }
+  .banner .bn-thumb { position: absolute; left: 14px; top: 9px; width: 96px; height: 58px; border: 1px solid #c9a045;
+    background: url("../v4/thumb_fu_floor.png") center/cover; box-shadow: 0 0 10px rgba(255,200,100,.5); }
+  .banner .bn-kicker { position: absolute; left: 126px; top: 9px; font-size: 14px; color: #f0c060; letter-spacing: .18em; }
+  .banner .bn-title { position: absolute; left: 126px; top: 29px; font-size: 22px; font-weight: 700; color: var(--ivory); letter-spacing: .12em;
+    text-shadow: 0 0 10px rgba(255,190,90,.5); }
+  .banner .bn-desc { position: absolute; left: 400px; top: 14px; width: 220px; font-size: 14px; line-height: 1.5; color: var(--ivory-dim); }
+  .banner .bn-time { position: absolute; right: 22px; top: 12px; text-align: right; font-family: var(--sans); }
+  .banner .bn-time .d { font-size: 14px; color: var(--ivory-dim); }
+  .banner .bn-time .left { margin-top: 4px; font-size: 16px; color: #ffd870; font-weight: 700; font-family: var(--serif); letter-spacing: .08em; }
+
+  /* —— 子页签 / 说明行 —— */
+  .subtabs { position: absolute; left: 24px; top: 219px; width: 784px; height: 34px; display: flex; align-items: center; gap: 10px; z-index: 4; }
+  .subtabs .cw-chip { height: 32px; font-size: 15px; letter-spacing: .12em; }
+  .subtabs .cw-chip .cw-label { padding: 0 13px 0 calc(13px + .12em); }
+  .sub { height: 30px; padding: 0 14px; display: flex; align-items: center; font-size: 15px; color: var(--ivory-dim); letter-spacing: .12em;
+    border-radius: 15px; border: 1px solid rgba(201,160,69,.35); background: rgba(24,16,8,.6); }
+  .sub.on { color: #2a1a08; font-weight: 700; background: linear-gradient(180deg,#f5e0a0,#c9a045); border-color: #fff0b8; box-shadow: 0 0 8px rgba(255,210,110,.45); }
+  .subtabs .hint { margin-left: auto; font-size: 14px; color: var(--ivory-dim); letter-spacing: .08em; }
+  .subtabs .hold { display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; font-size: 15px; color: var(--ivory);
+    border: 1px solid rgba(201,160,69,.5); background: rgba(24,16,8,.7); border-radius: 4px; }
+  .subtabs .hold .mi { width: 22px; height: 22px; }
+  .subtabs .hold b { color: #ffd870; font-family: var(--sans); }
+
+  /* —— 商品格 —— */
+  .grid { position: absolute; left: 20px; top: 262px; width: 792px; height: 438px; display: grid; gap: 14px 16px; }
+  .card { position: relative; border-radius: 5px; background: linear-gradient(180deg, rgba(44,30,14,.92), rgba(22,14,6,.94));
+    border: 1px solid rgba(201,160,69,.65); box-shadow: inset 0 0 0 2px rgba(20,12,4,.8), 0 3px 10px rgba(0,0,0,.4); }
+  .card.sel { border: 2px solid #ffd870; box-shadow: inset 0 0 0 2px rgba(20,12,4,.8), 0 0 16px rgba(255,200,90,.55); }
+  .card .art { position: absolute; left: 8px; right: 8px; top: 8px; height: 104px; border-radius: 3px; overflow: hidden;
+    background: radial-gradient(ellipse at 50% 60%, rgba(120,84,36,.55), rgba(30,20,8,.9)); border: 1px solid rgba(201,160,69,.35);
+    display: flex; align-items: center; justify-content: center; }
+  .card .art .ic { width: 76px; height: 76px; }
+  .card .art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card .art .ph-tag { left: 4px; bottom: 4px; }
+  .card .rar { position: absolute; right: 12px; top: 12px; z-index: 4; }
+  .card .ribbon { position: absolute; left: -4px; top: 14px; z-index: 5; padding: 1px 10px 1px 8px; font-size: 14px; font-weight: 700; letter-spacing: .1em;
+    color: #fff0c8; background: linear-gradient(90deg,#b8321e,#8c1e14); border: 1px solid #f0c060; box-shadow: 0 1px 4px rgba(0,0,0,.5); }
+  .card .owned-seal { position: absolute; right: 10px; top: 80px; z-index: 5; }
+  .card .nm { position: absolute; left: 12px; right: 10px; top: 118px; font-size: 17px; font-weight: 700; color: var(--ivory); letter-spacing: .08em; white-space: nowrap; }
+  .card .sb { position: absolute; left: 12px; right: 10px; top: 143px; font-size: 14px; color: var(--ivory-dim); white-space: nowrap; overflow: hidden; }
+  .card .pr { position: absolute; left: 10px; right: 10px; bottom: 8px; height: 30px; display: flex; align-items: center; justify-content: center; gap: 6px;
+    border-top: 1px solid rgba(201,160,69,.3); padding-top: 4px; font-family: var(--sans); font-size: 16px; font-weight: 700; color: #ffe9b0; }
+  .card .pr .icon { width: 19px; height: 19px; }
+  .card .pr.state { font-family: var(--serif); font-size: 15px; letter-spacing: .1em; font-weight: 700; }
+  .card .pr.owned { color: var(--rain); }
+  .card .pr.task { color: #d8c090; }
+  .card .pr.lock { color: #b8a080; }
+  .card.dim .art, .card.dim .nm { opacity: .72; }
+  /* 礼包卡片（三列） */
+  .grid.bundle .card .art { height: 74px; }
+  .grid.bundle .card .ic { width: 62px; height: 62px; }
+  .grid.bundle .card .nm { top: 88px; font-size: 18px; }
+  .grid.bundle .card .sb { top: 114px; white-space: normal; line-height: 1.45; height: 42px; }
+
+  /* —— 右侧预览 —— */
+  .preview { left: 828px; top: 74px; width: 432px; height: 630px; }
+  .pv-head { position: absolute; left: 18px; right: 18px; top: 12px; height: 26px; display: flex; align-items: center; justify-content: space-between;
+    font-size: 15px; color: var(--gold); letter-spacing: .2em; }
+  .pv-head .tog { font-size: 14px; color: var(--ivory-dim); letter-spacing: .08em; display: flex; gap: 10px; }
+  .pv-head .tog b { color: #ffd870; }
+  .pv-img { position: absolute; left: 16px; right: 16px; top: 44px; height: 330px; overflow: hidden; border: 1px solid #c9a045; border-radius: 3px;
+    background: url("../v4/bg_v4_blur.jpg") center/cover; box-shadow: inset 0 0 30px rgba(0,0,0,.5); }
+  .pv-img img.scene { width: 100%; height: 100%; object-fit: cover; object-position: 79% 40%; display: block; }
+  .pv-img img.sprite { position: absolute; left: 50%; top: 6px; height: 460px; width: auto; transform: translateX(-50%); }
+  .pv-img .halo { position: absolute; left: 50%; top: 20px; width: 300px; height: 300px; transform: translateX(-50%); border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,220,140,.45), rgba(255,190,90,.12) 55%, transparent 70%); }
+  .pv-img .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 5px 10px; font-size: 14px; color: #fff4d8;
+    background: linear-gradient(0deg, rgba(20,12,4,.85), rgba(20,12,4,0)); letter-spacing: .05em; }
+  .pv-img .ph-tag { right: 6px; top: 6px; }
+  .pv-name { position: absolute; left: 20px; top: 386px; display: flex; align-items: center; gap: 10px; }
+  .pv-name .n { font-size: 26px; font-weight: 700; letter-spacing: .14em; color: var(--ivory); text-shadow: 0 0 10px rgba(255,190,90,.4); }
+  .pv-name .tier { font-size: 14px; color: #2a1a08; background: linear-gradient(180deg,#f5e0a0,#c9a045); padding: 2px 8px; border-radius: 3px; letter-spacing: .08em; }
+  .pv-desc { position: absolute; left: 20px; right: 20px; top: 430px; font-size: 15px; line-height: 1.6; color: var(--ivory); }
+  .pv-note { position: absolute; left: 20px; right: 20px; top: 508px; font-size: 14px; line-height: 1.55; color: var(--ivory-dim);
+    border-top: 1px dashed rgba(201,160,69,.4); padding-top: 6px; }
+  .pv-buy { position: absolute; left: 18px; right: 18px; bottom: 16px; height: 50px; display: flex; align-items: center; }
+  .pv-buy .price { display: flex; align-items: center; gap: 8px; font-family: var(--sans); font-size: 24px; font-weight: 700; color: #ffe9b0; }
+  .pv-buy .price .icon { width: 26px; height: 26px; }
+  .pv-buy .price small { font-family: var(--serif); font-size: 14px; color: var(--ivory-dim); font-weight: 400; }
+  .pv-buy .cw-primary { position: absolute; right: 0; top: 0; width: 176px; height: 50px; font-size: 19px; letter-spacing: .4em; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script src="../v4/v4-common.js"></script>
+<script src="../v4/v4-icons.js"></script>
+<script src="./v6-d.js"></script>
+<script>
+const XB = "xb", DX = "dx";
+const priceHTML = (cur, v, sz) => (cur === XB ? V4.icoXinbi(sz) : V4.icoDaoxin(sz)) + `<span>${v}</span>`;
+
+// ——— 数据（取自 docs/TIANSUI_OUTFIT_GUSHAN_DRAFT.md 与 XINGZHI_TASK_ITEMS_DRAFT.md） ———
+const TABS = [
+  { k: "waiguan", label: "外观", ico: "cloth" },
+  { k: "fu", label: "符箓", ico: "fu_paper" },
+  { k: "libao", label: "礼包", ico: "bundle" },
+  { k: "jiaohuan", label: "以物换物", ico: "hide" },
+];
+const DATA = {
+  fu: {
+    subs: ["全部", "天市符", "行职符", "章节符", "道途符"], subOn: 0, hint: "符箓只作外观 · 不带数值",
+    cols: 4,
+    cards: [
+      { nm: "烛夜长明", sb: "天市符 · 本期主打", rar: "rui", price: [DX, 240], img: "../v4/thumb_fu_floor.png", imgTag: "示意", ribbon: "本期", sel: 1 },
+      { nm: "山君护身", sb: "天市符 · 本期", rar: "rui", price: [DX, 280], ic: "fu_bronze", ph: 1, ribbon: "本期" },
+      { nm: "渡气余辉", sb: "天市符 · 常驻", rar: "rui", owned: 1, ic: "fu_light", ph: 1 },
+      { nm: "灶余暖符", sb: "行职符 · 自绘", rar: "su", owned: 1, ic: "fu_flame", ph: 1 },
+      { nm: "避雨符影", sb: "行职符 · 材料绘制", rar: "su", state: ["task", "行职绘制 · 不售"], ic: "fu_paper", ph: 1, tint: "#9fd0c8", dim: 1 },
+      { nm: "猎户山印", sb: "行职符 · 道途行职", rar: "su", state: ["task", "行职获取 · 不售"], ic: "fu_paper", ph: 1, tint: "#d0a070", dim: 1 },
+      { nm: "廿四道天章", sb: "章节符 · 章节通关", rar: "rui", state: ["lock", "章节奖励 · 不售"], img: "../v4/thumb_fu_24dao.png", dim: 1 },
+      { nm: "山骨符", sb: "道途符 · 顾山（暂名）", rar: "rui", state: ["lock", "道途解锁 · 不售"], ic: "fu_bone", ph: 1, dim: 1, lock: 1 },
+    ],
+    pv: { kind: "scene", src: "../../fu/fu_floor_baseline.png", cap: "效果示意 · 品质下限样图（正式版更精细）",
+      name: "烛夜长明", rar: "rui", tier: "天市符 · 第壹期",
+      desc: "单张夹符：食指中指夹一张烛芯符，举在脸侧。火光把符边烧出一道金线，照亮他的手与眉眼。",
+      note: "只作外观，不带任何数值。购得入行囊，于衣冠「符箓」槽佩戴，可随时取下。",
+      price: [DX, 240], btn: "购买" },
+  },
+  waiguan: {
+    subs: ["头发", "衣服", "配饰", "动作表情"], subOn: 1, hint: "购得入行囊 · 衣冠中穿戴",
+    cols: 4,
+    cards: [
+      { nm: "猎服", sb: "默认 · 土褐破猎服", rar: "su", owned: 1, ic: "cloth", ph: 1 },
+      { nm: "夜氅", sb: "深色夜行披", rar: "su", price: [XB, "1,500"], ic: "cloak", ph: 1, tint: "#b8a8d8", sel: 1 },
+      { nm: "日间旅服", sb: "整洁旅装", rar: "su", price: [XB, "1,200"], ic: "cloth", ph: 1, tint: "#d8c8a0" },
+      { nm: "素暗礼服", sb: "见礼用素暗袍", rar: "zhen", price: [DX, 120], ic: "cloak", ph: 1, tint: "#a0b8c0" },
+      { nm: "雨蓑外袍", sb: "破祠雨意 · 可以物换物", rar: "su", state: ["task", "行职解锁"], ic: "cloak", ph: 1, tint: "#9fd0c8", dim: 1 },
+      { nm: "山火冬袄", sb: "厚实 · 暖色补丁", rar: "su", price: [XB, "2,000"], ic: "cloth", ph: 1, tint: "#f0a070" },
+      { nm: "渡气见证袍", sb: "暖金暗纹 · 神性", rar: "rui", price: [DX, 180], ic: "cloak", ph: 1, tint: "#ffd870" },
+    ],
+    pv: { kind: "sprite", src: "../../sprites/gu_idle.png", cap: "立绘部件层未出图：暂以默认立绘 gu_idle 示意", ph: 1,
+      name: "夜氅", rar: "su", tier: "衣服 · cloth_b",
+      desc: "深色夜行披。与「夜猎半束」「皮护腕」「短弓袋」同穿即成「夜猎」一套。",
+      note: "同槽互斥：穿上后替换当前衣服。购得入行囊，于衣冠「衣服」槽穿戴。",
+      price: [XB, "1,500"], btn: "购买" },
+  },
+  libao: {
+    subs: ["全部礼包"], subOn: 0, hint: "套装购后拆成部件入库 · 可混搭 · 另给一键穿戴",
+    cols: 3,
+    cards: [
+      { nm: "破祠猎人", sb: "短碎发 · 猎服", rar: "su", owned: 1, ic: "bundle", ph: 1 },
+      { nm: "雨夜守门", sb: "雨湿短发 · 雨蓑外袍 · 短刀 · 避雨符影", rar: "zhen", price: [XB, "2,400 或 道薪 100"], ic: "bundle", ph: 1, tint: "#9fd0c8" },
+      { nm: "夜猎", sb: "夜猎半束 · 夜氅 · 皮护腕 · 短弓袋", rar: "rui", price: [DX, 150], ic: "bundle", ph: 1, tint: "#b8a8d8", sel: 1 },
+      { nm: "见礼", sb: "猎人髻 · 素暗礼服 · 骨木佩 · 灶余暖符", rar: "rui", price: [DX, 200], ic: "bundle", ph: 1, tint: "#a0b8c0" },
+      { nm: "渡气之后", sb: "短碎发 · 渡气见证袍 · 眉目放缓 · 渡气余辉", rar: "rui", price: [DX, "280 · 章节赠"], ic: "bundle", ph: 1, tint: "#ffd870" },
+    ],
+    pv: { kind: "sprite", src: "../../sprites/gu_idle.png", cap: "套装立绘未出图：暂以默认立绘示意", ph: 1,
+      name: "夜猎", rar: "rui", tier: "礼包 · 四件",
+      desc: "夜猎半束 · 夜氅 · 皮护腕 · 短弓袋。深色利落，适合夜里跟他上山。",
+      note: "购后拆成四件分别入库，可拆开混搭；衣冠「搭配方案」里另给一键穿戴。",
+      price: [DX, 150], btn: "购买" },
+  },
+  jiaohuan: {
+    subs: [], hold: [["hide", "山货皮", 3], ["leaf", "山叶签", 5]], hint: "只换「行职解锁」外观 · 不花道薪",
+    cols: 4,
+    cards: [
+      { nm: "雨蓑外袍", sb: "衣服 · 破祠雨意", rar: "su", trade: ["hide", "山货皮 × 3"], ic: "cloak", ph: 1, tint: "#9fd0c8", sel: 1 },
+      { nm: "猎布缠手", sb: "配饰 · 腕／手", rar: "su", trade: ["hide", "山货皮 × 2"], ic: "hand", ph: 1 },
+      { nm: "山叶别发", sb: "配饰 · 头饰", rar: "su", owned: 1, ic: "leaf", ph: 1 },
+    ],
+    pv: { kind: "sprite", src: "../../sprites/gu_idle.png", cap: "部件未出图：暂以默认立绘示意", ph: 1,
+      name: "雨蓑外袍", rar: "su", tier: "衣服 · cloth_e",
+      desc: "破祠雨意。蓑草压在肩上，下摆还带着一点山路的泥。",
+      note: "兑换物来自行职录：山货皮出自道途行职，山叶签出自日常行职。数量为示意。",
+      trade: ["hide", "山货皮 × 3"], btn: "兑换" },
+  },
+};
+
+// ——— 渲染 ———
+const tabKey = new URLSearchParams(location.search).get("tab") || "fu";
+const D = DATA[tabKey];
+const stage = document.getElementById("stage");
+let html = V6.topLeft("天市", "购得入行囊", "市") + V6.currencyBar();
+
+// 页签
+html += `<div class="tabs">` + TABS.map(t => {
+  const on = t.k === tabKey;
+  return `<button class="cw cw-d cw-tab ${on ? "is-selected" : ""}"${on ? ' aria-selected="true"' : ""}><span class="cw-label">
+    <span class="ti">${ICONS(t.ico, on ? "#fff0c0" : "#e8c878")}</span><span>${t.label}</span></span></button>`;
+}).join("") + `</div>`;
+
+// 横幅：当期天市符
+html += `<div class="lacq banner" id="banner"><div class="bn-glow"></div><div class="bn-thumb"></div>
+  <div class="bn-kicker">天市符 · 按期上新</div>
+  <div class="bn-title">第壹期「烛夜长明」</div>
+  <div class="bn-desc">本期上新：烛夜长明、山君护身<br>符材随期更换，不限于黄纸</div>
+  <div class="bn-time"><div class="d">9月25日 — 10月8日</div><div class="left">本期余 13 日</div></div>
+</div>`;
+
+// 子页签 / 持有
+html += `<div class="subtabs">` +
+  (D.hold ? `<span style="font-size:15px;color:var(--gold);letter-spacing:.12em;margin-right:4px">行囊兑换物</span>` + D.hold.map(h => `<span class="hold"><span class="mi">${ICONS(h[0])}</span>${h[1]} <b>× ${h[2]}</b></span>`).join("") : "") +
+  D.subs.map((s, i) => `<button class="cw cw-d cw-chip ${i === D.subOn ? "is-selected" : ""}"><span class="cw-label">${s}</span></button>`).join("") +
+  `<span class="hint">${D.hint}</span></div>`;
+
+// 商品格
+const rows = Math.ceil(Math.max(D.cards.length, D.cols * 2) / D.cols);
+html += `<div class="grid ${D.cols === 3 ? "bundle" : ""}" style="grid-template-columns:repeat(${D.cols},1fr);grid-template-rows:repeat(2,1fr)">` +
+  D.cards.map(c => {
+    const art = c.img
+      ? `<img src="${c.img}">${c.imgTag ? `<span class="ph-tag" style="background:rgba(60,40,10,.85)">${c.imgTag}</span>` : ""}`
+      : `<span class="ic">${ICONS(c.ic, c.tint || "#e8c878")}</span>${c.ph ? `<span class="ph-tag">占位</span>` : ""}`;
+    let pr;
+    if (c.owned) pr = `<div class="pr state owned">已拥有</div>`;
+    else if (c.state) pr = `<div class="pr state ${c.state[0]}">${c.state[0] === "lock" ? V4.lockIco(18, "#b8a080") : ""}${c.state[1]}</div>`;
+    else if (c.trade) pr = `<div class="pr"><span style="width:20px;height:20px;display:inline-block">${ICONS(c.trade[0])}</span><span>${c.trade[1]}</span></div>`;
+    else pr = `<div class="pr">${priceHTML(c.price[0], c.price[1], 19)}</div>`;
+    return `<div class="card ${c.sel ? "sel" : ""} ${c.dim ? "dim" : ""}">
+      <div class="art">${art}</div>
+      ${c.rar ? `<span class="rar ${c.rar}">${{ su: "素", zhen: "珍", rui: "瑞" }[c.rar]}</span>` : ""}
+      ${c.ribbon ? `<span class="ribbon">${c.ribbon}</span>` : ""}
+      ${c.owned ? `<span class="owned-seal">${V4.checkSeal(28)}</span>` : ""}
+      <div class="nm">${c.nm}</div><div class="sb">${c.sb}</div>${pr}</div>`;
+  }).join("") + `</div>`;
+
+// 预览
+const P = D.pv;
+const pvImg = P.kind === "scene"
+  ? `<img class="scene" src="${P.src}">`
+  : `<div class="halo"></div><img class="sprite" src="${P.src}">${P.ph ? `<span class="ph-tag">占位</span>` : ""}`;
+const pvPrice = P.trade
+  ? `<div class="price"><span style="width:26px;height:26px;display:inline-block">${ICONS(P.trade[0])}</span>${P.trade[1]}</div>`
+  : `<div class="price">${priceHTML(P.price[0], P.price[1], 26)}</div>`;
+html += `<div class="lacq preview" id="preview">
+  <div class="pv-head"><span>试穿预览 · 顾山</span><span class="tog"><span>原装</span><b>试穿中</b></span></div>
+  <div class="pv-img">${pvImg}<div class="cap">${P.cap}</div></div>
+  <div class="pv-name"><span class="n">${P.name}</span><span class="rar ${P.rar}">${{ su: "素", zhen: "珍", rui: "瑞" }[P.rar]}</span><span class="tier">${P.tier}</span></div>
+  <div class="pv-desc">${P.desc}</div>
+  <div class="pv-note">${P.note}</div>
+  <div class="pv-buy">${pvPrice}<button class="cw cw-d cw-primary"><span class="cw-label">${P.btn}</span></button></div>
+</div>`;
+
+stage.innerHTML = html;
+["banner", "preview"].forEach(i => V4.decorate(document.getElementById(i)));
+document.querySelectorAll(".card.sel").forEach(el => V4.decorate(el, true, "#ffe9a0"));
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+/* v6 · 把 v5 D「镂空窗棂」按钮样式套进 v4 线框。只放线框语境下的覆盖与适配 */
+/* 线框里是暗底：常态透光略调亮，保证 1x 下可读、可辨 */
+.cw-d { --lop: .82; --lt1: rgba(255, 210, 140, .85); --lt2: rgba(206, 118, 46, .55); }
+.cw-d.cw-tab { --lop: .62; color: #e2c47e; }
+.cw-d.cw-chip { --lop: .7; }
+.cw-d:hover:not(:disabled):not(.is-disabled) { --lop: 1; }
+
+/* —— 顶部：返回 / 页名 / 货币条 —— */
+.topleft .cw-back { height: 46px; min-width: 132px; font-size: 17px; letter-spacing: .14em; }
+.topleft .cw-back .cw-label { padding: 0 16px 0 10px; gap: 8px; }
+.cw-back .arr { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0;
+  background: radial-gradient(circle at 35% 30%, #ffe9a0, #d4a24a 45%, #8a5a18 100%); border: 1px solid #5a3a10;
+  box-shadow: 0 0 8px rgba(255, 200, 110, .5); }
+.page-title.d { color: #f5e0a0; letter-spacing: .3em; text-shadow: 0 0 10px rgba(255, 200, 110, .35), 0 1px 2px #000;
+  background: linear-gradient(180deg, rgba(62, 40, 18, .96), rgba(28, 18, 8, .96));
+  border: 1px solid #c9a045; border-radius: 4px;
+  box-shadow: inset 0 0 0 3px rgba(16, 10, 4, .9), inset 0 0 0 4px rgba(232, 200, 120, .35), 0 3px 10px rgba(0, 0, 0, .5); }
+.page-title.d .pt-sub { color: #cdb483; }
+
+/* 静态框（非按钮）：复用 cw-d 质感，去掉指针和位移 */
+.cw.dframe { cursor: default; }
+.cw.dframe:hover { transform: none; }
+.currency-bar .dframe { height: 42px; min-width: 186px; --ring: 6px; --lop: .55; font: 700 15px/1 var(--sans); letter-spacing: .04em; color: #f5e6c0; }
+.currency-bar .dframe .cw-label { justify-content: flex-start; gap: 8px; padding: 0 12px 0 14px; }
+.currency-bar .dframe .lb { font-family: var(--serif); color: var(--gold); font-size: 15px; }
+.currency-bar .dframe .val { font-variant-numeric: tabular-nums; color: #fff4d8; }
+.currency-bar .dframe .plus { position: static; transform: none; margin-left: auto; }
+
+/* 卡片：选中卡外圈透暖光（与按钮同一套镂空光） */
+.card.sel, .oc.sel { border: 1px solid #ffe6a0 !important;
+  box-shadow: 0 0 0 1px #140a04, 0 0 0 2px rgba(255, 220, 140, .7), 0 0 20px 3px rgba(255, 170, 70, .42) !important; }
+.card.sel::before, .oc.sel::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 6px; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 40%, #fff4c8, #f09a3a);
+  mask: var(--cw-lattice) 0 0 / 12px 6px round, linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: intersect, exclude; }
+.card, .oc { box-shadow: inset 0 1px 0 rgba(255, 225, 170, .12), inset 0 0 0 2px rgba(20, 12, 4, .8), 0 4px 10px rgba(0, 0, 0, .45); }
+
+/* 选中态在 1x 下要一眼可辨：中心漆板被照亮 + 字更亮 */
+.cw-d.cw-tab.is-selected { --pglow: rgba(255, 196, 96, .62); --panel1: #5c3a16; --panel2: #2c1a08; color: #fffaf0; }
+.cw-d.cw-tab:not(.is-selected) { --panel1: #2e1e0e; --panel2: #170e05; }
