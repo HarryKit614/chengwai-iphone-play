@@ -531,7 +531,7 @@
       <div class="set-row"><div class="sr-t">恢复演示余额</div><div class="sr-d">把薪币、道薪恢复为 124,860 ／ 2,350。已拥有的物件不变。</div><button class="cw cw-d cw-secondary" data-set="bal"><span class="cw-label">恢复</span></button></div>
       <div class="set-row"><div class="sr-t">重置系统存档</div><div class="sr-d">货币、行囊和出战立绘回到初始。</div><button class="cw cw-d cw-secondary" data-set="sys"><span class="cw-label">重置</span></button></div>
       <div class="set-row"><div class="sr-t">重置剧情进度</div><div class="sr-d">主线「渡气」读档点、共处状态、轻触台词进度回到开头。</div><button class="cw cw-d cw-secondary" data-set="story"><span class="cw-label">重置</span></button></div>
-      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925o · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
+      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925p · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
     </div></div>`;
     mount("gp", html, ["gp-main"]);
     $$("[data-set]", scr.page).forEach((b) => b.addEventListener("click", () => {
