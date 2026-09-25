@@ -71,7 +71,7 @@
 #hub.hub-film { background: #100c09; }
 .hub-film-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; pointer-events: none; background: #100c09; }
 .hub-hit { position: absolute; z-index: 6; margin: 0; padding: 0; border: 0; background: transparent; cursor: pointer; }
-#hub.hub-film .hub-touch { z-index: 2; left: 340px; top: 70px; right: 0; bottom: 78px; }
+#hub.hub-film .hub-touch { z-index: 2; left: 340px; top: 70px; right: 0; bottom: 190px; }
 #hub.hub-film .hub-aside { right: 56px; top: auto; bottom: 150px; width: 460px; z-index: 7; }
 #hub.hub-film.on ~ #dock { visibility: hidden; pointer-events: none; }
 .hub-shade-top { position: absolute; left: 0; right: 0; top: 0; height: 96px; pointer-events: none; z-index: 3;
