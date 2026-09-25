@@ -114,6 +114,43 @@
     const pct = mingPct(mingOf(it && it.id));
     return base.map((v) => Math.round(v * (100 + pct) / 100));
   }
+  const FRAME = {
+    cloth_a: { stroke: "#c4a06a", gold: "#e7d3b0", fill: "rgba(92,58,28,.42)", glow: "rgba(127,191,180,.55)",
+      d: "M14,58 L24,44 L18,28 L34,32 L42,14 L54,30 L70,20 L74,40 L64,52 L70,68 L50,58 L42,74 L26,62 L14,72 Z",
+      mark: `<path d="M30,46 L34,58 M48,40 L44,54" stroke="#7fbfb4" stroke-width="1.7" fill="none"/>`,
+      mid: `<path d="M8,16 L16,8 L22,14 L30,4 L38,14 L46,8 L54,16 L46,22 L36,16 L28,24 L18,18 Z" fill="rgba(92,58,28,.45)" stroke="#c4a06a" stroke-width="1.2"/><path d="M30,10 L28,20" stroke="#7fbfb4" stroke-width="1.4"/>` },
+    cloth_b: { stroke: "#c5d0ea", gold: "#8e9bb8", fill: "rgba(18,16,36,.55)", glow: "rgba(170,186,220,.5)",
+      d: "M8,46 C12,30 26,28 34,38 C36,18 54,14 62,32 C74,22 84,38 72,48 C80,60 62,70 50,58 C46,74 28,70 26,56 C12,68 2,58 8,46 Z",
+      mark: `<path d="M54,18 A9,9 0 1 1 53.9,18.2" fill="#e4ecf8" stroke="none"/><path d="M58,18 A6,6 0 1 0 58,32 A5,5 0 1 1 58,18" fill="#12101f"/>`,
+      mid: `<path d="M6,16 C14,6 28,8 32,16 C40,4 58,8 62,18 C52,14 40,20 32,16 C24,22 12,20 6,16 Z" fill="rgba(18,16,36,.6)" stroke="#c5d0ea" stroke-width="1.1"/><circle cx="34" cy="12" r="3.2" fill="#e4ecf8"/>` },
+    cloth_c: { stroke: "#e2b45e", gold: "#fff0c4", fill: "rgba(210,160,70,.22)", glow: "rgba(255,214,130,.6)",
+      d: "M16,54 C4,40 16,24 30,34 C28,12 50,6 60,26 C74,10 90,28 74,42 C86,52 74,70 56,60 C52,78 30,74 30,58 C16,72 6,64 16,54 Z",
+      mark: `<circle cx="48" cy="36" r="5" fill="#fff6d4" stroke="#e2b45e" stroke-width="1.2"/><path d="M48,26 V30 M48,42 V46 M38,36 H42 M54,36 H58" stroke="#fff0c4" stroke-width="1.1"/>`,
+      mid: `<path d="M4,16 C12,4 24,8 28,16 C34,2 52,6 56,16 C48,10 36,18 28,14 C20,20 10,18 4,16 Z" fill="rgba(255,220,140,.28)" stroke="#e2b45e" stroke-width="1.2"/><circle cx="30" cy="11" r="3" fill="#fff6d4"/>` },
+    cloth_d: { stroke: "#b7c0c8", gold: "#e6ebf0", fill: "rgba(36,42,48,.5)", glow: "rgba(190,198,206,.28)",
+      d: "M20,50 C18,36 30,30 38,38 C40,24 54,22 58,36 C68,30 76,40 68,50 C76,62 62,68 54,58 C50,70 36,66 34,56 C24,66 16,60 20,50 Z",
+      mark: `<rect x="40" y="40" width="9" height="9" fill="none" stroke="#d5dde3" stroke-width="1.15" transform="rotate(45 44.5 44.5)"/>`,
+      mid: `<path d="M10,14 H26 L32,8 L38,14 H58" fill="none" stroke="#b7c0c8" stroke-width="1.2"/><rect x="29" y="11" width="6" height="6" fill="none" stroke="#e6ebf0" stroke-width="1" transform="rotate(45 32 14)"/>` },
+    cloth_e: { stroke: "#8ecfc4", gold: "#e4d0a2", fill: "rgba(28,72,64,.4)", glow: "rgba(120,200,188,.5)",
+      d: "M10,44 C14,26 30,24 36,36 C38,16 58,12 64,32 C78,22 86,40 72,48 C78,60 60,64 52,54 C50,70 32,72 30,54 C16,66 2,56 10,44 Z",
+      mark: `<path d="M28,62 L26,76 M40,66 L41,78 M54,60 L57,74" stroke="#e4d0a2" stroke-width="1.3" fill="none"/>`,
+      mid: `<path d="M8,12 C16,4 26,8 30,14 C36,4 50,6 54,14 C46,10 36,16 30,12 C22,16 14,14 8,12 Z" fill="rgba(28,72,64,.45)" stroke="#8ecfc4" stroke-width="1.1"/><path d="M24,14 L22,24 M36,14 L37,24 M48,14 L50,22" stroke="#e4d0a2" stroke-width="1.1"/>` },
+    cloth_f: { stroke: "#f08a48", gold: "#ffd2a8", fill: "rgba(110,36,12,.4)", glow: "rgba(255,110,50,.5)",
+      d: "M18,66 C12,50 26,46 30,30 C32,46 44,24 48,8 C54,28 66,22 70,40 C82,34 84,54 70,60 C74,76 54,78 48,62 C36,80 16,76 18,66 Z",
+      mark: `<path d="M46,34 C44,42 50,46 48,54 C54,46 56,40 52,32 C50,36 48,36 46,34 Z" fill="#ffb060"/>`,
+      mid: `<path d="M12,20 C16,8 26,12 28,4 C32,14 42,6 46,16 C56,8 64,16 60,22 C48,16 36,24 24,18 C18,22 12,20 12,20 Z" fill="rgba(160,48,12,.45)" stroke="#f08a48" stroke-width="1.1"/>` },
+    cloth_g: { stroke: "#f0d78a", gold: "#fff6d2", fill: "rgba(90,58,16,.28)", glow: "rgba(255,214,120,.7)",
+      d: "M12,50 C6,32 24,26 34,36 C32,14 54,8 64,28 C78,14 92,32 76,46 C88,56 72,74 56,62 C52,80 28,76 28,60 C12,74 2,62 12,50 Z",
+      mark: `<path d="M46,30 L52,40 L46,50 L40,40 Z" fill="#fff6d2" stroke="#f0d78a" stroke-width="0.8"/><path d="M22,48 C30,40 42,40 50,48" fill="none" stroke="#fff6d2" stroke-width="0.9" opacity=".8"/>`,
+      mid: `<path d="M4,16 C12,4 24,8 30,16 C36,2 54,6 60,16 C50,10 38,18 30,14 C20,20 10,18 4,16 Z" fill="rgba(240,200,100,.25)" stroke="#f0d78a" stroke-width="1.15"/><path d="M30,8 L33,14 L30,20 L27,14 Z" fill="#fff6d2"/>` }
+  };
+  function fullMing(it) { return !!(it && it.slot === "cloth" && mingOf(it.id) >= 6 && FRAME[it.id]); }
+  function frameHTML(it) {
+    if (!fullMing(it)) return "";
+    const p = FRAME[it.id];
+    const cn = (cls) => `<svg class="cn ${cls}" viewBox="0 0 96 80"><path d="${p.d}" fill="${p.fill}" stroke="${p.stroke}" stroke-width="1.7" stroke-linejoin="round"/>${p.mark}</svg>`;
+    return `<span class="ming-frame" style="--mf:${p.stroke};--mg:${p.gold};--glow:${p.glow}">${cn("tl")}${cn("tr")}${cn("bl")}${cn("br")}<svg class="mid t" viewBox="0 0 68 28">${p.mid}</svg><svg class="mid b" viewBox="0 0 68 28">${p.mid}</svg></span>`;
+  }
   function clothPool(grade) {
     return D.ITEM_LIST.filter((it) => it.slot === "cloth" && it.grade === grade);
   }
@@ -452,8 +489,8 @@
       else if (it.slot === "fu") sb = `${it.fuType} · ${it.sub || ""}`;
       else sb = `${D.SLOT_NAME[it.slot]} · ${it.desc.split(/[，。]/)[0]}`;
       const dim = st.k === "lock" || st.k === "task";
-      return `<button class="card ${it.id === selId ? "sel" : ""} ${dim ? "dim" : ""}" data-id="${it.id}">
-        <div class="art">${cardArt(it)}</div>${rar(it.grade)}${it.period ? `<span class="ribbon">${it.period}</span>` : ""}
+      return `<button class="card ${it.id === selId ? "sel" : ""} ${dim ? "dim" : ""}${fullMing(it) ? " ming6" : ""}" data-id="${it.id}">
+        ${frameHTML(it)}<div class="art">${cardArt(it)}</div>${rar(it.grade)}${it.period ? `<span class="ribbon">${it.period}</span>` : ""}
         ${st.k === "owned" ? `<span class="owned-seal">${V4.checkSeal(28)}</span>` : ""}
         <div class="nm">${it.n}</div><div class="sb">${sb}</div>${pr}</button>`;
     }).join("");
@@ -522,7 +559,7 @@
     const wishGo = it.src === "许愿" && st.k !== "owned";
     return `<div class="lacq preview" id="ts-preview">
       <div class="pv-head"><span>试穿预览 · 顾山</span><span class="tog"><span>原装</span><b>试穿中</b></span></div>
-      <div class="pv-img">${img}<div class="cap">${cap}</div></div>
+      <div class="pv-img${fullMing(it) ? " ming6" : ""}">${frameHTML(it)}${img}<div class="cap">${cap}</div></div>
       <div class="pv-name"><span class="n">${it.n}</span>${rar(it.grade)}<span class="tier">${tier}</span></div>
       <div class="pv-body scroll"><div class="pv-desc">${it.desc}</div><div class="pv-note">${note}</div></div>
       <div class="pv-buy">${price}${goYg}<button class="cw cw-d cw-primary" id="${wishGo ? "pv-xuyuan" : "pv-buy"}" ${dis ? "disabled" : ""}><span class="cw-label">${btn}</span></button></div></div>`;
@@ -584,7 +621,7 @@
     const ml = mingLine(it);
     let html = topLeft("出战", "选一张立绘进副本 · 主线不换形象", "战") + currencyBar(false);
     html += `<div class="lacq battle" id="bt-main">
-      <div class="bt-cg"><img src="${it.cg}" alt="${it.n}"><span class="cg-tag">当前出战 · <b>${it.n}</b> · ${D.GRADE[it.grade]} · ${mingOf(it.id)}命 · 战力 +${attrSum(ml.attrs)}</span><button class="cg-full" data-cgview="${it.id}">全图</button></div>
+      <div class="bt-cg${fullMing(it) ? " ming6" : ""}">${frameHTML(it)}<img src="${it.cg}" alt="${it.n}"><span class="cg-tag">当前出战 · <b>${it.n}</b> · ${D.GRADE[it.grade]} · ${mingOf(it.id)}命 · 战力 +${attrSum(ml.attrs)}</span><button class="cg-full" data-cgview="${it.id}">全图</button></div>
       <div class="bt-side">
         <div class="bt-t">立绘</div>
         <div class="bt-d">${ml.text}。重复抽到的这张会拆成碎片。</div>
@@ -592,7 +629,7 @@
           const on = p.id === it.id;
           const have = owns(p.id);
           const bonus = have ? attrSum(clothAttrs(p)) : 0;
-          return `<button class="paint ${on ? "on" : ""} ${have ? "" : "no"}" data-paint="${p.id}"><img src="${p.img}" alt=""><b>${p.n}</b><small>${have ? `${D.GRADE[p.grade]} ${mingOf(p.id)}命 +${bonus}` : "未有"}</small></button>`;
+          return `<button class="paint ${on ? "on" : ""} ${have ? "" : "no"}${fullMing(p) ? " ming6" : ""}" data-paint="${p.id}">${frameHTML(p)}<img src="${p.img}" alt=""><b>${p.n}</b><small>${have ? `${D.GRADE[p.grade]} ${mingOf(p.id)}命 +${bonus}` : "未有"}</small></button>`;
         }).join("") + `</div>
         <button class="cw cw-d cw-secondary" id="yg-ming" ${ml.dis ? "disabled" : ""}><span class="cw-label">${ml.btn}</span></button>
         <button class="cw cw-d cw-primary" id="yg-battle"><span class="cw-label">进入副本</span></button>
@@ -632,7 +669,7 @@
     const ok = power >= foe;
     let html = topLeft("副本", "出战用选定立绘 · 主线不改", "战") + currencyBar(false);
     html += `<div class="lacq battle" id="bt-main">
-      <div class="bt-cg"><img src="${it.cg}" alt="${it.n}"><span class="cg-tag">出战 · <b>${it.n}</b> · ${D.GRADE[it.grade]}</span></div>
+      <div class="bt-cg${fullMing(it) ? " ming6" : ""}">${frameHTML(it)}<img src="${it.cg}" alt="${it.n}"><span class="cg-tag">出战 · <b>${it.n}</b> · ${D.GRADE[it.grade]}</span></div>
       <div class="bt-side">
         <div class="bt-t">山道遇袭</div>
         <div class="bt-d">顾山以「${it.n}」进入这场副本。主线「渡气」仍是剧情里的原定形象，不会换成这身。</div>
@@ -647,7 +684,7 @@
 
   /* ================= 许愿 ================= */
   function showPulls(rows) {
-    const cards = rows.map((r) => `<div class="pull-card ${r.it.grade}${r.wish ? " wish" : ""}"><img src="${r.it.img}" alt=""><b>${r.it.n}</b><span>${D.GRADE[r.it.grade]}${r.wish ? " · 心愿" : ""}</span><em>${r.neu ? "新获得 · 0命" : "分解 +" + r.frag}</em></div>`).join("");
+    const cards = rows.map((r) => `<div class="pull-card ${r.it.grade}${r.wish ? " wish" : ""}${fullMing(r.it) ? " ming6" : ""}">${frameHTML(r.it)}<img src="${r.it.img}" alt=""><b>${r.it.n}</b><span>${D.GRADE[r.it.grade]}${r.wish ? " · 心愿" : ""}</span><em>${r.neu ? "新获得 · 0命" : fullMing(r.it) ? "满命卡面 · 分解 +" + r.frag : "分解 +" + r.frag}</em></div>`).join("");
     modal.innerHTML = `<div class="lacq mbox pull-box" id="mbox"><div class="mt">${rows.length > 1 ? "十连" : "单抽"}</div><div class="pull-grid">${cards}</div><div class="mbtns"><button class="cw cw-d cw-primary" data-m="ok"><span class="cw-label">收下</span></button></div></div>`;
     V4.decorate($("#mbox"));
     modal.classList.add("on"); modal.setAttribute("aria-hidden", "false");
@@ -683,12 +720,12 @@
     const zhens = clothPool("zhen").map((it) => it.n).join("、");
     let html = topLeft("许愿", "立绘卡池 · 重复自动分解", "愿") + currencyBar(false);
     html += `<div class="lacq battle" id="xy-main">
-      <div class="bt-cg"><img src="${wish.cg}" alt="${wish.n}"><span class="cg-tag">心愿 · <b>${wish.n}</b> · 极品</span><button class="cg-full" data-cgview="${wish.id}">全图</button></div>
+      <div class="bt-cg${fullMing(wish) ? " ming6" : ""}">${frameHTML(wish)}<img src="${wish.cg}" alt="${wish.n}"><span class="cg-tag">心愿 · <b>${wish.n}</b> · 极品${fullMing(wish) ? " · 满命卡面" : ""}</span><button class="cg-full" data-cgview="${wish.id}">全图</button></div>
       <div class="bt-side xy-side">
         <div class="bt-t">卡池</div>
         <div class="bt-d">凡品 ${Math.round(G.rate.fan * 1000) / 10}%（${fans}）<br>珍品 ${Math.round(G.rate.zhen * 1000) / 10}%（${zhens}）<br>极品 ${Math.round(G.rate.ji * 1000) / 10}%（三张均分，心愿不加权）</div>
         <div class="bt-p">小保底 <b>${S.pityJi}/${G.pityJi}</b> 随机极品<br>大保底 <b>${S.pityWish}/${G.pityWish}</b> 必出心愿<br>同一抽出两保底时，出心愿。非心愿极品只清小保底。</div>
-        <div class="wish-row">` + jis.map((it) => `<button class="paint ${it.id === wish.id ? "on" : ""}" data-wish="${it.id}"><img src="${it.img}" alt=""><b>${it.n}</b><small>${owns(it.id) ? mingOf(it.id) + "命 · 碎片" + fragOf(it.id) : "未有"}</small></button>`).join("") + `</div>
+        <div class="wish-row">` + jis.map((it) => `<button class="paint ${it.id === wish.id ? "on" : ""}${fullMing(it) ? " ming6" : ""}" data-wish="${it.id}">${frameHTML(it)}<img src="${it.img}" alt=""><b>${it.n}</b><small>${owns(it.id) ? mingOf(it.id) + "命 · 碎片" + fragOf(it.id) : "未有"}</small></button>`).join("") + `</div>
         <button class="cw cw-d cw-secondary" id="xy-one"><span class="cw-label">单抽 ${G.cost}</span></button>
         <button class="cw cw-d cw-primary" id="xy-ten"><span class="cw-label">十连 ${fmt(G.cost10)}</span></button>
       </div></div>`;
@@ -730,13 +767,13 @@
     if (opt.tab) xnTab = opt.tab;
     const TABS = [["look", "外观"], ["fu", "符箓"]].concat(D.BAG_CATS);
     let cells = [];
-    if (xnTab === "look") cells = S.owned.map((id) => D.ITEMS[id]).filter((it) => it && it.slot !== "fu").map((it) => ({ n: it.n, st: D.SLOT_NAME[it.slot], ic: it.ic, tint: it.tint, g: it.grade, line: `${it.n}（${D.GRADE[it.grade]} · ${D.SLOT_NAME[it.slot]}）：${it.desc}` }));
+    if (xnTab === "look") cells = S.owned.map((id) => D.ITEMS[id]).filter((it) => it && it.slot !== "fu").map((it) => ({ id: it.id, slot: it.slot, n: it.n, st: D.SLOT_NAME[it.slot], ic: it.ic, tint: it.tint, g: it.grade, img: it.img, line: `${it.n}（${D.GRADE[it.grade]} · ${D.SLOT_NAME[it.slot]}${fullMing(it) ? " · 满命卡面" : ""}）：${it.desc}` }));
     else if (xnTab === "fu") cells = S.owned.map((id) => D.ITEMS[id]).filter((it) => it && it.slot === "fu").map((it) => ({ n: it.n, st: "不计战力", ic: it.ic, tint: it.tint, img: it.img, g: it.grade, line: `${it.n}（${it.fuType}）：不再提供属性，战力在出战立绘上。` }));
     else cells = Object.keys(S.bag).filter((id) => S.bag[id] > 0 && D.BAG[id] && D.BAG[id].cat === xnTab).map((id) => ({ n: D.BAG[id].n, st: { keep: "信物", mat: "材料", use: "共处用品", swap: "兑换物" }[xnTab], ic: D.BAG[id].ic, tint: D.BAG[id].tint, q: S.bag[id], line: `${D.BAG[id].n}：${D.BAG[id].line}` }));
     let html = topLeft("行囊", "天市购得 · 行职所得", "囊") + currencyBar(false);
     html += `<div class="lacq main" id="gp-main"><div class="gtabs">` + TABS.map(([k, n]) => { const on = k === xnTab; return `<button class="cw cw-d cw-tab ${on ? "is-selected" : ""}" ${on ? 'aria-selected="true"' : ""} data-xn="${k}" style="min-width:112px"><span class="cw-label">${n}</span></button>`; }).join("") +
       `<span class="note">共 ${cells.length} 种</span></div><div class="gbody scroll" style="bottom:96px">` +
-      (cells.length ? `<div class="bag-grid">` + cells.map((c, i) => `<button class="oc" data-xi="${i}"><div class="art">${c.img ? `<img src="${c.img}" alt="">` : `<span class="ic">${icon(c.ic, c.tint)}</span><span class="ph-tag">占位</span>`}</div>${c.g ? rar(c.g) : ""}${c.q ? `<span class="qty">× ${c.q}</span>` : ""}<div class="nm">${c.n}</div><div class="st">${c.st}</div></button>`).join("") + `</div>` : `<div class="tip">这一格还空着。去行职录或天市看看。</div>`) +
+      (cells.length ? `<div class="bag-grid">` + cells.map((c, i) => `<button class="oc${fullMing(c) ? " ming6" : ""}" data-xi="${i}">${frameHTML(c)}<div class="art">${c.img ? `<img src="${c.img}" alt="">` : `<span class="ic">${icon(c.ic, c.tint)}</span><span class="ph-tag">占位</span>`}</div>${c.g ? rar(c.g) : ""}${c.q ? `<span class="qty">× ${c.q}</span>` : ""}<div class="nm">${c.n}</div><div class="st">${c.st}</div></button>`).join("") + `</div>` : `<div class="tip">这一格还空着。去行职录或天市看看。</div>`) +
       `</div><div class="bag-detail" id="xn-detail"><b>行囊</b><span>点一件物品看详情。出战只选立绘，符箓不计战力。</span></div></div>`;
     mount("gp", html, ["gp-main"]);
     $$("[data-xn]", scr.page).forEach((b) => b.addEventListener("click", () => renderXingnang({ tab: b.dataset.xn })));
@@ -753,7 +790,7 @@
       <div class="set-row"><div class="sr-t">恢复演示余额</div><div class="sr-d">把薪币、道薪恢复为 124,860 ／ 2,350。已拥有的物件不变。</div><button class="cw cw-d cw-secondary" data-set="bal"><span class="cw-label">恢复</span></button></div>
       <div class="set-row"><div class="sr-t">重置系统存档</div><div class="sr-d">货币、行囊和出战立绘回到初始。</div><button class="cw cw-d cw-secondary" data-set="sys"><span class="cw-label">重置</span></button></div>
       <div class="set-row"><div class="sr-t">重置剧情进度</div><div class="sr-d">主线「渡气」读档点、共处状态、轻触台词进度回到开头。</div><button class="cw cw-d cw-secondary" data-set="story"><span class="cw-label">重置</span></button></div>
-      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925v · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
+      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925w · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
     </div></div>`;
     mount("gp", html, ["gp-main"]);
     $$("[data-set]", scr.page).forEach((b) => b.addEventListener("click", () => {
