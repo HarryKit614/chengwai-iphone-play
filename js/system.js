@@ -427,25 +427,21 @@
     ];
     if (!S.liefu) S.liefu = { hair: 1, lower: 1, top: 1, sash: 1, bow: 1, pouch: 1 };
     const wearingLiefu = eq.cloth === "cloth_a";
-    const liefuAll = wearingLiefu && LIEFU.every((p) => S.liefu[p.id]);
+    const liefuKeys = ["hair", "lower", "top", "sash", "bow", "pouch"];
+    const liefuMask = liefuKeys.reduce((m, k, i) => m | (S.liefu[k] ? (1 << i) : 0), 0);
     const selIt = yg.sel && yg.sel !== "__none" ? D.ITEMS[yg.sel] : null;
     const previewOther = selIt && selIt.slot === "cloth" && selIt.id !== "cloth_a" && selIt.cg ? selIt : null;
-    const cgIt = previewOther || (wearingLiefu ? (liefuAll ? D.ITEMS.cloth_a : null) : (eq.cloth && D.ITEMS[eq.cloth] && D.ITEMS[eq.cloth].cg ? D.ITEMS[eq.cloth] : null));
+    const cgIt = previewOther || (!wearingLiefu && eq.cloth && D.ITEMS[eq.cloth] && D.ITEMS[eq.cloth].cg ? D.ITEMS[eq.cloth] : null);
+    const bv = ((document.querySelector('meta[name="cw-build"]') || {}).content) || "";
     let cgHTML = "";
-    if (cgIt) {
+    if (wearingLiefu && !previewOther) {
+      cgHTML = `<div class="cg-frame"><img class="cg" src="images/art/outfits/layers/liefu/states/${liefuMask}.jpg?v=${bv}" alt="猎服"></div>
+      <span class="cg-tag">猎服 · 部位 ${liefuMask === 63 ? "全穿" : "已改"}</span>
+      <button class="cg-full" data-cgview="cloth_a">全图</button>`;
+    } else if (cgIt) {
       cgHTML = `<div class="cg-frame"><img class="cg" src="${cgIt.cg}" alt="${cgIt.n}" style="object-position:${cgPos(cgIt, 468, 638)}"></div>
-      <span class="cg-tag">衣装 CG · <b>${cgIt.n}</b>${wearingLiefu && liefuAll && !previewOther ? " · 过关全装" : (eq.cloth === cgIt.id ? " · 穿戴中" : "")}</span>
+      <span class="cg-tag">衣装 CG · <b>${cgIt.n}</b>${eq.cloth === cgIt.id ? " · 穿戴中" : ""}</span>
       <button class="cg-full" data-cgview="${cgIt.id}">全图</button>`;
-    } else if (wearingLiefu) {
-      const on = { body: 1, body_shins: 1 };
-      LIEFU.forEach((p) => { if (S.liefu[p.id]) p.layers.forEach((id) => { on[id] = 1; }); });
-      if (S.liefu.lower) delete on.body_shins;
-      const order = ["acc_bow_back", "hair_back", "body", "body_shins", "lower", "top", "sash", "acc_pouch", "acc_bow_strap", "hair_front"];
-      const bv = ((document.querySelector('meta[name="cw-build"]') || {}).content) || "";
-      cgHTML = `<div class="layer-stack">` + order.filter((id) => on[id]).map((id) =>
-        `<img src="images/art/outfits/layers/liefu/${id}.png?v=${bv}" alt="">`).join("") + `</div>
-        <span class="cg-tag">猎服分层 · 卸下的部位已从身上拿掉</span>
-        <button class="cg-full" data-cgview="cloth_a">全图</button>`;
     }
     const SET_KEY = { cloth_a: "liefu", cloth_b: "yechang", cloth_c: "rijian", cloth_d: "suan", cloth_e: "yusuo", cloth_f: "dongao", cloth_g: "duqi" };
     const SET_PARTS = [
@@ -535,13 +531,21 @@
     $$("[data-cgview]", root).forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); cgView(D.ITEMS[b.dataset.cgview]); }));
     if (cgIt) $(".dais .cg-frame", root).addEventListener("click", () => cgView(cgIt));
     $$("[data-who]", root).forEach((b) => b.addEventListener("click", () => { if (b.dataset.lock === "1") toast(b.dataset.who + " · 尚未解锁"); }));
-    $$("[data-part]", root).forEach((b) => b.addEventListener("click", (e) => {
+    $$("[data-setpart]", root).forEach((b) => b.addEventListener("click", (e) => {
       e.stopPropagation();
-      const id = b.dataset.part;
-      S.liefu[id] = S.liefu[id] ? 0 : 1;
-      save();
-      toast(S.liefu[id] ? `已穿上「${LIEFU.find((p) => p.id === id).n}」` : `已卸下「${LIEFU.find((p) => p.id === id).n}」`);
-      renderYiguan({});
+      const sp = b.dataset.setpart.split(":");
+      const cloth = sp[0], part = sp[1];
+      const meta = SET_PARTS.find((p) => p.id === part);
+      if (cloth === "cloth_a") {
+        S.equipped.cloth = "cloth_a";
+        yg.slot = "cloth"; yg.sel = "cloth_a";
+        S.liefu[meta.liefu] = S.liefu[meta.liefu] ? 0 : 1;
+        toast(S.liefu[meta.liefu] ? `已穿上猎服「${meta.n}」` : `已卸下猎服「${meta.n}」`);
+      } else {
+        S.equipped.cloth = cloth; yg.slot = "cloth"; yg.sel = cloth;
+        toast(`已换上「${D.ITEMS[cloth].n}」的「${meta.n}」。这套还是整张图，还没叠到同一身体上。`);
+      }
+      save(); renderYiguan({});
     }));
     $$("[data-slot]", root).forEach((b) => b.addEventListener("click", () => renderYiguan({ slot: b.dataset.slot })));
     $$("[data-oc]", root).forEach((b) => b.addEventListener("click", () => {
