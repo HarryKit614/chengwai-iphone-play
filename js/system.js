@@ -131,8 +131,14 @@
   function show(name) {
     cur = name;
     Object.keys(scr).forEach((k) => scr[k].classList.toggle("on", k === name));
+    scr.hub.classList.toggle("hub-film", name === "hub");
     dock.classList.toggle("on", name === "hub" || name === "scene");
     if (name === "hub") setDockSel(null);
+    const vid = $(".hub-film-vid", scr.hub);
+    if (vid) {
+      if (name === "hub") { vid.muted = true; const p = vid.play(); if (p && p.catch) p.catch(function () {}); }
+      else vid.pause();
+    }
   }
   function setDockSel(tab) {
     $$(".dock-btn", dock).forEach((b) => {
@@ -168,29 +174,45 @@
     { k: "tianshi", n: "天市", ico: "tianshi" },
     { k: "shuwu", n: "署务", ico: "shuwu" }
   ];
+  const BUILD = ((document.querySelector('meta[name="cw-build"]') || {}).content) || "";
+  const HUB_HITS = [
+    ["xingzhi", "行职录", 32, 142, 276, 76],
+    ["yiguan", "出战", 32, 224, 276, 82],
+    ["xingnang", "行囊", 32, 314, 276, 78],
+    ["tianshi", "天市", 32, 400, 276, 76],
+    ["shuwu", "署务", 32, 486, 276, 70]
+  ];
+  const DOCK_HITS = [["home", "在场"], ["story", "主线"], ["home-life", "共处"], ["gallery", "图鉴"]];
   function renderHub() {
-    const it = D.ITEMS[(S.equipped && S.equipped.cloth) || "cloth_a"] || D.ITEMS.cloth_a;
     scr.hub.classList.remove("hub-rui", "hub-zhen");
-    if (it.grade === "rui" || it.grade === "zhen") scr.hub.classList.add(it.grade === "rui" ? "hub-rui" : "hub-zhen");
+    scr.hub.classList.add("hub-film");
     applySkin();
-    scr.hub.style.backgroundImage = `url("${it.cg}")`;
-    const focusX = it.grade === "rui" ? 78 : it.grade === "zhen" ? 74 : 70;
-    scr.hub.style.backgroundPosition = focusX + "% 42%";
-    const paints = D.ITEM_LIST.filter((p) => p.slot === "cloth" && p.cg && owns(p.id));
-    const picks = paints.map((p) => `<button type="button" class="hub-pick ${p.id === it.id ? "on" : ""}" data-hubpaint="${p.id}"><img src="${p.img}" alt="${p.n}"></button>`).join("");
+    scr.hub.style.backgroundImage = "none";
+    const hits = HUB_HITS.map(([k, n, x, y, w, h]) =>
+      `<button type="button" class="hub-hit" data-page="${k}" aria-label="${n}" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px"></button>`).join("");
+    const docks = DOCK_HITS.map(([k, n], i) =>
+      `<button type="button" class="hub-hit" data-dock="${k}" aria-label="${n}" style="left:${250 + i * 195}px;top:656px;width:190px;height:56px"></button>`).join("");
     scr.hub.innerHTML = `
-      <div class="hub-shade-top"></div><div class="hub-side"></div>
-      <div class="hub-band"><span class="cloud l">${cloudSvg}</span><span class="cloud r">${cloudSvg}</span></div>
+      <video class="hub-film-vid" src="images/ui/hub_live.mp4?v=${BUILD}" poster="" muted playsinline webkit-playsinline loop autoplay preload="auto"></video>
       <button type="button" class="hub-touch" aria-label="顾山"></button>
-      <div class="hub-title"><div class="tf"><svg viewBox="0 0 220 46" preserveAspectRatio="none"><rect x="1.5" y="1.5" width="217" height="43" fill="none" stroke="#c9a045" stroke-width="1.6"/><rect x="4.5" y="4.5" width="211" height="37" fill="none" stroke="#8a6020" stroke-width="0.7" opacity=".7"/></svg>廿四道·城外</div><div class="seal-box">外</div></div>
-            <button class="cw cw-d cw-chip hub-chapter" data-go="story"><span class="cw-label">主线 · <b>第一章「渡气」</b></span></button>
-      ${currencyBar(true)}
-      <div class="sidebar">${SIDE.map((s) => `<div class="side-wrap"><button class="cw cw-d cw-secondary side-btn" data-page="${s.k}"><span class="cw-label"><span class="sb-icon">${HUB_ICONS[s.ico]}</span><span>${s.n}</span></span></button><span class="tassel">${HUB_ICONS.tassel}</span></div>`).join("")}</div>
-      <div class="hub-picks">${picks}</div><span class="hub-look">${it.grade === "rui" ? "瑞品主殿 · " : it.grade === "zhen" ? "珍品主殿 · " : ""}${it.n}</span>
+      ${hits}
+      <button type="button" class="hub-hit" data-act="plus" aria-label="薪币" style="left:948px;top:34px;width:156px;height:58px"></button>
+      <button type="button" class="hub-hit" data-act="plus" aria-label="道薪" style="left:1112px;top:34px;width:150px;height:58px"></button>
+      ${docks}
       <p class="hub-aside" id="hub-aside"></p>`;
+    const vid = $(".hub-film-vid", scr.hub);
+    vid.muted = true;
+    vid.playsInline = true;
     bindCommon(scr.hub);
     $$("[data-page]", scr.hub).forEach((b) => b.addEventListener("click", () => openPage(b.dataset.page)));
-    $("[data-go=story]", scr.hub).addEventListener("click", () => window.CW_SCENE && window.CW_SCENE.openStory());
+    $$("[data-dock]", scr.hub).forEach((b) => b.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const tab = b.dataset.dock;
+      if (tab === "home" && window.CW_SCENE) window.CW_SCENE.goPresence();
+      else if (tab === "story" && window.CW_SCENE) window.CW_SCENE.openStory();
+      else if (tab === "home-life" && window.CW_SCENE) window.CW_SCENE.openPanel("home-life");
+      else if (tab === "gallery") openPage("tujian");
+    }));
     let gi = 0;
     const lines = ["……你回来了。外头雨小了点。", "看我做什么。我在这儿，不走。", "天市那边别乱花。想要什么，跟我说。", "火我添过了。你坐近些。"];
     $(".hub-touch", scr.hub).addEventListener("click", () => {
@@ -200,15 +222,6 @@
       void line.offsetWidth;
       line.classList.add("show");
     });
-    $$("[data-hubpaint]", scr.hub).forEach((b) => b.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const pid = b.dataset.hubpaint;
-      if (!owns(pid) || S.equipped.cloth === pid) return;
-      S.equipped.cloth = pid;
-      save();
-      toast(`主页换成「${D.ITEMS[pid].n}」`);
-      renderHub();
-    }));
   }
   function goHub() { renderHub(); show("hub"); }
 
@@ -531,7 +544,7 @@
       <div class="set-row"><div class="sr-t">恢复演示余额</div><div class="sr-d">把薪币、道薪恢复为 124,860 ／ 2,350。已拥有的物件不变。</div><button class="cw cw-d cw-secondary" data-set="bal"><span class="cw-label">恢复</span></button></div>
       <div class="set-row"><div class="sr-t">重置系统存档</div><div class="sr-d">货币、行囊和出战立绘回到初始。</div><button class="cw cw-d cw-secondary" data-set="sys"><span class="cw-label">重置</span></button></div>
       <div class="set-row"><div class="sr-t">重置剧情进度</div><div class="sr-d">主线「渡气」读档点、共处状态、轻触台词进度回到开头。</div><button class="cw cw-d cw-secondary" data-set="story"><span class="cw-label">重置</span></button></div>
-      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925p · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
+      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925q · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
     </div></div>`;
     mount("gp", html, ["gp-main"]);
     $$("[data-set]", scr.page).forEach((b) => b.addEventListener("click", () => {
