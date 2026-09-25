@@ -3,7 +3,7 @@
 (function () {
   const XB = "xb", DX = "dx";
   // 品级：凡品 / 珍品 / 瑞品（外观按价位归档：薪币档=凡品，道薪<150=珍品，道薪≥150=瑞品；任务得=凡品）
-  const GRADE = { fan: "凡品", zhen: "珍品", rui: "瑞品" };
+  const GRADE = { fan: "凡品", zhen: "珍品", rui: "瑞品", ji: "极品" };
   const ATTRS = ["耳目", "筋骨", "隐迹", "明断", "推演", "神思"];
 
   const SLOTS = [
@@ -34,12 +34,12 @@
   add({ id: "hair_f", n: "夜猎半束", slot: "hair", grade: "zhen", price: [DX, 90], desc: "半束半散，夜里跟他上山时的发型。", ic: "hair_bun", tint: "#b8a8d8" });
   // 衣服
   add({ id: "cloth_a", n: "猎服", slot: "cloth", grade: "fan", def: 1, src: "默认", desc: "土褐破猎服，雨青内襟。默认穿着。", ic: "cloth" });
-  add({ id: "cloth_b", n: "夜氅", slot: "cloth", grade: "fan", price: [XB, 1500], desc: "深色夜行披。同槽互斥，穿上替换当前衣服。", ic: "cloak", tint: "#b8a8d8" });
+  add({ id: "cloth_b", n: "夜氅", slot: "cloth", grade: "ji", src: "许愿", srcLong: "许愿卡池极品。80 抽小保底随机极品，120 抽大保底出心愿。", desc: "深色夜行披。极品立绘，隐迹偏高。", ic: "cloak", tint: "#b8a8d8" });
   add({ id: "cloth_c", n: "日间旅服", slot: "cloth", grade: "fan", price: [XB, 1200], desc: "整洁旅装，像是要带你进城。", ic: "cloth", tint: "#d8c8a0" });
-  add({ id: "cloth_d", n: "素暗礼服", slot: "cloth", grade: "zhen", price: [DX, 120], desc: "见礼用的素暗袍，他穿着有点拘谨。", ic: "cloak", tint: "#a0b8c0" });
+  add({ id: "cloth_d", n: "素暗礼服", slot: "cloth", grade: "zhen", src: "许愿", srcLong: "许愿卡池珍品。", desc: "见礼用的素暗袍，他穿着有点拘谨。", ic: "cloak", tint: "#a0b8c0" });
   add({ id: "cloth_e", n: "雨蓑外袍", slot: "cloth", grade: "fan", src: "行职解锁", srcLong: "行职解锁，或以物换物：山货皮 × 3", trade: ["swap_hide", 3], desc: "破祠雨意。蓑草压在肩上，下摆还带着一点山路的泥。", ic: "cloak", tint: "#9fd0c8" });
-  add({ id: "cloth_f", n: "山火冬袄", slot: "cloth", grade: "fan", price: [XB, 2000], desc: "厚实，暖色补丁，是他自己缝的。", ic: "cloth", tint: "#f0a070" });
-  add({ id: "cloth_g", n: "渡气见证袍", slot: "cloth", grade: "rui", price: [DX, 180], desc: "暖金暗纹，带一点神性。章节也会赠。", ic: "cloak", tint: "#ffd870" });
+  add({ id: "cloth_f", n: "山火冬袄", slot: "cloth", grade: "ji", src: "许愿", srcLong: "许愿卡池极品。", desc: "厚实，暖色补丁，是他自己缝的。极品立绘，筋骨偏高。", ic: "cloth", tint: "#f0a070" });
+  add({ id: "cloth_g", n: "渡气见证袍", slot: "cloth", grade: "ji", src: "许愿", srcLong: "许愿卡池极品。心愿默认是这一件。", desc: "暖金暗纹，带一点神性。极品立绘，神思偏高。", ic: "cloak", tint: "#ffd870" });
   // 配饰 · 头饰
   add({ id: "head_cord", n: "麻绳束带", slot: "acc_head", grade: "fan", price: [XB, 300], desc: "一截麻绳，随手束发。", ic: "head" });
   add({ id: "head_bone_pin", n: "骨木细簪", slot: "acc_head", grade: "fan", price: [XB, 600], desc: "骨与木削成的细簪。", ic: "head", tint: "#e8dcc0" });
@@ -106,9 +106,32 @@
     const c = CG[it.id]; if (!c) return;
     it.cg = CG_DIR + c[0] + ".jpg?v=" + BV; it.img = CG_DIR + c[0] + "_thumb.jpg?v=" + BV; it.cgX = c[1]; it.cgY = c[2];
   });
-  const PAINT_ATTR = { fan: [3, 2, 2, 1, 1, 1], zhen: [6, 4, 3, 3, 3, 3], rui: [10, 6, 4, 5, 5, 6] };
+  const PAINT_ATTR = { fan: [3, 2, 2, 1, 1, 1], zhen: [6, 4, 3, 3, 3, 3], rui: [10, 6, 4, 5, 5, 6], ji: [12, 9, 8, 8, 8, 10] };
+  const CLOTH_ATTR = {
+    cloth_a: [4, 3, 2, 2, 1, 1],
+    cloth_c: [3, 2, 3, 2, 2, 1],
+    cloth_e: [2, 3, 4, 1, 2, 2],
+    cloth_d: [7, 5, 4, 6, 5, 4],
+    cloth_b: [12, 8, 14, 7, 8, 9],
+    cloth_f: [14, 12, 6, 8, 7, 8],
+    cloth_g: [10, 9, 8, 12, 11, 14]
+  };
+  const GACHA = {
+    cost: 160,
+    cost10: 1500,
+    rate: { ji: 0.015, zhen: 0.135, fan: 0.85 },
+    pityJi: 80,
+    pityWish: 120,
+    frag: { fan: 15, zhen: 8, ji: 3 },
+    costMing: {
+      fan: [15, 30, 45, 70, 100, 140],
+      zhen: [8, 16, 28, 44, 64, 90],
+      ji: [3, 6, 10, 16, 24, 36]
+    },
+    mingStep: [8, 10, 14, 18, 24, 32]
+  };
   I.forEach((it) => {
-    if (it.slot === "cloth") it.attrs = (PAINT_ATTR[it.grade] || PAINT_ATTR.fan).slice();
+    if (it.slot === "cloth") it.attrs = (CLOTH_ATTR[it.id] || PAINT_ATTR[it.grade] || PAINT_ATTR.fan).slice();
     if (it.slot === "fu") it.attrs = [0, 0, 0, 0, 0, 0];
   });
   const ITEMS = {};
@@ -174,6 +197,12 @@
     bag: { keep_ash: 1, mat_paper: 2, mat_cinnabar: 1, mat_rain_ink: 1, swap_hide: 3, swap_leaf: 5 },
     fuTier: {},
     bought: {},
+    ming: { cloth_a: 0, cloth_g: 0 },
+    frags: {},
+    pityJi: 0,
+    pityWish: 0,
+    wish: "cloth_g",
+    pulls: 0,
     equipped: { hair: "hair_a", cloth: "cloth_a", acc_head: null, acc_ear: null, acc_neck: "neck_bone_wood", acc_hand: "hand_bracer", acc_waist: null, acc_back: null, emo: "emo_idle", fu: null },
     plan: 1,
     plans: {
@@ -185,5 +214,5 @@
   const DEFAULT_OUTFIT = { hair: "hair_a", cloth: "cloth_a", acc_head: null, acc_ear: null, acc_neck: null, acc_hand: null, acc_waist: null, acc_back: null, emo: "emo_idle", fu: null };
   const GU_BASE = [20, 10, 10, 10, 10, 10]; // 初识：主属性耳目 20，其余 10（示意）
 
-  window.CW_DATA = { XB, DX, GRADE, ATTRS, SLOTS, SLOT_NAME, ITEMS, ITEM_LIST: I, BAG, BAG_CATS, BUNDLES, TASKS, DEFAULT_SAVE, DEFAULT_OUTFIT, GU_BASE };
+  window.CW_DATA = { XB, DX, GRADE, ATTRS, SLOTS, SLOT_NAME, ITEMS, ITEM_LIST: I, BAG, BAG_CATS, BUNDLES, TASKS, DEFAULT_SAVE, DEFAULT_OUTFIT, GU_BASE, GACHA, CLOTH_ATTR };
 })();

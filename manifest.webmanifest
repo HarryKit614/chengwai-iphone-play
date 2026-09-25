@@ -1,12 +1,12 @@
 {
   "name": "廿四道·城外",
   "short_name": "城外",
-  "start_url": "./index.html?v=20260925u",
+  "start_url": "./index.html?v=20260925v",
   "scope": "./",
   "display": "standalone",
   "orientation": "landscape",
   "background_color": "#0b0908",
   "theme_color": "#1a1410",
   "lang": "zh-CN",
-  "version": "20260925u"
+  "version": "20260925v"
 }

@@ -63,6 +63,7 @@
 .rar.fan { background: #6a5a3a; color: #f0e2c0; border: 1px solid #a08a60; }
 .rar.zhen { background: #2e5a56; color: #e0f4ee; border: 1px solid #7fb3aa; }
 .rar.rui { background: linear-gradient(180deg,#d0582e,#8c1e14); color: #fff0c8; border: 1px solid #f0c060; }
+.rar.ji { background: linear-gradient(180deg,#fff1b8,#c9a24a 55%,#7d5a16); color: #3a2808; border: 1px solid #fff6d0; box-shadow: 0 0 8px rgba(255,220,140,.45); }
 .ph-tag { position: absolute; font-family: var(--sans); font-size: 14px; line-height: 1.35; color: #fff4d8; background: rgba(140,30,20,.85);
   padding: 1px 6px; border-radius: 2px; letter-spacing: .05em; z-index: 4; white-space: nowrap; }
 
@@ -589,6 +590,21 @@
 .bt-r { margin-top: 18px; font-size: 18px; color: #e7b0a0; }
 .bt-r.ok { color: #ffd870; }
 .bt-side .cw { position: absolute; left: 0; bottom: 8px; width: 220px; height: 52px; }
+.bt-side #yg-ming, .bt-side #xy-one { left: 0; width: 168px; }
+.bt-side #yg-battle, .bt-side #xy-ten { left: 180px; width: 188px; }
+.xy-side .bt-d, .xy-side .bt-p { margin-top: 8px; font-size: 14px; line-height: 1.45; }
+.xy-side .bt-t { font-size: 22px; }
+.wish-row { margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+#modal .pull-box { width: 1080px; padding: 22px 24px 20px; }
+#modal .pull-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 14px 0 18px; }
+#modal .pull-grid:has(.pull-card:only-child) { grid-template-columns: 220px; justify-content: center; }
+.pull-card { display: flex; flex-direction: column; gap: 2px; padding: 6px; border: 1px solid rgba(201,160,69,.5); background: rgba(16,10,4,.72); color: #f0e2c4; text-align: left; }
+.pull-card img { width: 100%; height: 92px; object-fit: cover; display: block; }
+.pull-card b { font-size: 15px; letter-spacing: .06em; }
+.pull-card span, .pull-card em { font-style: normal; font-size: 13px; color: #c9a045; }
+.pull-card.ji { border-color: #ffe08a; box-shadow: 0 0 10px rgba(255,216,112,.35); }
+.pull-card.zhen { border-color: #7fb3aa; }
+.pull-card.wish { box-shadow: 0 0 14px rgba(255,230,160,.7); }
 .paint-list { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 430px; overflow: auto; padding-bottom: 64px; }
 .paint { display: flex; flex-direction: column; gap: 2px; padding: 4px; border: 1px solid rgba(201,160,69,.45); background: rgba(20,12,4,.55); color: #f0e2c4; text-align: left; cursor: pointer; }
 .paint img { width: 100%; height: 52px; object-fit: cover; display: block; }

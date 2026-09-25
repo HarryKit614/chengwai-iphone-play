@@ -45,6 +45,11 @@
       S.bought = d.bought || {}; S.fuTier = d.fuTier || {};
     }
     D.ITEM_LIST.forEach((it) => { if (it.def && !S.owned.includes(it.id)) S.owned.push(it.id); });
+    if (!S.ming || typeof S.ming !== "object") S.ming = {};
+    if (!S.frags || typeof S.frags !== "object") S.frags = {};
+    ["pityJi", "pityWish", "pulls"].forEach((k) => { if (typeof S[k] !== "number" || S[k] < 0) S[k] = 0; });
+    if (!D.ITEMS[S.wish] || D.ITEMS[S.wish].slot !== "cloth" || D.ITEMS[S.wish].grade !== "ji") S.wish = "cloth_g";
+    S.owned.forEach((id) => { const it = D.ITEMS[id]; if (it && it.slot === "cloth" && S.ming[id] == null) S.ming[id] = 0; });
     applySkin();
   }
   function applySkin() {
@@ -96,6 +101,53 @@
     }).join("") + `</div>`;
   }
   const attrSum = (attrs) => attrs.reduce((a, b) => a + b, 0);
+  function mingOf(id) { return (S.ming && S.ming[id]) || 0; }
+  function fragOf(id) { return (S.frags && S.frags[id]) || 0; }
+  function mingPct(ming) {
+    const steps = D.GACHA.mingStep;
+    let pct = 0;
+    for (let i = 0; i < ming && i < steps.length; i++) pct += steps[i];
+    return pct;
+  }
+  function clothAttrs(it) {
+    const base = (it && it.attrs) || [0, 0, 0, 0, 0, 0];
+    const pct = mingPct(mingOf(it && it.id));
+    return base.map((v) => Math.round(v * (100 + pct) / 100));
+  }
+  function clothPool(grade) {
+    return D.ITEM_LIST.filter((it) => it.slot === "cloth" && it.grade === grade);
+  }
+  function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
+  function grantPull(it) {
+    const neu = !owns(it.id);
+    let frag = 0;
+    if (neu) {
+      S.owned.push(it.id);
+      S.ming[it.id] = 0;
+    } else {
+      frag = D.GACHA.frag[it.grade] || D.GACHA.frag.fan;
+      S.frags[it.id] = fragOf(it.id) + frag;
+    }
+    return { it, neu, frag, ji: it.grade === "ji", wish: it.id === S.wish };
+  }
+  function pullOne() {
+    const G = D.GACHA;
+    S.pityJi += 1;
+    S.pityWish += 1;
+    S.pulls += 1;
+    const wish = D.ITEMS[S.wish];
+    let it;
+    if (S.pityWish >= G.pityWish) it = wish;
+    else if (S.pityJi >= G.pityJi) it = pick(clothPool("ji"));
+    else {
+      const r = Math.random();
+      const grade = r < G.rate.ji ? "ji" : r < G.rate.ji + G.rate.zhen ? "zhen" : "fan";
+      it = pick(clothPool(grade));
+    }
+    if (it.grade === "ji") S.pityJi = 0;
+    if (it.id === wish.id) S.pityWish = 0;
+    return grantPull(it);
+  }
   /* 衣装 CG：16:9 原图按 cover 填入 bw×bh 框时，按人物焦点算 object-position，不拉伸 */
   function cgPos(it, bw, bh) {
     const k = Math.max(bw / 1280, bh / 720), sw = 1280 * k, sh = 720 * k;
@@ -295,7 +347,7 @@
   /* ---------------- 系统页路由 ---------------- */
   function openPage(k, opt) {
     opt = opt || {};
-    const R = { tianshi: renderTianshi, yiguan: renderYiguan, xingzhi: renderXingzhi, xingnang: renderXingnang, shuwu: renderShuwu, tujian: renderTujian, battle: renderBattle };
+    const R = { tianshi: renderTianshi, yiguan: renderYiguan, xingzhi: renderXingzhi, xingnang: renderXingnang, shuwu: renderShuwu, tujian: renderTujian, battle: renderBattle, xuyuan: renderXuyuan };
     if (!R[k]) return;
     R[k](opt);
     show("page");
@@ -366,7 +418,7 @@
 
     const BN = {
       fu: { thumb: "images/ui/thumb_fu_floor.png", k: "天市符 · 按期上新", t: "第壹期「烛夜长明」", d: "本期上新：烛夜长明、山君护身<br>符材随期更换，不限于黄纸", time: "9月25日 — 10月8日", left: "本期余 13 日" },
-      waiguan: { thumb: D.ITEMS.cloth_b.img, k: "天市外观 · 常驻", t: "顾山 · 出战立绘", d: "买下整张立绘，到「出战」里选用<br>不再拆成头发、配饰分开穿", time: "薪币／道薪分开标价", left: "常驻不下架" },
+      waiguan: { thumb: D.ITEMS.cloth_g.img, k: "天市外观 · 常驻", t: "凡品可买 · 珍品极品许愿", d: "凡品用薪币或行职换<br>珍品、极品只在许愿卡池", time: "极品 1.5% · 80／120 保底", left: "去许愿" },
       libao: { ic: "bundle", k: "礼包 · 暂只一款", t: "新人礼包", d: "外观拆成部件入库，可混搭<br>外观礼包、道具礼包以后再加", time: "限购一次", left: "内容暂定" },
       jiaohuan: { ic: "hide", k: "以物换物 · 不花道薪", t: "行职兑换物换外观", d: "山货皮出自道途行职<br>山叶签出自日常行职", time: "只换「行职解锁」外观", left: "兑换物在行囊" }
     }[ts.tab];
@@ -378,14 +430,14 @@
     if (ts.tab === "waiguan") subs = WG_SUBS.map((s, i) => [s[0], i]);
     if (ts.tab === "fu") subs = FU_SUBS.map((s, i) => [s, i]);
     if (ts.tab === "libao") subs = [["全部礼包", 0]];
-    const hint = { waiguan: "立绘买下后到「出战」选用", fu: "符箓不计战力 · 不售的标来源", libao: "礼包暂只一个 · 内容暂定", jiaohuan: "只换已有的行职立绘 · 不花道薪" }[ts.tab];
+    const hint = { waiguan: "衣服里的珍品、极品去许愿", fu: "符箓不计战力 · 不售的标来源", libao: "礼包暂只一个 · 内容暂定", jiaohuan: "只换已有的行职立绘 · 不花道薪" }[ts.tab];
     html += `<div class="subtabs">`;
     if (ts.tab === "jiaohuan") {
       html += `<span class="hold-lb">行囊兑换物</span>` + ["swap_hide", "swap_leaf"].map((id) => `<span class="hold"><span class="mi">${icon(D.BAG[id].ic)}</span>${D.BAG[id].n} <b>× ${bagQty(id)}</b></span>`).join("");
     } else {
       html += subs.map(([s, i]) => { const on = i === ts.sub[ts.tab]; return `<button class="cw cw-d cw-chip ${on ? "is-selected" : ""}" ${on ? 'aria-selected="true"' : ""} data-sub="${i}"><span class="cw-label">${s}</span></button>`; }).join("");
     }
-    html += `<span class="hint">${hint}</span></div>`;
+    html += `<span class="hint">${hint}</span><button class="cw cw-d cw-chip" data-go-xuyuan><span class="cw-label">许愿</span></button></div>`;
 
     const cols = ts.tab === "libao" ? 3 : 4;
     let cards = list.map((it) => {
@@ -422,6 +474,10 @@
     if (buyBtn) buyBtn.addEventListener("click", () => doBuy(sel));
     const goYg = $("#pv-goyg", scr.page);
     if (goYg) goYg.addEventListener("click", () => openPage("yiguan", { slot: sel.slot || "cloth" }));
+    const goXy = $("[data-go-xuyuan]", scr.page);
+    if (goXy) goXy.addEventListener("click", () => openPage("xuyuan"));
+    const pvXy = $("#pv-xuyuan", scr.page);
+    if (pvXy) pvXy.addEventListener("click", () => openPage("xuyuan"));
     $$("[data-cgview]", scr.page).forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); cgView(D.ITEMS[b.dataset.cgview]); }));
     const pvCg = $(".pv-img img.cg", scr.page);
     if (pvCg && sel && sel.cg) pvCg.addEventListener("click", () => cgView(sel));
@@ -450,7 +506,8 @@
       const how = it.slot === "cloth"
         ? (it.price ? "买下后可在「出战」里选这张进副本。" : `来源：${it.srcLong || it.src}。`)
         : `来源：${it.srcLong || it.src || "暂不穿戴"}。换装已取消，这件不单独上身。`;
-      note = how + (it.slot === "cloth" && it.attrs ? `<br>出战战力 +${attrSum(it.attrs)}（${D.GRADE[it.grade]}）。主线形象不变。` : "") + (it.trade ? `<br>也可以物换物：${D.BAG[it.trade[0]].n} × ${it.trade[1]}。` : "");
+      const live = it.slot === "cloth" ? clothAttrs(it) : null;
+      note = how + (live ? `<br>出战战力 +${attrSum(live)}（${D.GRADE[it.grade]}${owns(it.id) ? " · " + mingOf(it.id) + "命" : ""}）。主线形象不变。` : "") + (it.trade ? `<br>也可以物换物：${D.BAG[it.trade[0]].n} × ${it.trade[1]}。` : "");
     }
     let price = "", btn = "购买", dis = false;
     if (st.k === "owned") { dis = true; btn = st.t; price = it.price ? `<div class="price">${priceHTML(it.price, 26)}</div>` : ""; }
@@ -460,14 +517,15 @@
     } else if (st.k === "trade") {
       price = `<div class="price"><span class="mi">${icon(D.BAG[st.tr[0]].ic)}</span>${D.BAG[st.tr[0]].n} × ${st.tr[1]}</div>`;
       btn = "兑换"; if (bagQty(st.tr[0]) < st.tr[1]) { dis = true; btn = "兑换物不足"; }
-    } else { price = `<div class="price"><small>${it.src || "行职解锁"}</small></div>`; btn = "不售"; dis = true; }
+    } else { price = `<div class="price"><small>${it.src || "行职解锁"}</small></div>`; btn = it.src === "许愿" ? "去许愿" : "不售"; dis = it.src !== "许愿"; }
     const goYg = st.k === "owned" && it.slot === "cloth" ? `<button class="cw cw-d cw-chip go-yg" id="pv-goyg"><span class="cw-label">设为出战</span></button>` : "";
+    const wishGo = it.src === "许愿" && st.k !== "owned";
     return `<div class="lacq preview" id="ts-preview">
       <div class="pv-head"><span>试穿预览 · 顾山</span><span class="tog"><span>原装</span><b>试穿中</b></span></div>
       <div class="pv-img">${img}<div class="cap">${cap}</div></div>
       <div class="pv-name"><span class="n">${it.n}</span>${rar(it.grade)}<span class="tier">${tier}</span></div>
       <div class="pv-body scroll"><div class="pv-desc">${it.desc}</div><div class="pv-note">${note}</div></div>
-      <div class="pv-buy">${price}${goYg}<button class="cw cw-d cw-primary" id="pv-buy" ${dis ? "disabled" : ""}><span class="cw-label">${btn}</span></button></div></div>`;
+      <div class="pv-buy">${price}${goYg}<button class="cw cw-d cw-primary" id="${wishGo ? "pv-xuyuan" : "pv-buy"}" ${dis ? "disabled" : ""}><span class="cw-label">${btn}</span></button></div></div>`;
   }
   function doBuy(it) {
     const st = itemState(it);
@@ -508,21 +566,35 @@
     const e = D.ITEMS[S.equipped.emo];
     return e && e.sprite ? e.sprite : "idle";
   }
+  function mingLine(it) {
+    const m = mingOf(it.id);
+    const attrs = clothAttrs(it);
+    const G = D.GACHA;
+    const have = fragOf(it.id);
+    if (m >= 6) return { attrs, text: `满命 6 · 碎片 ${have}（先留着）`, btn: "已满命", dis: true };
+    const need = (G.costMing[it.grade] || G.costMing.fan)[m];
+    const next = m + 1;
+    const gain = G.mingStep[m];
+    return { attrs, need, text: `${m}命 · 碎片 ${have}/${need} · 升到 ${next}命 全属性 +${gain}%`, btn: have >= need ? `升到${next}命` : "碎片不足", dis: have < need };
+  }
   function renderYiguan() {
     const id = S.equipped.cloth || "cloth_a";
     const it = D.ITEMS[id] || D.ITEMS.cloth_a;
     const paints = D.ITEM_LIST.filter((p) => p.slot === "cloth" && p.cg);
+    const ml = mingLine(it);
     let html = topLeft("出战", "选一张立绘进副本 · 主线不换形象", "战") + currencyBar(false);
     html += `<div class="lacq battle" id="bt-main">
-      <div class="bt-cg"><img src="${it.cg}" alt="${it.n}"><span class="cg-tag">当前出战 · <b>${it.n}</b> · ${D.GRADE[it.grade]} · 战力 +${attrSum(it.attrs || [])}</span><button class="cg-full" data-cgview="${it.id}">全图</button></div>
+      <div class="bt-cg"><img src="${it.cg}" alt="${it.n}"><span class="cg-tag">当前出战 · <b>${it.n}</b> · ${D.GRADE[it.grade]} · ${mingOf(it.id)}命 · 战力 +${attrSum(ml.attrs)}</span><button class="cg-full" data-cgview="${it.id}">全图</button></div>
       <div class="bt-side">
         <div class="bt-t">立绘</div>
-        <div class="bt-d">点一张就换上。这一张的战力只在副本里算。</div>
+        <div class="bt-d">${ml.text}。重复抽到的这张会拆成碎片。</div>
         <div class="paint-list">` + paints.map((p) => {
           const on = p.id === it.id;
           const have = owns(p.id);
-          return `<button class="paint ${on ? "on" : ""} ${have ? "" : "no"}" data-paint="${p.id}"><img src="${p.img}" alt=""><b>${p.n}</b><small>${have ? `${D.GRADE[p.grade]} +${attrSum(p.attrs || [])}` : "未有"}</small></button>`;
+          const bonus = have ? attrSum(clothAttrs(p)) : 0;
+          return `<button class="paint ${on ? "on" : ""} ${have ? "" : "no"}" data-paint="${p.id}"><img src="${p.img}" alt=""><b>${p.n}</b><small>${have ? `${D.GRADE[p.grade]} ${mingOf(p.id)}命 +${bonus}` : "未有"}</small></button>`;
         }).join("") + `</div>
+        <button class="cw cw-d cw-secondary" id="yg-ming" ${ml.dis ? "disabled" : ""}><span class="cw-label">${ml.btn}</span></button>
         <button class="cw cw-d cw-primary" id="yg-battle"><span class="cw-label">进入副本</span></button>
       </div></div>`;
     mount("gp", html, ["bt-main"]);
@@ -539,14 +611,24 @@
       renderYiguan();
     }));
     $("#yg-battle", root).addEventListener("click", () => openPage("battle"));
+    const up = $("#yg-ming", root);
+    if (up) up.addEventListener("click", () => {
+      const cur = mingLine(it);
+      if (cur.dis) { toast(mingOf(it.id) >= 6 ? "已经满命" : "碎片不够"); return; }
+      S.frags[it.id] = fragOf(it.id) - cur.need;
+      S.ming[it.id] = mingOf(it.id) + 1;
+      save();
+      toast(`「${it.n}」升到 ${S.ming[it.id]} 命`);
+      renderYiguan();
+    });
   }
 
   function renderBattle() {
     const it = D.ITEMS[S.equipped.cloth] || D.ITEMS.cloth_a;
-    const bonus = it.attrs || [0, 0, 0, 0, 0, 0];
+    const bonus = clothAttrs(it);
     const base = D.GU_BASE.reduce((a, b) => a + b, 0);
     const power = base + attrSum(bonus);
-    const foe = it.grade === "rui" ? 100 : it.grade === "zhen" ? 90 : 88;
+    const foe = it.grade === "ji" || it.grade === "rui" ? 100 : it.grade === "zhen" ? 90 : 88;
     const ok = power >= foe;
     let html = topLeft("副本", "出战用选定立绘 · 主线不改", "战") + currencyBar(false);
     html += `<div class="lacq battle" id="bt-main">
@@ -554,13 +636,73 @@
       <div class="bt-side">
         <div class="bt-t">山道遇袭</div>
         <div class="bt-d">顾山以「${it.n}」进入这场副本。主线「渡气」仍是剧情里的原定形象，不会换成这身。</div>
-        <div class="bt-p">战力 <b>${power}</b> · 关卡 ${foe}<br>${D.ATTRS.map((a, i) => `${a} ${D.GU_BASE[i] + bonus[i]}`).join(" · ")}</div>
+        <div class="bt-p">战力 <b>${power}</b> · 关卡 ${foe} · ${mingOf(it.id)}命<br>${D.ATTRS.map((a, i) => `${a} ${D.GU_BASE[i] + bonus[i]}`).join(" · ")}</div>
         <div class="bt-r ${ok ? "ok" : ""}">${ok ? "战力够，这一关过了。" : "这身战力不够，换一张更高的立绘再来。"}</div>
         <button class="cw cw-d cw-secondary" id="bt-back"><span class="cw-label">换一张立绘</span></button>
       </div>
     </div>`;
     mount("gp", html, ["bt-main"]);
     $("#bt-back", scr.page).addEventListener("click", () => openPage("yiguan", { slot: "cloth" }));
+  }
+
+  /* ================= 许愿 ================= */
+  function showPulls(rows) {
+    const cards = rows.map((r) => `<div class="pull-card ${r.it.grade}${r.wish ? " wish" : ""}"><img src="${r.it.img}" alt=""><b>${r.it.n}</b><span>${D.GRADE[r.it.grade]}${r.wish ? " · 心愿" : ""}</span><em>${r.neu ? "新获得 · 0命" : "分解 +" + r.frag}</em></div>`).join("");
+    modal.innerHTML = `<div class="lacq mbox pull-box" id="mbox"><div class="mt">${rows.length > 1 ? "十连" : "单抽"}</div><div class="pull-grid">${cards}</div><div class="mbtns"><button class="cw cw-d cw-primary" data-m="ok"><span class="cw-label">收下</span></button></div></div>`;
+    V4.decorate($("#mbox"));
+    modal.classList.add("on"); modal.setAttribute("aria-hidden", "false");
+    $("[data-m]", modal).addEventListener("click", (e) => {
+      e.stopPropagation();
+      modal.classList.remove("on"); modal.setAttribute("aria-hidden", "true"); modal.innerHTML = "";
+      renderXuyuan();
+    });
+  }
+  function doPull(n) {
+    const G = D.GACHA;
+    const cost = n === 10 ? G.cost10 : G.cost;
+    if (S.dx < cost) { toast("道薪不足"); return; }
+    confirmBox({
+      title: n === 10 ? "十连许愿" : "单抽",
+      okText: "抽出",
+      body: `花费 ${fmt(cost)} 道薪<br><small>抽出后余 ${fmt(S.dx - cost)} 道薪 · 重复立绘自动分解成碎片</small>`,
+      onOk() {
+        if (S.dx < cost) { toast("道薪不足"); return; }
+        S.dx -= cost;
+        const rows = [];
+        for (let i = 0; i < n; i++) rows.push(pullOne());
+        save();
+        showPulls(rows);
+      }
+    });
+  }
+  function renderXuyuan() {
+    const G = D.GACHA;
+    const wish = D.ITEMS[S.wish] || D.ITEMS.cloth_g;
+    const jis = clothPool("ji");
+    const fans = clothPool("fan").map((it) => it.n).join("、");
+    const zhens = clothPool("zhen").map((it) => it.n).join("、");
+    let html = topLeft("许愿", "立绘卡池 · 重复自动分解", "愿") + currencyBar(false);
+    html += `<div class="lacq battle" id="xy-main">
+      <div class="bt-cg"><img src="${wish.cg}" alt="${wish.n}"><span class="cg-tag">心愿 · <b>${wish.n}</b> · 极品</span><button class="cg-full" data-cgview="${wish.id}">全图</button></div>
+      <div class="bt-side xy-side">
+        <div class="bt-t">卡池</div>
+        <div class="bt-d">凡品 ${Math.round(G.rate.fan * 1000) / 10}%（${fans}）<br>珍品 ${Math.round(G.rate.zhen * 1000) / 10}%（${zhens}）<br>极品 ${Math.round(G.rate.ji * 1000) / 10}%（三张均分，心愿不加权）</div>
+        <div class="bt-p">小保底 <b>${S.pityJi}/${G.pityJi}</b> 随机极品<br>大保底 <b>${S.pityWish}/${G.pityWish}</b> 必出心愿<br>同一抽出两保底时，出心愿。非心愿极品只清小保底。</div>
+        <div class="wish-row">` + jis.map((it) => `<button class="paint ${it.id === wish.id ? "on" : ""}" data-wish="${it.id}"><img src="${it.img}" alt=""><b>${it.n}</b><small>${owns(it.id) ? mingOf(it.id) + "命 · 碎片" + fragOf(it.id) : "未有"}</small></button>`).join("") + `</div>
+        <button class="cw cw-d cw-secondary" id="xy-one"><span class="cw-label">单抽 ${G.cost}</span></button>
+        <button class="cw cw-d cw-primary" id="xy-ten"><span class="cw-label">十连 ${fmt(G.cost10)}</span></button>
+      </div></div>`;
+    mount("gp", html, ["xy-main"]);
+    const root = scr.page;
+    $$("[data-cgview]", root).forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); cgView(D.ITEMS[b.dataset.cgview]); }));
+    $$("[data-wish]", root).forEach((b) => b.addEventListener("click", () => {
+      S.wish = b.dataset.wish;
+      save();
+      toast(`心愿改为「${D.ITEMS[S.wish].n}」`);
+      renderXuyuan();
+    }));
+    $("#xy-one", root).addEventListener("click", () => doPull(1));
+    $("#xy-ten", root).addEventListener("click", () => doPull(10));
   }
 
   /* ================= 行职录 ================= */
@@ -611,7 +753,7 @@
       <div class="set-row"><div class="sr-t">恢复演示余额</div><div class="sr-d">把薪币、道薪恢复为 124,860 ／ 2,350。已拥有的物件不变。</div><button class="cw cw-d cw-secondary" data-set="bal"><span class="cw-label">恢复</span></button></div>
       <div class="set-row"><div class="sr-t">重置系统存档</div><div class="sr-d">货币、行囊和出战立绘回到初始。</div><button class="cw cw-d cw-secondary" data-set="sys"><span class="cw-label">重置</span></button></div>
       <div class="set-row"><div class="sr-t">重置剧情进度</div><div class="sr-d">主线「渡气」读档点、共处状态、轻触台词进度回到开头。</div><button class="cw cw-d cw-secondary" data-set="story"><span class="cw-label">重置</span></button></div>
-      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925u · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
+      <div class="set-row"><div class="sr-t">关于</div><div class="sr-d">《廿四道·城外》个人自玩 Demo · 版本 20260925v · 16:9 横屏舞台 1280×720。立绘部件层、符箓效果图、礼包内容均为占位或暂定。</div></div>
     </div></div>`;
     mount("gp", html, ["gp-main"]);
     $$("[data-set]", scr.page).forEach((b) => b.addEventListener("click", () => {
@@ -625,7 +767,7 @@
   /* ================= 图鉴（占位） ================= */
   function renderTujian() {
     let html = topLeft("图鉴", "卡面与心迹 · 占位", "鉴") + currencyBar(false);
-    html += `<div class="lacq main" id="gp-main"><div class="gtabs"><button class="cw cw-d cw-tab is-selected" aria-selected="true"><span class="cw-label">男主</span></button><button class="cw cw-d cw-tab" disabled><span class="cw-label">卡面</span></button><button class="cw cw-d cw-tab" disabled><span class="cw-label">心迹</span></button><span class="note">占位页 · 本地自玩，不做抽卡</span></div><div class="gbody scroll"><div class="gal-grid">` +
+    html += `<div class="lacq main" id="gp-main"><div class="gtabs"><button class="cw cw-d cw-tab is-selected" aria-selected="true"><span class="cw-label">男主</span></button><button class="cw cw-d cw-tab" disabled><span class="cw-label">卡面</span></button><button class="cw cw-d cw-tab" disabled><span class="cw-label">心迹</span></button><span class="note">立绘在天市「许愿」</span></div><div class="gbody scroll"><div class="gal-grid">` +
       ROSTER.map((r) => `<div class="gal-card">${r[1] ? `<img src="images/sprites/gu_idle.png" alt="">` : `<div class="lk">${V4.lockIco(44)}</div>`}<div class="gn">${r[0]}<span class="gs">${r[1] ? "第一章 · 渡气" : "待解锁"}</span></div></div>`).join("") +
       `</div><div class="tip" style="margin-top:18px">卡面与心迹将在后续章节解锁。</div></div></div>`;
     mount("gp", html, ["gp-main"]);
