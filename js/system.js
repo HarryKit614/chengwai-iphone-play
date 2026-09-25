@@ -447,8 +447,21 @@
         <span class="cg-tag">猎服分层 · 卸下的部位已从身上拿掉</span>
         <button class="cg-full" data-cgview="cloth_a">全图</button>`;
     }
-    const partHTML = wearingLiefu && !previewOther ? `<div class="liefu-parts">` + LIEFU.map((p) =>
-      `<button class="part ${S.liefu[p.id] ? "on" : ""}" data-part="${p.id}"><img src="images/art/outfits/layers/liefu/${p.icon}" alt=""><span>${p.n}</span></button>`).join("") + `</div>` : "";
+    const SET_KEY = { cloth_a: "liefu", cloth_b: "yechang", cloth_c: "rijian", cloth_d: "suan", cloth_e: "yusuo", cloth_f: "dongao", cloth_g: "duqi" };
+    const SET_PARTS = [
+      { id: "hair", n: "头发", liefu: "hair" },
+      { id: "top", n: "外袍", liefu: "top" },
+      { id: "lower", n: "下装", liefu: "lower" },
+      { id: "sash", n: "腰带", liefu: "sash" },
+      { id: "back", n: "背负", liefu: "bow" },
+      { id: "waist", n: "腰佩", liefu: "pouch" }
+    ];
+    const partCloth = (previewOther || (wearingLiefu ? D.ITEMS.cloth_a : cgIt) || {}).id;
+    const partKey = SET_KEY[partCloth];
+    const partHTML = partKey ? `<div class="liefu-parts">` + SET_PARTS.map((p) => {
+      const on = partCloth === "cloth_a" ? S.liefu[p.liefu] : 1;
+      return `<button class="part ${on ? "on" : ""}" data-setpart="${partCloth}:${p.id}"><img src="images/art/outfits/parts/${partKey}_${p.id}.jpg?v=${((document.querySelector('meta[name="cw-build"]') || {}).content) || ""}" alt=""><span>${p.n}</span></button>`;
+    }).join("") + `</div>` : "";
     html += `<div class="dais ${fuIt ? "has-fu" : ""} ${cgIt || wearingLiefu ? "has-cg" : ""}">${cgHTML}${partHTML}<div class="glow"></div><div class="fu-aura"></div>
       <svg class="ring" viewBox="0 0 440 440"><g fill="none" stroke="#e8c878" stroke-linecap="round">
         <circle cx="220" cy="220" r="200" stroke-width="1.2" opacity=".55"/><circle cx="220" cy="220" r="186" stroke-width=".7" opacity=".4" stroke-dasharray="2 6"/><circle cx="220" cy="220" r="150" stroke-width=".8" opacity=".3"/>
