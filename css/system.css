@@ -95,6 +95,35 @@
 #hub.hub-rui .hub-band { top: 640px; background: linear-gradient(180deg, rgba(40,22,8,0), rgba(40,22,8,.45)); }
 #hub.hub-rui .hub-title .tf { background: linear-gradient(180deg, rgba(255,246,220,.82), rgba(236,204,130,.72)); border-color: rgba(255,226,160,.9); }
 #hub.hub-rui .hub-look { background: rgba(90,48,12,.55); border-color: rgba(255,220,150,.7); color: #fff8e4; }
+#hub.hub-zhen .hub-side { background: linear-gradient(90deg, rgba(16,26,32,.78) 0, rgba(16,26,32,.28) 230px, rgba(16,26,32,0) 330px); }
+#hub.hub-zhen .hub-shade-top { background: linear-gradient(180deg, rgba(14,22,28,.62), rgba(14,22,28,0)); }
+#hub.hub-zhen .hub-band { background: linear-gradient(180deg, rgba(10,16,20,0), rgba(10,16,20,.82)); }
+#hub.hub-zhen .hub-title .tf { color: #1c2830; background: linear-gradient(180deg, rgba(236,244,248,.92), rgba(176,198,210,.84)); border-color: #b7c9d4; }
+#hub.hub-zhen .hub-title svg { filter: grayscale(1) brightness(1.35); }
+#hub.hub-zhen .hub-look { background: rgba(18,30,38,.62); border-color: rgba(186,208,218,.7); color: #f4f8fa; }
+#hub.hub-zhen .hub-aside { color: #f3f7f8; text-shadow: 0 2px 12px rgba(6,10,14,.65); }
+#stage.skin-zhen { --gold: #c5d4de; --gold-hi: #eef4f8; --ivory: #f4f7f8; --ivory-dim: #b7c6d0; }
+#stage.skin-zhen .cw-d {
+  --lt1: rgba(214, 228, 236, .82); --lt2: rgba(92, 124, 142, .5);
+  --panel1: #243038; --panel2: #12181c; --frame: rgba(176, 198, 210, .88);
+  color: #e7eef2; text-shadow: 0 1px 2px #000, 0 0 10px rgba(170, 200, 214, .28);
+  background: repeating-linear-gradient(90deg, rgba(220, 232, 240, .05) 0 1px, transparent 1px 5px), var(--cw-noise), linear-gradient(180deg, #3a4852, #1c262c 50%, #10161a);
+  box-shadow: inset 0 1px 0 rgba(230, 240, 248, .28), inset 0 -2px 3px rgba(0, 0, 0, .55), 0 0 0 1.2px #9eb4c2, 0 0 0 2.4px #0c1014, 0 0 0 3.2px rgba(150, 176, 190, .4), 0 4px 0 1.6px #080c10, 0 10px 15px rgba(0, 0, 0, .6);
+}
+#stage.skin-zhen .cw-d.cw-primary, #stage.skin-zhen .cw-d.cw-chip.is-selected {
+  --lt1: rgba(186, 214, 224, .9); --lt2: rgba(70, 110, 130, .65); --panel1: #1c3a44; --panel2: #0c1c22; color: #e8f4f6;
+}
+#stage.skin-zhen .cw-d.cw-tab { color: #b7c9d4; }
+#stage.skin-zhen .cw-d.is-selected, #stage.skin-zhen .cw-d[aria-selected="true"] {
+  --lt1: #f4f8fb; --lt2: #7aa0b4; --pglow: rgba(180, 210, 224, .42); --frame: #e4eef4; color: #f7fbfd;
+  box-shadow: inset 0 1px 0 rgba(230, 240, 248, .4), 0 0 0 1.4px #d5e4ee, 0 0 0 2.6px #101418, 0 0 0 3.6px rgba(180, 206, 220, .65), 0 4px 0 2px #080c10, 0 0 24px 5px rgba(140, 180, 200, .35), 0 10px 15px rgba(0, 0, 0, .55);
+}
+#stage.skin-zhen .cw-d:active:not(:disabled):not(.is-disabled), #stage.skin-zhen .cw-d.is-pressed {
+  --lt1: rgba(236, 244, 248, .95); --pglow: rgba(170, 200, 216, .32);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, .6), 0 0 0 1.2px #9eb4c2, 0 0 0 2.4px #0c1014, 0 0 0 3.2px rgba(150, 176, 190, .4), 0 0.5px 0 1.6px #080c10, 0 3px 6px rgba(0, 0, 0, .6);
+}
+#stage.skin-zhen #dock .dock-frame { filter: hue-rotate(168deg) saturate(.65) brightness(1.08); }
+#stage.skin-zhen .currency-bar .dframe .lb { color: #d5e2ea; }
 .hub-title { position: absolute; left: 30px; top: 22px; display: flex; align-items: center; gap: 10px; z-index: 4; }
 .hub-title .tf { position: relative; padding: 9px 22px 11px; font-size: 27px; font-weight: 700; letter-spacing: .14em; line-height: 1.1; color: #2a1a08;
   background: linear-gradient(180deg, rgba(252,244,220,.95), rgba(232,214,170,.92) 55%, rgba(210,180,130,.93));
